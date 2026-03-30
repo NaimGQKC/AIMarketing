@@ -1,0 +1,92 @@
+.metric-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  transition: all var(--transition-base);
+}
+
+.metric-card:hover {
+  background: var(--bg-glass-hover);
+  border-color: var(--bg-glass-border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.metric-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-lg);
+}
+
+.metric-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-cyan {
+  background: var(--cyan-dim);
+  color: var(--cyan);
+}
+
+.icon-coral {
+  background: var(--coral-dim);
+  color: var(--coral);
+}
+
+.icon-lavender {
+  background: var(--lavender-dim);
+  color: var(--lavender);
+}
+
+.icon-green {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.icon-amber {
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+
+.metric-card-trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.trend-up {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.trend-down {
+  background: var(--coral-dim);
+  color: var(--coral);
+}
+
+.metric-card-value {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+  line-height: 1;
+}
+
+.metric-card-label {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}

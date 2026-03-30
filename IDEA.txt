@@ -1,0 +1,29 @@
+1. The Core Problem: The "Inference Gap"
+Brands are losing revenue because AI agents are "discarding" them during the reasoning phase. This happens for two main reasons:
+
+Toxic Citations: Agents prioritize high-authority but stale data (like a 2021 Reddit thread) over a brand’s live, technical data.
+
+The Bilingual Crisis (The Montreal Wedge): You identified that LLMs suffer from Token Decay in French. French technical terms are "Scrabble-tiled" into too many tokens, causing the AI’s logic to break down and fail to recommend Montreal brands to French speakers.
+
+2. The Product: A 4-Step Remediation Workflow
+You built a high-fidelity React frontend with a luxury "glassmorphism" aesthetic that follows this loop:
+
+Connect: Syncs PIM data (Shopify/Akeneo) and monitoring tools (Peec/Otterly).
+
+Diagnose: Identifies "Signal Gaps" where AI is lying or ignoring the brand.
+
+Remediate: Deploys "Fix Kits"—including Bilingual JSON-LD to stop French token decay and UCP/ACP feeds to talk directly to Google/OpenAI protocols.
+
+Verify: Uses "Headless Agentic Probing" (running 50+ queries) to prove the AI's reasoning has shifted and the Inference Alignment Score has increased.
+
+3. Current Technical Status
+Frontend: The UI is largely complete and "visually stunning". It uses mock data to represent "Red Alert" queries and alignment trends.
+
+Backend: We just finished the Implementation Plan for a FastAPI backend. The goal for the backend is to move away from mock data and start performing real Statistical Probes using the Gemini API.
+
+4. What’s Next on the "Rush" List
+Before the break, we were about to jump into the Backend Sprint. The immediate priority was:
+
+Building the "Bilingual Probe" script to generate a "Scary Report" for a real brand (like SSENSE).
+
+Proving that Context Injection (JSON-LD) can actually flip an AI's confidence in a brand from 30% to 80%.

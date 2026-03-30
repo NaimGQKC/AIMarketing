@@ -1,0 +1,146 @@
+.section-title {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-lg);
+  padding-left: var(--space-xs);
+}
+
+/* Data Flow Visual */
+.data-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-lg);
+  padding: var(--space-2xl) var(--space-xl);
+  margin-bottom: var(--space-2xl);
+  background: var(--bg-glass);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-lg);
+}
+
+.flow-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-lg) var(--space-xl);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.flow-source {
+  background: var(--lavender-dim);
+  color: var(--lavender);
+  border: 1px solid rgba(155, 138, 255, 0.2);
+}
+
+.flow-engine {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.15), rgba(155, 138, 255, 0.15));
+  color: var(--cyan);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.1);
+}
+
+.flow-dest {
+  background: var(--green-dim);
+  color: var(--green);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+.flow-dest-label {
+  font-size: 0.85rem;
+}
+
+.flow-connector {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  position: relative;
+  width: 80px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.flow-arrow {
+  color: var(--text-tertiary);
+  position: absolute;
+  right: -6px;
+}
+
+.flow-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--cyan);
+  position: absolute;
+  animation: flowDot 2s infinite linear;
+}
+
+.flow-dot-2 { animation-delay: 0.7s; }
+.flow-dot-3 { animation-delay: 1.4s; }
+
+/* Connect Cards */
+.connect-card h4 {
+  font-size: 1.1rem;
+  margin-bottom: var(--space-xs);
+}
+
+.connect-card-desc {
+  font-size: 0.8rem;
+  margin-bottom: var(--space-lg);
+}
+
+.connect-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-lg);
+}
+
+.connect-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cyan);
+}
+
+.card-connected .connect-card-icon {
+  background: var(--cyan-dim);
+}
+
+.connect-card-stats {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-lg);
+}
+
+.connect-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.connect-stat-value {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.connect-stat-label {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
