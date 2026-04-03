@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import api from '../api/client'
 import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp, MessageSquare, Zap, Languages, Target, Eye, Timer, FlaskConical } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { useLanguage } from '../context/LanguageContext'
@@ -117,10 +118,67 @@ function FertilityBar({ lang, pre, post }) {
 
 export default function Verify() {
   const { t } = useLanguage()
-  const [expandedReasoning, setExpandedReasoning] = useState(sideBySideReasoning[0]?.id)
+  const [expandedReasoning, setExpandedReasoning] = useState(null)
   const [deepDiveOpen, setDeepDiveOpen] = useState(false)
 
-  const { sIn, sOut, delta, eScore, trend: eTrend, history: eHistory } = remediationEfficiency
+  // State initialized with mockData, overwritten by API
+  const [schedule, setSchedule] = useState(auditSchedule)
+  const [timeline, setTimeline] = useState(auditTimeline)
+  const [confidence, setConfidence] = useState(confidenceShift)
+  const [reasoning, setReasoning] = useState(sideBySideReasoning)
+  const [efficiency, setEfficiency] = useState({
+    ...remediationEfficiency,
+    sIn: 3.2, sOut: 8.5, delta: 0.15, eScore: 2.26
+  })
+  const [fertility, setFertility] = useState(tokenFertility)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [sched, time, conf, reas, eff] = await Promise.all([
+          api.verify.schedule(),
+          api.verify.timeline(),
+          api.verify.confidence(),
+          api.verify.reasoning(),
+          api.verify.efficiency()
+        ])
+        
+        if (sched && sched.length > 0) setSchedule(sched)
+        if (time && time.length > 0) setTimeline(time)
+        if (conf && conf.length > 0) setConfidence(conf)
+        if (reas && reas.length > 0) {
+          setReasoning(reas)
+          if (reas.length > 0) setExpandedReasoning(reas[0].id)
+        }
+        if (eff) {
+          setEfficiency(prev => ({
+            ...prev,
+            sIn: eff.s_in,
+            sOut: eff.s_out,
+            delta: eff.delta,
+            eScore: eff.e_score
+          }))
+          setFertility(prev => ({
+            ...prev,
+            postFix: {
+              en: { fertility: eff.en_fertility, severity: eff.en_fertility > 1.2 ? 'warning' : 'healthy' },
+              fr: { fertility: eff.fr_fertility, severity: eff.fr_fertility > 1.2 ? 'warning' : 'healthy' }
+            }
+          }))
+        }
+      } catch (err) {
+        console.error("Failed to fetch verify data:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
+  const { sIn, sOut, delta, eScore, trend: eTrend, history: eHistory } = efficiency
+
+  if (loading) return <div className="page" style={{ padding: '2rem' }}>Loading Verification...</div>
 
   return (
     <div className="page">
@@ -182,8 +240,8 @@ export default function Verify() {
           <p className="fertility-desc">{t('tokenFertilityDesc')}</p>
 
           <div className="fertility-bars">
-            <FertilityBar lang="en" pre={tokenFertility.preFix.en} post={tokenFertility.postFix.en} />
-            <FertilityBar lang="fr" pre={tokenFertility.preFix.fr} post={tokenFertility.postFix.fr} />
+            <FertilityBar lang="en" pre={fertility.preFix.en} post={fertility.postFix.en} />
+            <FertilityBar lang="fr" pre={fertility.preFix.fr} post={fertility.postFix.fr} />
           </div>
 
           <div className="fertility-legend">
@@ -309,7 +367,7 @@ export default function Verify() {
               <button className="btn btn-primary btn-sm">{t('scheduleAudit')}</button>
             </div>
             <div className="schedule-cards">
-              {auditSchedule.map((s) => (
+              {schedule.map((s) => (
                 <div key={s.day} className="schedule-card">
                   <div className="schedule-day">{t('day')} {s.day}</div>
                   <div className="schedule-date">{s.date}</div>
@@ -326,7 +384,7 @@ export default function Verify() {
               {' '}{t('auditTimeline')}
             </h3>
             <div className="timeline">
-              {auditTimeline.map((event, i) => {
+              {timeline.map((event, i) => {
                 const Icon = statusIcons[event.status] || Clock
                 return (
                   <div key={event.id} className={`timeline-item timeline-${event.status}`}>
@@ -334,7 +392,7 @@ export default function Verify() {
                       <div className={`timeline-dot dot-${event.status}`}>
                         <Icon size={12} />
                       </div>
-                      {i < auditTimeline.length - 1 && <div className="timeline-line" />}
+                      {i < timeline.length - 1 && <div className="timeline-line" />}
                     </div>
                     <div className="timeline-content">
                       <div className="timeline-date">{event.date}</div>
@@ -361,7 +419,7 @@ export default function Verify() {
               {t('confidenceShift')}
             </h3>
             <ResponsiveContainer width="100%" height={240}>
-              <AreaChart data={confidenceShift} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={confidence} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="gradMackage" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#00e5ff" stopOpacity={0.3} />
@@ -400,7 +458,7 @@ export default function Verify() {
             </h3>
 
             <div className="reasoning-list">
-              {sideBySideReasoning.map((item) => {
+              {reasoning.map((item) => {
                 const isExpanded = expandedReasoning === item.id
                 return (
                   <div key={item.id} className="reasoning-item">
@@ -430,7 +488,7 @@ export default function Verify() {
                             <p className="reasoning-text">{item.before.reasoning}</p>
                             <div className="reasoning-citations">
                               <span className="citations-label">Citations:</span>
-                              {item.before.citations.map((c, i) => (
+                              {item.before.citations?.map((c, i) => (
                                 <span key={i} className="citation-tag citation-toxic">{c}</span>
                               ))}
                             </div>
@@ -451,7 +509,7 @@ export default function Verify() {
                             <p className="reasoning-text">{item.after.reasoning}</p>
                             <div className="reasoning-citations">
                               <span className="citations-label">Citations:</span>
-                              {item.after.citations.map((c, i) => (
+                              {item.after.citations?.map((c, i) => (
                                 <span key={i} className="citation-tag citation-clean">{c}</span>
                               ))}
                             </div>

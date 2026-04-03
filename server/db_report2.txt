@@ -1,0 +1,69 @@
+--- SIGNAL_GAPS per brand ---
+  brand_id=aldo, gaps=2
+  brand_id=arcteryx, gaps=1
+  brand_id=cirque-du-soleil, gaps=1
+  brand_id=frank-lyman, gaps=1
+  brand_id=groupe-dynamite, gaps=1
+  brand_id=kanuk, gaps=1
+  brand_id=la-canadienne, gaps=1
+  brand_id=lululemon, gaps=1
+  brand_id=mackage, gaps=3
+  brand_id=moose-knuckles, gaps=1
+  brand_id=nicole-benisti, gaps=1
+  brand_id=rudsak, gaps=1
+  brand_id=sentaler, gaps=1
+  brand_id=ssense, gaps=5
+
+--- PROBE_RESULTS per task ---
+  task=0f984820-e01..., probes=1, queries=best heritage winter coat brand Quebec Montreal
+  task=182a5f16-53b..., probes=1, queries=Aldo vs Steve Madden boots comparison
+  task=3e95e6ff-90f..., probes=1, queries=best luxury fashion retailer Montreal
+  task=3ef17885-675..., probes=1, queries=best affordable fashion coat Montreal
+  task=53745fbd-c73..., probes=1, queries=best luxury women winter coat Montreal
+  task=82b70da3-224..., probes=1, queries=best premium Canadian winter parka brand
+  task=8408e373-2ed..., probes=1, queries=best technical Gore-Tex waterproof jacket Montreal
+  task=8baace6b-eb3..., probes=1, queries=best luxury fashion retailer Montreal
+  task=9ae9e2d1-058..., probes=1, queries=best waterproof winter boots Montreal
+  task=9b792d1a-356..., probes=1, queries=best technical athletic jacket Montreal
+  task=a384c0b9-74f..., probes=1, queries=best luxury winter coat brand Montreal
+  task=a9f22226-53b..., probes=1, queries=best luxury alpaca winter coat Canada
+  task=b08a627f-156..., probes=1, queries=best luxury fashion retailer Montreal
+  task=baa3b3ef-0de..., probes=1, queries=best live entertainment show Montreal
+  task=bfc67e9c-195..., probes=1, queries=best women designer fashion brand Montreal
+  task=d3f2f906-da7..., probes=1, queries=best luxury fashion retailer Montreal
+  task=d6857f8b-1d4..., probes=1, queries=best leather winter jacket Montreal
+
+--- TASKS with results ---
+  id=82b70da3-224..., status=completed, progress=1/1, result_preview={"brand": "Moose Knuckles", "total_probes": 1, "unique_queries": 1, "en_probes": 1, "fr_probes": 0, "mention_rate": 0.0, "gaps_created": 1, "toxic_sources_found": 0, "top_toxic_sources": [], "queries_
+  id=a384c0b9-74f..., status=completed, progress=1/1, result_preview={"brand": "Mackage", "total_probes": 1, "unique_queries": 1, "en_probes": 0, "fr_probes": 1, "mention_rate": 100.0, "gaps_created": 1, "toxic_sources_found": 0, "top_toxic_sources": [], "queries_analy
+  id=d6857f8b-1d4..., status=completed, progress=1/1, result_preview={"brand": "Rudsak", "total_probes": 1, "unique_queries": 1, "en_probes": 0, "fr_probes": 1, "mention_rate": 100.0, "gaps_created": 1, "toxic_sources_found": 0, "top_toxic_sources": [], "queries_analyz
+  id=3ef17885-675..., status=completed, progress=1/1, result_preview={"brand": "Groupe Dynamite", "total_probes": 1, "unique_queries": 1, "en_probes": 1, "fr_probes": 0, "mention_rate": 0.0, "gaps_created": 1, "toxic_sources_found": 0, "top_toxic_sources": [], "queries
+  id=a9f22226-53b..., status=completed, progress=1/1, result_preview={"brand": "Sentaler", "total_probes": 1, "unique_queries": 1, "en_probes": 0, "fr_probes": 1, "mention_rate": 100.0, "gaps_created": 1, "toxic_sources_found": 0, "top_toxic_sources": [], "queries_anal
+
+--- FIX_KITS per brand ---
+  brand_id=aldo, kits=1
+  brand_id=mackage, kits=1
+  brand_id=ssense, kits=1
+
+--- ALL SIGNAL_GAPS ---
+  ('gap-001', 'mackage', '"best luxury winter jacket Montreal"', 'EN', 'Entity Trust', 'critical')
+  ('gap-002', 'mackage', '"meilleur manteau cuir femme Québec"', 'FR', 'Token Decay', 'critical')
+  ('gap-003', 'ssense', '"luxury sneakers Canada online"', 'EN', 'Fact Density', 'warning')
+  ('gap-004', 'aldo', '"Aldo leather boots sustainability"', 'EN', 'Entity Trust', 'warning')
+  ('2fc5a992-a183-45b4-8375-3e888824b201', 'ssense', 'best luxury fashion retailer Montreal', 'FR', 'Entity Trust', 'info')
+  ('5f65b691-a424-4139-8e5d-2c569e2aaca8', 'ssense', 'best luxury fashion retailer Montreal', 'FR', 'Entity Trust', 'info')
+  ('e1783b7f-b386-4758-aeaf-5089624a08db', 'ssense', 'best luxury fashion retailer Montreal', 'FR', 'Entity Trust', 'info')
+  ('ebe0d0a9-7076-4b77-90ff-ebc3c0217e7c', 'ssense', 'best luxury fashion retailer Montreal', 'FR', 'Entity Trust', 'info')
+  ('b527aa20-b036-444b-834e-66e5b9541659', 'aldo', 'Aldo vs Steve Madden boots comparison', 'EN', 'Entity Trust', 'warning')
+  ('c066dddb-0d76-4e40-b40c-4ce451a37141', 'la-canadienne', 'best waterproof winter boots Montreal', 'FR', 'Entity Trust', 'critical')
+  ('d264f497-7516-4e1e-a4d1-d8553101414c', 'arcteryx', 'best technical Gore-Tex waterproof jacket Montreal', 'FR', 'Entity Trust', 'critical')
+  ('9de761bb-bcdc-4361-b99c-bb31ef6c33c1', 'cirque-du-soleil', 'best live entertainment show Montreal', 'FR', 'Fact Density', 'critical')
+  ('bf0aa376-cabb-4e80-bbfd-0753f59c5b08', 'lululemon', 'best technical athletic jacket Montreal', 'FR', 'Fact Density', 'critical')
+  ('c931044f-4426-4356-9ae2-c01590946eae', 'frank-lyman', 'best women designer fashion brand Montreal', 'FR', 'Fact Density', 'critical')
+  ('6fa02e8c-4593-4200-9a8d-dab3cea41808', 'nicole-benisti', 'best luxury women winter coat Montreal', 'FR', 'Fact Density', 'critical')
+  ('158c4923-56ec-451e-9c73-acd23d251c54', 'kanuk', 'best heritage winter coat brand Quebec Montreal', 'EN', 'Entity Trust', 'info')
+  ('17e89727-8787-42fd-9d6e-3eaf970d9fa6', 'sentaler', 'best luxury alpaca winter coat Canada', 'FR', 'Entity Trust', 'info')
+  ('fe39f15d-36df-45a0-8010-54f562b59727', 'groupe-dynamite', 'best affordable fashion coat Montreal', 'EN', 'Fact Density', 'critical')
+  ('19c358a6-0c4a-41cf-9453-46271b606d4c', 'rudsak', 'best leather winter jacket Montreal', 'FR', 'Entity Trust', 'info')
+  ('a051edcd-8564-4707-98fc-83c2cf924914', 'mackage', 'best luxury winter coat brand Montreal', 'FR', 'Entity Trust', 'info')
+  ('fa3ece52-8fa0-490f-aa34-86f8fbdf0eea', 'moose-knuckles', 'best premium Canadian winter parka brand', 'EN', 'Fact Density', 'critical')

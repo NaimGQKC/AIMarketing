@@ -25,6 +25,7 @@ from routers.connect import router as connect_router
 from routers.diagnose import router as diagnose_router
 from routers.remediate import router as remediate_router
 from routers.verify import router as verify_router
+from routers.ingest import router as ingest_router
 
 
 # --- Lifespan ---
@@ -64,6 +65,7 @@ app.include_router(connect_router)
 app.include_router(diagnose_router)
 app.include_router(remediate_router)
 app.include_router(verify_router)
+app.include_router(ingest_router)
 
 
 # ============================================

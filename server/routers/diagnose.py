@@ -6,6 +6,7 @@ Includes polling-based probe task: POST returns task_id, GET /api/tasks/{id} for
 import json
 import uuid
 import asyncio
+from typing import Optional
 from fastapi import APIRouter, Depends, BackgroundTasks
 import aiosqlite
 
@@ -18,11 +19,18 @@ router = APIRouter(prefix="/api/diagnose", tags=["diagnose"])
 
 
 @router.get("/gaps")
-async def get_signal_gaps(db: aiosqlite.Connection = Depends(get_db)):
-    """Signal gap table with toxic citations."""
-    cursor = await db.execute(
-        "SELECT * FROM signal_gaps ORDER BY CASE severity WHEN 'critical' THEN 0 ELSE 1 END"
-    )
+async def get_signal_gaps(brand_id: Optional[str] = None, db: aiosqlite.Connection = Depends(get_db)):
+    """Signal gap table with toxic citations, optionally filtered by brand."""
+    query_str = "SELECT * FROM signal_gaps"
+    params = ()
+    
+    if brand_id and brand_id != "all":
+        query_str += " WHERE brand_id = ?"
+        params = (brand_id,)
+        
+    query_str += " ORDER BY CASE severity WHEN 'critical' THEN 0 ELSE 1 END"
+    
+    cursor = await db.execute(query_str, params)
     rows = await cursor.fetchall()
 
     return [

@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Cpu, FileJson, Film, Rocket, ChevronRight, Check } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import GlassCard from '../components/GlassCard'
 import StatusBadge from '../components/StatusBadge'
-import { fixKits, deploymentBefore, deploymentAfter } from '../data/mockData'
+import { useBrand } from '../context/BrandContext'
+import api from '../api/client'
+import { fixKits as mockKits, deploymentBefore, deploymentAfter } from '../data/mockData'
 import './Remediate.css'
 
 const typeIcons = { hardAttributes: Cpu, jsonLd: FileJson, truthClip: Film }
@@ -11,10 +13,32 @@ const typeColors = { hardAttributes: 'cyan', jsonLd: 'lavender', truthClip: 'gre
 
 export default function Remediate() {
   const { t } = useLanguage()
-  const [selectedKit, setSelectedKit] = useState(fixKits[0])
+  const { selectedBrandId } = useBrand()
+  const [fixKits, setFixKits] = useState(mockKits)
+  const [selectedKit, setSelectedKit] = useState(mockKits[0])
   const [deploying, setDeploying] = useState(false)
   const [deployed, setDeployed] = useState({})
   const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    async function fetchKits() {
+      try {
+        const data = await api.remediate.kits(selectedBrandId)
+        if (data && data.length > 0) {
+          setFixKits(data)
+          setSelectedKit(data[0])
+        } else {
+          // If no kits found, empty or mock based on preference
+          // For demo purposes, we can fall back to mocks filtered by brand if we wanted, but let's just use what API returns
+          setFixKits(data || [])
+          setSelectedKit(data?.[0] || null)
+        }
+      } catch (err) {
+        console.warn('Failed to fetch fix kits, using mock', err)
+      }
+    }
+    fetchKits()
+  }, [selectedBrandId])
 
   const handleDeploy = (kitId) => {
     setDeploying(true)
@@ -88,7 +112,7 @@ export default function Remediate() {
                 <GlassCard className="preview-card">
                   <div className="preview-label">Hard Attributes to Inject</div>
                   <div className="attributes-grid">
-                    {Object.entries(selectedKit.attributes).map(([key, val]) => (
+                    {Object.entries(selectedKit.payload || selectedKit.attributes || {}).map(([key, val]) => (
                       <div key={key} className="attribute-row">
                         <span className="attribute-key">{key}:</span>
                         <span className="attribute-value">{val}</span>
@@ -102,7 +126,7 @@ export default function Remediate() {
                 <GlassCard className="preview-card">
                   <div className="preview-label">JSON-LD Preview</div>
                   <pre className="json-preview">
-                    <code>{JSON.stringify(selectedKit.jsonLdPreview, null, 2)}</code>
+                    <code>{JSON.stringify(selectedKit.payload || selectedKit.jsonLdPreview, null, 2)}</code>
                   </pre>
                 </GlassCard>
               )}
@@ -110,8 +134,8 @@ export default function Remediate() {
               {selectedKit.type === 'truthClip' && (
                 <GlassCard className="preview-card">
                   <div className="preview-label">Truth Clip Specification</div>
-                  <div className="attributes-grid">
-                    {Object.entries(selectedKit.clipSpec).map(([key, val]) => (
+                  <div className="truth-clip-grid">
+                    {Object.entries(selectedKit.payload || selectedKit.truthClip || {}).map(([key, val]) => (
                       <div key={key} className="attribute-row">
                         <span className="attribute-key">{key}:</span>
                         <span className="attribute-value">{val}</span>

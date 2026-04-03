@@ -5,6 +5,7 @@ GET/POST /api/remediate/kits | deploy | compare
 import json
 import uuid
 from datetime import datetime
+from typing import Optional
 from fastapi import APIRouter, Depends
 import aiosqlite
 
@@ -15,15 +16,21 @@ router = APIRouter(prefix="/api/remediate", tags=["remediate"])
 
 
 @router.get("/kits")
-async def get_fix_kits(db: aiosqlite.Connection = Depends(get_db)):
-    """Available fix kits."""
-    cursor = await db.execute(
-        """SELECT fk.*, b.name as brand_name, p.name_en as product_name
+async def get_fix_kits(brand_id: Optional[str] = None, db: aiosqlite.Connection = Depends(get_db)):
+    """Available fix kits, optionally filtered by brand."""
+    query_str = """SELECT fk.*, b.name as brand_name, p.name_en as product_name
            FROM fix_kits fk
            JOIN brands b ON fk.brand_id = b.id
-           JOIN products p ON fk.product_id = p.id
-           ORDER BY fk.created_at"""
-    )
+           JOIN products p ON fk.product_id = p.id"""
+    params = ()
+    
+    if brand_id and brand_id != "all":
+        query_str += " WHERE fk.brand_id = ?"
+        params = (brand_id,)
+        
+    query_str += " ORDER BY fk.created_at"
+    
+    cursor = await db.execute(query_str, params)
     rows = await cursor.fetchall()
 
     return [

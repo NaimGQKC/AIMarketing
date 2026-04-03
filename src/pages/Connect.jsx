@@ -4,6 +4,7 @@ import { useLanguage } from '../context/LanguageContext'
 import GlassCard from '../components/GlassCard'
 import StatusBadge from '../components/StatusBadge'
 import { pimIntegrations, monitoringAccounts, feedStatus } from '../data/mockData'
+import DataIngester from '../components/DataIngester'
 import './Connect.css'
 
 const iconMap = { ShoppingBag, Database, Eye, Search }
@@ -51,8 +52,14 @@ export default function Connect() {
         </div>
       </div>
 
+      {/* Batch Data Ingestion */}
+      <h3 className="section-title fade-in-up fade-in-up-delay-2">Manual Data Ingestion</h3>
+      <div className="page-grid" style={{ marginBottom: 'var(--space-2xl)' }}>
+        <DataIngester />
+      </div>
+
       {/* PIM Integrations */}
-      <h3 className="section-title fade-in-up fade-in-up-delay-2">{t('pimIntegrations')}</h3>
+      <h3 className="section-title fade-in-up fade-in-up-delay-3">{t('pimIntegrations')}</h3>
       <div className="page-grid grid-2" style={{ marginBottom: 'var(--space-2xl)' }}>
         {pimIntegrations.map((pim) => {
           const Icon = iconMap[pim.icon]

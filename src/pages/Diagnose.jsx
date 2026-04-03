@@ -1,16 +1,73 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AlertTriangle, ExternalLink, X, FileWarning, Globe } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import GlassCard from '../components/GlassCard'
 import StatusBadge from '../components/StatusBadge'
-import { signalGaps, reasoningParity } from '../data/mockData'
+import { useBrand } from '../context/BrandContext'
+import { signalGaps as mockGaps, reasoningParity as mockParity } from '../data/mockData'
+import api from '../api/client'
 import './Diagnose.css'
 
 export default function Diagnose() {
   const { t } = useLanguage()
   const [selectedGap, setSelectedGap] = useState(null)
+  const [signalGaps, setSignalGaps] = useState(mockGaps)
+  const [reasoningParity, setReasoningParity] = useState(mockParity)
+  const [dataSource, setDataSource] = useState('mock') // 'mock' or 'api'
+  const { selectedBrandId } = useBrand()
 
-  const parityMsg = t('parityMessage', { en: reasoningParity.en, fr: reasoningParity.fr })
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [gapsData, parityData] = await Promise.all([
+          api.diagnose.gaps(selectedBrandId),
+          api.diagnose.parity(),
+        ])
+
+        const transformedGaps = gapsData ? gapsData.map((g, idx) => ({
+          id: g.id || idx + 1,
+          query: g.query,
+          lang: g.lang,
+          gapType: g.gap_type,
+          severity: g.severity,
+          aiResponseQuality: g.ai_response_quality,
+          sourceOfTruth: {
+            label: g.source_of_truth?.label || '',
+            url: g.source_of_truth?.url || null,
+            detail: g.source_of_truth?.detail || '',
+          },
+          sourceOfHallucination: {
+            label: g.source_of_hallucination?.label || '',
+            url: g.source_of_hallucination?.url || null,
+            detail: g.source_of_hallucination?.detail || '',
+          },
+          aiSaid: g.ai_said || '',
+          brandTruth: g.brand_truth || '',
+        })) : []
+        setSignalGaps(transformedGaps)
+        setDataSource('api')
+
+        if (parityData && parityData.en !== undefined) {
+          setReasoningParity({
+            en: parityData.en,
+            fr: parityData.fr,
+            enQueries: parityData.en_queries,
+            frQueries: parityData.fr_queries,
+            enHallucinations: parityData.en_hallucinations,
+            frHallucinations: parityData.fr_hallucinations,
+            tokenBreakdown: parityData.token_breakdown || {
+              en: { avgTokens: 6.2, maxTokens: 11 },
+              fr: { avgTokens: 12.8, maxTokens: 23 },
+            },
+          })
+        }
+      } catch (err) {
+        console.warn('Failed to fetch diagnose data, using mock:', err)
+      }
+    }
+
+    fetchData()
+  }, [selectedBrandId])
 
   return (
     <div className="page">
@@ -74,7 +131,7 @@ export default function Diagnose() {
 
         <div className="parity-message">
           <AlertTriangle size={16} />
-          <p>{parityMsg}</p>
+          <p>{t('parityMessage', { en: reasoningParity.en, fr: reasoningParity.fr })}</p>
         </div>
       </GlassCard>
 

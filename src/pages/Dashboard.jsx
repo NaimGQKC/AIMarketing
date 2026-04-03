@@ -1,10 +1,12 @@
 import { Activity, Wrench, ShieldCheck, Hash, AlertTriangle, Wifi } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { useLanguage } from '../context/LanguageContext'
+import { useBrand } from '../context/BrandContext'
 import MetricCard from '../components/MetricCard'
 import GlassCard from '../components/GlassCard'
 import StatusBadge from '../components/StatusBadge'
-import { metrics, alignmentTrend, redAlerts, protocolStatus } from '../data/mockData'
+import { useState, useEffect } from 'react'
+import api from '../api/client'
 import './Dashboard.css'
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -24,6 +26,51 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function Dashboard() {
   const { t } = useLanguage()
+  const { selectedBrandId } = useBrand()
+  
+  const [metrics, setMetrics] = useState({
+    inferenceScore: 0, activeRemediations: 0, verifiedFixes: 0, tokenDensity: 0,
+    inferenceScoreTrend: 0, activeRemediationsTrend: 0, verifiedFixesTrend: 0, tokenDensityTrend: 0
+  })
+  const [alignmentTrend, setAlignmentTrend] = useState([])
+  const [redAlerts, setRedAlerts] = useState([])
+  const [protocolStatus, setProtocolStatus] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [m, a, t_data, p] = await Promise.all([
+          api.dashboard.metrics(selectedBrandId),
+          api.dashboard.alerts(selectedBrandId),
+          api.dashboard.trend(selectedBrandId),
+          api.dashboard.protocols()
+        ])
+        if (m) {
+          setMetrics({
+            inferenceScore: m.inference_score || 0,
+            activeRemediations: m.active_remediations || 0,
+            verifiedFixes: m.verified_fixes || 0,
+            tokenDensity: m.token_density || 0,
+            inferenceScoreTrend: m.inference_score_trend || 0,
+            activeRemediationsTrend: m.active_remediations_trend || 0,
+            verifiedFixesTrend: m.verified_fixes_trend || 0,
+            tokenDensityTrend: m.token_density_trend || 0
+          })
+        }
+        if (a) setRedAlerts(a)
+        if (t_data) setAlignmentTrend(t_data)
+        if (p) setProtocolStatus(p)
+      } catch (err) {
+        console.error("Dashboard fetch error:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [selectedBrandId])
+
+  if (loading) return <div className="page" style={{ padding: '2rem' }}>Loading Dashboard...</div>
 
   return (
     <div className="page">

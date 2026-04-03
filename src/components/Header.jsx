@@ -1,5 +1,6 @@
-import { Search, Bell } from 'lucide-react'
+import { Search, Bell, Tag } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
+import { useBrand } from '../context/BrandContext'
 import { useLocation } from 'react-router-dom'
 import './Header.css'
 
@@ -14,6 +15,7 @@ const routeNames = {
 export default function Header() {
   const { t } = useLanguage()
   const location = useLocation()
+  const { selectedBrandId, setSelectedBrandId, availableBrands } = useBrand()
   const currentRoute = routeNames[location.pathname] || 'dashboard'
 
   return (
@@ -25,6 +27,25 @@ export default function Header() {
       </div>
 
       <div className="header-actions">
+        {/* Global Brand Selector */}
+        <div className="header-brand-select">
+          <div className="brand-select-icon">
+            <Tag size={14} />
+          </div>
+          <select 
+            value={selectedBrandId} 
+            onChange={(e) => setSelectedBrandId(e.target.value)}
+            className="brand-select-input"
+          >
+            <option value="all">{t('allBrands') || 'All Brands'}</option>
+            {availableBrands.map((brand) => (
+              <option key={brand.id} value={brand.id}>
+                {brand.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="header-search">
           <Search size={16} />
           <input type="text" placeholder={t('search')} />

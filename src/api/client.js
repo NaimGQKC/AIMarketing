@@ -28,9 +28,9 @@ async function request(endpoint, options = {}) {
 // --- Dashboard ---
 export const api = {
   dashboard: {
-    metrics: () => request('/api/dashboard/metrics'),
-    alerts: () => request('/api/dashboard/alerts'),
-    trend: () => request('/api/dashboard/trend'),
+    metrics: (brandId) => request(`/api/dashboard/metrics${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
+    alerts: (brandId) => request(`/api/dashboard/alerts${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
+    trend: (brandId) => request(`/api/dashboard/trend${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
     protocols: () => request('/api/dashboard/protocols'),
   },
 
@@ -41,7 +41,7 @@ export const api = {
   },
 
   diagnose: {
-    gaps: () => request('/api/diagnose/gaps'),
+    gaps: (brandId) => request(`/api/diagnose/gaps${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
     gap: (id) => request(`/api/diagnose/gaps/${id}`),
     parity: () => request('/api/diagnose/parity'),
     probe: (query, lang = 'EN', iterations = 50) =>
@@ -57,7 +57,7 @@ export const api = {
   },
 
   remediate: {
-    kits: () => request('/api/remediate/kits'),
+    kits: (brandId) => request(`/api/remediate/kits${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
     preview: (kitId) => request(`/api/remediate/kits/${kitId}/preview`),
     deploy: (kitId) => request(`/api/remediate/kits/${kitId}/deploy`, { method: 'POST' }),
     compare: () => request('/api/remediate/compare'),
@@ -68,11 +68,35 @@ export const api = {
     timeline: () => request('/api/verify/timeline'),
     confidence: () => request('/api/verify/confidence'),
     reasoning: () => request('/api/verify/reasoning'),
+    efficiency: () => request('/api/verify/efficiency'),
     runAudit: (auditId) => request(`/api/verify/audit/${auditId}/run`, { method: 'POST' }),
   },
 
   tasks: {
     status: (taskId) => request(`/api/tasks/${taskId}`),
+  },
+
+  ingest: {
+    batch: async (files, brandName) => {
+      try {
+        const formData = new FormData()
+        // Append all files under the key 'files' to match the FastAPI List[UploadFile] expecting name 'files'
+        Array.from(files).forEach((file) => {
+          formData.append('files', file)
+        })
+        formData.append('brand_name', brandName)
+        const response = await fetch(`${BASE}/api/ingest/batch`, {
+          method: 'POST',
+          body: formData,
+        })
+        if (!response.ok) return null
+        return await response.json()
+      } catch (err) {
+        console.warn('API /api/ingest/batch unreachable:', err.message)
+        return null
+      }
+    },
+    brands: () => request('/api/ingest/brands'),
   },
 
   health: () => request('/api/health'),

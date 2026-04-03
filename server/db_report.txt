@@ -1,0 +1,56 @@
+TABLES: ['brands', 'products', 'signal_gaps', 'probe_results', 'tasks', 'fix_kits', 'audit_runs', 'pim_connections', 'parity_stats', 'alignment_trend', 'sqlite_sequence', 'reasoning_snapshots']
+
+  brands: 14 rows
+  signal_gaps: 21 rows
+  probe_results: 17 rows
+  tasks: 17 rows
+  parity_stats: 1 rows
+  fix_kits: 3 rows
+
+--- BRANDS ---
+  ('mackage', 'Mackage', 'mackage')
+  ('ssense', 'SSENSE', 'ssense')
+  ('aldo', 'Aldo', 'aldo')
+  ('la-canadienne', 'La Canadienne', 'la-canadienne')
+  ('arcteryx', 'Arcteryx', 'arcteryx')
+  ('cirque-du-soleil', 'Cirque du Soleil', 'cirque-du-soleil')
+  ('lululemon', 'Lululemon', 'lululemon')
+  ('frank-lyman', 'Frank Lyman', 'frank-lyman')
+  ('nicole-benisti', 'Nicole Benisti', 'nicole-benisti')
+  ('kanuk', 'Kanuk', 'kanuk')
+  ('sentaler', 'Sentaler', 'sentaler')
+  ('groupe-dynamite', 'Groupe Dynamite', 'groupe-dynamite')
+  ('rudsak', 'Rudsak', 'rudsak')
+  ('moose-knuckles', 'Moose Knuckles', 'moose-knuckles')
+
+--- TASKS (last 10) ---
+  ('82b70da3-2240-43f2-a5cb-640525c49967', 'ingest', 'completed', 1, 1, None)
+  ('a384c0b9-74f8-4550-b370-e55eb9d83f55', 'ingest', 'completed', 1, 1, None)
+  ('d6857f8b-1d48-4c0a-abf7-55a269973376', 'ingest', 'completed', 1, 1, None)
+  ('3ef17885-675d-493e-b071-1d3e23a2bdec', 'ingest', 'completed', 1, 1, None)
+  ('a9f22226-53b5-49d6-a543-0fd7071c1a6f', 'ingest', 'completed', 1, 1, None)
+  ('0f984820-e011-4cdb-851d-2fe2c272e2d2', 'ingest', 'completed', 1, 1, None)
+  ('53745fbd-c738-480b-9ecd-2211616a00c0', 'ingest', 'completed', 1, 1, None)
+  ('bfc67e9c-1958-46e8-b2c4-b444ce870f37', 'ingest', 'completed', 1, 1, None)
+  ('9b792d1a-3566-49ca-bac8-3273643e1028', 'ingest', 'completed', 1, 1, None)
+  ('baa3b3ef-0de3-4acd-93c0-e1946f0a4bbf', 'ingest', 'completed', 1, 1, None)
+
+--- SIGNAL_GAPS (first 5) ---
+  ('gap-001', 'mackage', '"best luxury winter jacket Montreal"', 'EN', 'Entity Trust', 'critical')
+  ('gap-002', 'mackage', '"meilleur manteau cuir femme Québec"', 'FR', 'Token Decay', 'critical')
+  ('gap-003', 'ssense', '"luxury sneakers Canada online"', 'EN', 'Fact Density', 'warning')
+  ('gap-004', 'aldo', '"Aldo leather boots sustainability"', 'EN', 'Entity Trust', 'warning')
+  ('2fc5a992-a183-45b4-8375-3e888824b201', 'ssense', 'best luxury fashion retailer Montreal', 'FR', 'Entity Trust', 'info')
+
+--- PROBE_RESULTS (first 5) ---
+  ('2b1d285b-f2e8-464a-be39-12e766acfc50', 'b08a627f-1564-4685-ab74-497d1c943eba', 'best luxury fashion retailer Montreal', 'FR', 1)
+  ('c5e5c657-09d6-4d2f-aebf-60b92e46a6c1', 'd3f2f906-da77-4c7c-9042-689c6c6af02e', 'best luxury fashion retailer Montreal', 'FR', 1)
+  ('7c36fe44-d7bc-4d0b-a6fd-9255b9378a55', '8baace6b-eb31-4629-8794-bfa716ea2600', 'best luxury fashion retailer Montreal', 'FR', 1)
+  ('ddd7bb59-d93e-4934-9c0a-d75c6da27571', '3e95e6ff-90f4-443a-87bb-ecbaf6ff432d', 'best luxury fashion retailer Montreal', 'FR', 1)
+  ('08dc879d-fc2b-42d4-9fcf-a7941d2ec58f', '182a5f16-53b4-4c20-b633-c9060d84138e', 'Aldo vs Steve Madden boots comparison', 'EN', 1)
+
+--- FIX_KITS (first 5) ---
+  columns: ['id', 'brand_id', 'product_id', 'type', 'status', 'payload', 'impact', 'deployed_at', 'created_at']
+  ('kit-001', 'mackage', 'mack-lena-001', 'hardAttributes', 'ready', '{"thermal_rating": "-30\\u00b0C", "fill_power": "800-fill goose down", "construction": "seam-sealed", "origin": "Canadian design, ethical sourcing", "msrp_cad": "$1,150"}', 'Expected +32% inference alignment for winter jacket queries', None, '2026-03-26 02:19:05')
+  ('kit-002', 'ssense', 'ssen-cp-003', 'jsonLd', 'ready', '{"type": "Product", "brand": "Common Projects", "price": "495.00 CAD", "material": "Italian Nappa leather"}', 'Expected +25% fact density score for sneaker queries', None, '2026-03-26 02:19:05')
+  ('kit-003', 'aldo', 'aldo-pilier-004', 'truthClip', 'ready', '{"duration": "15s", "content": "LWG Gold certification proof + carbon neutral badge", "format": "MP4/WebM", "target": "Google Gemini multimodal indexing"}', 'Expected +45% entity trust for sustainability queries', None, '2026-03-26 02:19:05')
