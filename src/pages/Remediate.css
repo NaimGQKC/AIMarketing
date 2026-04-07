@@ -210,11 +210,267 @@
   color: var(--text-primary);
 }
 
+/* Fix Kit Mechanism */
+.fix-kit-mechanism {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.fix-kit-mechanism span {
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+  font-family: 'Courier New', monospace;
+}
+
+/* Preview Label with icon */
+.preview-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* DPO Constraint Summary */
+.dpo-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.dpo-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dpo-stat-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
+.dpo-stat-value {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Constraint List */
+.constraints-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.constraint-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+}
+
+.constraint-id {
+  font-family: 'Courier New', monospace;
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+  min-width: 36px;
+}
+
+.constraint-attr {
+  color: var(--cyan);
+  font-weight: 600;
+  min-width: 110px;
+}
+
+.constraint-val {
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.constraint-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 229, 255, 0.1);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+}
+
+/* Graph Summary */
+.graph-summary {
+  margin-bottom: var(--space-md);
+}
+
+.graph-nodes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.graph-node {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  border-left: 2px solid var(--lavender);
+}
+
+.graph-node-type {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--lavender);
+  min-width: 90px;
+}
+
+.graph-node-id {
+  font-family: 'Courier New', monospace;
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  flex: 1;
+}
+
+.graph-node-name {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Clip Summary */
+.clip-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.clip-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.clip-stat-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
+.clip-stat-value {
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Clip Segments */
+.clip-segments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.clip-segment {
+  padding: var(--space-md);
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  border-left: 2px solid var(--green);
+}
+
+.clip-seg-time {
+  font-family: 'Courier New', monospace;
+  font-size: 0.7rem;
+  color: var(--green);
+  font-weight: 700;
+  margin-bottom: var(--space-xs);
+}
+
+.clip-seg-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.clip-seg-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.clip-seg-meta {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-sm);
+}
+
+.clip-seg-tag {
+  font-size: 0.6rem;
+  font-family: 'Courier New', monospace;
+  color: var(--text-tertiary);
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-sm);
+}
+
+.clip-seg-budget {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+/* Expand Toggle */
+.expand-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-md);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.expand-toggle:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.truth-clip-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
 @media (max-width: 1024px) {
   .remediate-layout {
     grid-template-columns: 1fr;
   }
   .before-after {
+    grid-template-columns: 1fr;
+  }
+  .dpo-summary,
+  .clip-summary {
     grid-template-columns: 1fr;
   }
 }

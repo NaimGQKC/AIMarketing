@@ -1,15 +1,13 @@
 import { useState, useEffect } from 'react'
 import api from '../api/client'
-import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp, MessageSquare, Zap, Languages, Target, Eye, Timer, FlaskConical } from 'lucide-react'
+import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp, MessageSquare, Zap, Languages, Target, Eye, Timer, FlaskConical, GitBranch, Shield, RefreshCw } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { useLanguage } from '../context/LanguageContext'
+import { useBrand } from '../context/BrandContext'
 import GlassCard from '../components/GlassCard'
 import StatusBadge from '../components/StatusBadge'
 import AnimatedCounter from '../components/AnimatedCounter'
-import {
-  auditSchedule, auditTimeline, confidenceShift, sideBySideReasoning,
-  evaluationRubric, remediationEfficiency, tokenFertility,
-} from '../data/mockData'
+import { evaluationRubric } from '../data/mockData'
 import './Verify.css'
 
 const statusIcons = {
@@ -35,6 +33,14 @@ const rubricColors = {
   discoverability: 'amber',
 }
 
+const eScoreStatusColors = {
+  critical_failure: 'var(--coral)',
+  sub_threshold: 'var(--amber)',
+  marginal: 'var(--lavender)',
+  strong: 'var(--cyan)',
+  optimal: 'var(--green)',
+}
+
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload) return null
   return (
@@ -42,7 +48,7 @@ const CustomTooltip = ({ active, payload, label }) => {
       <div className="chart-tooltip-label">{label}</div>
       {payload.map((p, i) => (
         <div key={i} className="chart-tooltip-row">
-          <span style={{ color: p.color }}>●</span>
+          <span style={{ color: p.color }}>{'\u25CF'}</span>
           <span>{p.name}: {p.value !== null ? `${p.value}%` : 'Pending'}</span>
         </div>
       ))}
@@ -98,7 +104,7 @@ function FertilityBar({ lang, pre, post }) {
               style={{ width: `${preWidth}%`, background: severityColors[pre.severity] }} />
           </div>
           <span className="fertility-bar-value" style={{ color: severityColors[pre.severity] }}>
-            {pre.fertility}×
+            {pre.fertility}x
           </span>
         </div>
         <div className="fertility-bar-row">
@@ -108,7 +114,7 @@ function FertilityBar({ lang, pre, post }) {
               style={{ width: `${postWidth}%`, background: severityColors[post.severity] }} />
           </div>
           <span className="fertility-bar-value" style={{ color: severityColors[post.severity] }}>
-            {post.fertility}×
+            {post.fertility}x
           </span>
         </div>
       </div>
@@ -118,47 +124,59 @@ function FertilityBar({ lang, pre, post }) {
 
 export default function Verify() {
   const { t } = useLanguage()
+  const { selectedBrandId } = useBrand()
   const [expandedReasoning, setExpandedReasoning] = useState(null)
   const [deepDiveOpen, setDeepDiveOpen] = useState(false)
+  const [raftOpen, setRaftOpen] = useState(false)
+  const [kgOpen, setKgOpen] = useState(false)
+  const [pathOpen, setPathOpen] = useState(false)
 
-  // State initialized with mockData, overwritten by API
-  const [schedule, setSchedule] = useState(auditSchedule)
-  const [timeline, setTimeline] = useState(auditTimeline)
-  const [confidence, setConfidence] = useState(confidenceShift)
-  const [reasoning, setReasoning] = useState(sideBySideReasoning)
+  const [schedule, setSchedule] = useState([])
+  const [timeline, setTimeline] = useState([])
+  const [confidence, setConfidence] = useState([])
+  const [reasoning, setReasoning] = useState([])
   const [efficiency, setEfficiency] = useState({
-    ...remediationEfficiency,
-    sIn: 3.2, sOut: 8.5, delta: 0.15, eScore: 2.26
+    s_in: 0, s_out: 0, delta: 0, e_score: 0, delta_e: 0,
+    status: '', interpretation: '', formula: '',
+    thresholds: {}, path_to_optimal: [], history: [],
   })
-  const [fertility, setFertility] = useState(tokenFertility)
+  const [raft, setRaft] = useState(null)
+  const [kgStats, setKgStats] = useState(null)
+  const [fertility, setFertility] = useState({
+    improvementPct: 0,
+    preFix: {
+      en: { fertility: 1.0, severity: 'healthy' },
+      fr: { fertility: 1.0, severity: 'healthy' }
+    },
+    postFix: {
+      en: { fertility: 1.0, severity: 'healthy' },
+      fr: { fertility: 1.0, severity: 'healthy' }
+    }
+  })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [sched, time, conf, reas, eff] = await Promise.all([
+        const [sched, time, conf, reas, eff, raftData, kgData] = await Promise.all([
           api.verify.schedule(),
           api.verify.timeline(),
           api.verify.confidence(),
           api.verify.reasoning(),
-          api.verify.efficiency()
+          api.verify.efficiency(),
+          api.verify.raft(selectedBrandId),
+          api.verify.kg(selectedBrandId),
         ])
-        
-        if (sched && sched.length > 0) setSchedule(sched)
-        if (time && time.length > 0) setTimeline(time)
-        if (conf && conf.length > 0) setConfidence(conf)
-        if (reas && reas.length > 0) {
+
+        if (sched) setSchedule(sched)
+        if (time) setTimeline(time)
+        if (conf) setConfidence(conf)
+        if (reas) {
           setReasoning(reas)
           if (reas.length > 0) setExpandedReasoning(reas[0].id)
         }
         if (eff) {
-          setEfficiency(prev => ({
-            ...prev,
-            sIn: eff.s_in,
-            sOut: eff.s_out,
-            delta: eff.delta,
-            eScore: eff.e_score
-          }))
+          setEfficiency(eff)
           setFertility(prev => ({
             ...prev,
             postFix: {
@@ -167,6 +185,8 @@ export default function Verify() {
             }
           }))
         }
+        if (raftData) setRaft(raftData)
+        if (kgData) setKgStats(kgData)
       } catch (err) {
         console.error("Failed to fetch verify data:", err)
       } finally {
@@ -174,9 +194,10 @@ export default function Verify() {
       }
     }
     fetchData()
-  }, [])
+  }, [selectedBrandId])
 
-  const { sIn, sOut, delta, eScore, trend: eTrend, history: eHistory } = efficiency
+  const { s_in: sIn, s_out: sOut, delta, e_score: eScore, delta_e: deltaE, status: eStatus,
+    interpretation, path_to_optimal: pathToOptimal, history: eHistory } = efficiency
 
   if (loading) return <div className="page" style={{ padding: '2rem' }}>Loading Verification...</div>
 
@@ -187,17 +208,18 @@ export default function Verify() {
         <p>{t('verifySubtitle')}</p>
       </div>
 
-      {/* ═══════════════ HERO ROW: E Score + Token Fertility ═══════════════ */}
+      {/* HERO ROW: E Score + Token Fertility */}
       <div className="verify-hero fade-in-up fade-in-up-delay-1">
-        {/* Remediation Efficiency — THE number */}
+        {/* Remediation Efficiency */}
         <GlassCard className="e-score-card" glow="cyan">
           <div className="e-score-top">
             <div className="e-score-icon">
               <Zap size={22} />
             </div>
             <div className="e-score-trend">
-              <span className={`e-trend-badge ${eTrend > 0 ? 'trend-up' : 'trend-down'}`}>
-                {eTrend > 0 ? '+' : ''}{eTrend}%
+              <span className={`e-trend-badge ${eStatus === 'optimal' || eStatus === 'strong' ? 'trend-up' : 'trend-down'}`}
+                style={{ color: eScoreStatusColors[eStatus] || 'var(--text-secondary)' }}>
+                {eStatus?.replace('_', ' ')}
               </span>
             </div>
           </div>
@@ -206,24 +228,34 @@ export default function Verify() {
           </div>
           <div className="e-score-label">{t('remediationEfficiency')}</div>
           <div className="e-score-formula">
-            E = (S<sub>out</sub> / S<sub>in</sub>) · (1 − δ)
+            E = (S<sub>out</sub> / S<sub>in</sub>) {'\u00B7'} (1 {'\u2212'} {'\u03B4'})
           </div>
           <div className="e-score-breakdown">
             <div className="e-param">
               <span className="e-param-label">S<sub>in</sub></span>
               <span className="e-param-value">{sIn}</span>
             </div>
-            <div className="e-param-arrow">→</div>
+            <div className="e-param-arrow">{'\u2192'}</div>
             <div className="e-param">
               <span className="e-param-label">S<sub>out</sub></span>
               <span className="e-param-value e-param-highlight">{sOut}</span>
             </div>
             <div className="e-param-divider" />
             <div className="e-param">
-              <span className="e-param-label">δ</span>
+              <span className="e-param-label">{'\u03B4'}</span>
               <span className="e-param-value">{delta}</span>
             </div>
+            <div className="e-param-divider" />
+            <div className="e-param">
+              <span className="e-param-label">{'\u0394'}E</span>
+              <span className="e-param-value" style={{ color: deltaE > 0 ? 'var(--green)' : 'var(--coral)' }}>
+                {deltaE > 0 ? '+' : ''}{deltaE}
+              </span>
+            </div>
           </div>
+          {interpretation && (
+            <div className="e-score-interpretation">{interpretation}</div>
+          )}
         </GlassCard>
 
         {/* Token Fertility Gauge */}
@@ -234,7 +266,7 @@ export default function Verify() {
               <h3>{t('tokenFertilityTitle')}</h3>
             </div>
             <div className="fertility-improvement">
-              <span className="badge badge-success">↓ {tokenFertility.improvementPct}% decay</span>
+              <span className="badge badge-success">{'\u2193'} {fertility.improvementPct}% decay</span>
             </div>
           </div>
           <p className="fertility-desc">{t('tokenFertilityDesc')}</p>
@@ -257,7 +289,163 @@ export default function Verify() {
         </GlassCard>
       </div>
 
-      {/* ═══════════════ TECHNICAL DEEP DIVE (Collapsible) ═══════════════ */}
+      {/* E-SCORE PATH TO OPTIMAL */}
+      {pathToOptimal && pathToOptimal.length > 0 && (
+        <div className="path-section fade-in-up fade-in-up-delay-1">
+          <button className="deep-dive-toggle" onClick={() => setPathOpen(!pathOpen)}>
+            <div className="deep-dive-toggle-left">
+              <Target size={16} style={{ color: 'var(--cyan)' }} />
+              <span className="deep-dive-toggle-label">Remediation Path: 0.6 {'\u2192'} 1.4+</span>
+              <span className="deep-dive-toggle-sub">Step-by-step to optimal E-Score</span>
+            </div>
+            {pathOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+          </button>
+
+          {pathOpen && (
+            <div className="path-milestones">
+              {pathToOptimal.map((step, i) => (
+                <GlassCard key={i} className="path-milestone-card">
+                  <div className="path-milestone-header">
+                    <span className="path-milestone-num">{i + 1}</span>
+                    <span className="path-milestone-title">{step.milestone}</span>
+                    {step.projected_e && (
+                      <span className="path-milestone-e" style={{
+                        color: step.projected_e >= 1.4 ? 'var(--green)' : step.projected_e >= 1.0 ? 'var(--cyan)' : 'var(--amber)'
+                      }}>
+                        E = {step.projected_e}
+                      </span>
+                    )}
+                  </div>
+                  <div className="path-milestone-mechanism">{step.mechanism}</div>
+                  {step.kit_type && (
+                    <div className="path-milestone-kit">
+                      <StatusBadge status="info" label={step.kit_type} />
+                      {step.s_out_delta && <span className="path-delta">S_out {step.s_out_delta}</span>}
+                      {step.delta_reduction && <span className="path-delta">{'\u03B4'} {step.delta_reduction}</span>}
+                    </div>
+                  )}
+                </GlassCard>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* KG STATS + RAFT CADENCE ROW */}
+      <div className="neuro-symbolic-row fade-in-up fade-in-up-delay-2">
+        {/* Knowledge Graph Stats */}
+        <div className="neuro-section">
+          <button className="deep-dive-toggle" onClick={() => setKgOpen(!kgOpen)}>
+            <div className="deep-dive-toggle-left">
+              <GitBranch size={16} style={{ color: 'var(--lavender)' }} />
+              <span className="deep-dive-toggle-label">Knowledge Graph</span>
+              <span className="deep-dive-toggle-sub">Neuro-symbolic entity binding</span>
+            </div>
+            {kgOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+          </button>
+
+          {kgOpen && kgStats && (
+            <GlassCard className="kg-card">
+              <div className="kg-stats-grid">
+                <div className="kg-stat">
+                  <span className="kg-stat-value">{kgStats.entity_count}</span>
+                  <span className="kg-stat-label">Entities</span>
+                </div>
+                <div className="kg-stat">
+                  <span className="kg-stat-value">{kgStats.triple_count}</span>
+                  <span className="kg-stat-label">Triples</span>
+                </div>
+                <div className="kg-stat">
+                  <span className="kg-stat-value" style={{ color: 'var(--cyan)' }}>{kgStats.hard_constraint_count}</span>
+                  <span className="kg-stat-label">Hard Constraints</span>
+                </div>
+                <div className="kg-stat">
+                  <span className="kg-stat-value" style={{ color: 'var(--green)' }}>{kgStats.boundary_score}</span>
+                  <span className="kg-stat-label">Boundary Score</span>
+                </div>
+              </div>
+              <div className="kg-formulas">
+                <div className="kg-formula">
+                  <span className="kg-formula-label">KGQA:</span>
+                  <code>S_KGQA_out = {'{'}(e, Score(e)) : e {'\u2208'} E{'}'}</code>
+                </div>
+                <div className="kg-formula">
+                  <span className="kg-formula-label">Fuzzy Union:</span>
+                  <code>T(v?) = I - {'\u220F'}(I - T(v_i))</code>
+                </div>
+              </div>
+            </GlassCard>
+          )}
+        </div>
+
+        {/* RAFT Cadence */}
+        <div className="neuro-section">
+          <button className="deep-dive-toggle" onClick={() => setRaftOpen(!raftOpen)}>
+            <div className="deep-dive-toggle-left">
+              <RefreshCw size={16} style={{ color: 'var(--green)' }} />
+              <span className="deep-dive-toggle-label">RAFT Cadence</span>
+              <span className="deep-dive-toggle-sub">
+                {raft ? `${raft.urgency} — every ${raft.cadence_interval_days}d` : 'Persistence plan'}
+              </span>
+            </div>
+            {raftOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+          </button>
+
+          {raftOpen && raft && (
+            <GlassCard className="raft-card">
+              <div className="raft-header-info">
+                <div className="raft-stat">
+                  <span className="raft-stat-label">Current E</span>
+                  <span className="raft-stat-value">{raft.current_e_score}</span>
+                </div>
+                <div className="raft-stat">
+                  <span className="raft-stat-label">Target E</span>
+                  <span className="raft-stat-value" style={{ color: 'var(--green)' }}>{raft.target_e_score}</span>
+                </div>
+                <div className="raft-stat">
+                  <span className="raft-stat-label">Urgency</span>
+                  <StatusBadge status={raft.urgency === 'critical' ? 'failed' : raft.urgency === 'high' ? 'warning' : 'passed'} label={raft.urgency} />
+                </div>
+                <div className="raft-stat">
+                  <span className="raft-stat-label">Cycles</span>
+                  <span className="raft-stat-value">{raft.total_cycles}</span>
+                </div>
+              </div>
+
+              {/* RAFT methodology */}
+              <div className="raft-methodology">
+                <h4>Retrieval-Augmented Fine-Tuning</h4>
+                <ol className="raft-steps">
+                  {raft.methodology?.steps?.map((step, i) => (
+                    <li key={i} className="raft-step">{step}</li>
+                  ))}
+                </ol>
+              </div>
+
+              {/* Schedule preview (first 5 cycles) */}
+              <div className="raft-schedule-preview">
+                <h4>Next Cycles</h4>
+                <div className="raft-cycles">
+                  {raft.schedule?.slice(0, 5).map((cycle, i) => (
+                    <div key={i} className="raft-cycle">
+                      <span className="raft-cycle-num">#{cycle.cycle}</span>
+                      <span className="raft-cycle-date">{cycle.scheduled_date}</span>
+                      <span className="raft-cycle-e" style={{
+                        color: cycle.projected_e_score >= 1.4 ? 'var(--green)' : 'var(--cyan)'
+                      }}>
+                        E {'\u2192'} {cycle.projected_e_score}
+                      </span>
+                      <StatusBadge status={cycle.status} label={cycle.status} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </GlassCard>
+          )}
+        </div>
+      </div>
+
+      {/* TECHNICAL DEEP DIVE (Collapsible) */}
       <div className="deep-dive-section fade-in-up fade-in-up-delay-2">
         <button className="deep-dive-toggle" onClick={() => setDeepDiveOpen(!deepDiveOpen)}>
           <div className="deep-dive-toggle-left">
@@ -338,12 +526,12 @@ export default function Verify() {
               </div>
               <div className="formula-proof-body">
                 <div className="formula-rendered">
-                  E = (<span className="formula-val formula-sout">{sOut}</span> / <span className="formula-val formula-sin">{sIn}</span>) · (1 − <span className="formula-val formula-delta">{delta}</span>) = <span className="formula-val formula-result">{eScore}</span>
+                  E = (<span className="formula-val formula-sout">{sOut}</span> / <span className="formula-val formula-sin">{sIn}</span>) {'\u00B7'} (1 {'\u2212'} <span className="formula-val formula-delta">{delta}</span>) = <span className="formula-val formula-result">{eScore}</span>
                 </div>
                 <div className="formula-interpretation">
                   <p>
-                    Your remediation layer has a <strong>{eScore}× semantic multiplier</strong>.
-                    For every unit of raw PIM data quality going in, you're outputting {eScore}× the semantic clarity —
+                    Your remediation layer has a <strong>{eScore}x semantic multiplier</strong>.
+                    For every unit of raw PIM data quality going in, you're outputting {eScore}x the semantic clarity —
                     even after accounting for a {(delta * 100).toFixed(0)}% Token Decay penalty from French technical term fragmentation.
                   </p>
                 </div>
@@ -353,11 +541,10 @@ export default function Verify() {
         )}
       </div>
 
-      {/* ═══════════════ EXISTING VERIFY LAYOUT ═══════════════ */}
+      {/* EXISTING VERIFY LAYOUT */}
       <div className="verify-layout">
         {/* Left column: Audit Schedule + Timeline */}
         <div className="verify-left">
-          {/* Auto-Audit Schedule */}
           <GlassCard className="fade-in-up fade-in-up-delay-1">
             <div className="verify-section-header">
               <h3>
@@ -377,7 +564,6 @@ export default function Verify() {
             </div>
           </GlassCard>
 
-          {/* Audit Timeline */}
           <GlassCard className="fade-in-up fade-in-up-delay-2">
             <h3 style={{ marginBottom: 'var(--space-xl)', fontSize: '0.95rem' }}>
               <Clock size={16} style={{ color: 'var(--cyan)' }} />
@@ -413,7 +599,6 @@ export default function Verify() {
 
         {/* Right column: Chart + Side-by-Side */}
         <div className="verify-right">
-          {/* Confidence Shift Chart */}
           <GlassCard className="fade-in-up fade-in-up-delay-2">
             <h3 style={{ marginBottom: 'var(--space-lg)', fontSize: '0.95rem' }}>
               {t('confidenceShift')}
@@ -450,7 +635,6 @@ export default function Verify() {
             </div>
           </GlassCard>
 
-          {/* Side-by-Side Reasoning */}
           <GlassCard className="fade-in-up fade-in-up-delay-3">
             <h3 style={{ marginBottom: 'var(--space-xl)', fontSize: '0.95rem' }}>
               <MessageSquare size={16} style={{ color: 'var(--cyan)' }} />
@@ -476,7 +660,6 @@ export default function Verify() {
                     {isExpanded && (
                       <div className="reasoning-body">
                         <div className="reasoning-columns">
-                          {/* Before */}
                           <div className="reasoning-col reasoning-before">
                             <div className="reasoning-col-header before-header">
                               <XCircle size={14} />
@@ -497,7 +680,6 @@ export default function Verify() {
                             </div>
                           </div>
 
-                          {/* After */}
                           <div className="reasoning-col reasoning-after">
                             <div className="reasoning-col-header after-header">
                               <CheckCircle size={14} />

@@ -7,6 +7,7 @@ import Connect from './pages/Connect'
 import Diagnose from './pages/Diagnose'
 import Remediate from './pages/Remediate'
 import Verify from './pages/Verify'
+import Roadmap from './pages/Roadmap'
 import './App.css'
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
               <Route path="/diagnose" element={<Diagnose />} />
               <Route path="/remediate" element={<Remediate />} />
               <Route path="/verify" element={<Verify />} />
+              <Route path="/roadmap" element={<Roadmap />} />
             </Routes>
           </main>
         </div>

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Plug, Stethoscope, Wrench, ShieldCheck, Languages, Zap } from 'lucide-react'
+import { LayoutDashboard, Plug, Stethoscope, Cpu, ShieldCheck, Map, Languages, Zap } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import './Sidebar.css'
 
@@ -7,8 +7,9 @@ const navItems = [
   { to: '/', icon: LayoutDashboard, key: 'dashboard' },
   { to: '/connect', icon: Plug, key: 'connect' },
   { to: '/diagnose', icon: Stethoscope, key: 'diagnose' },
-  { to: '/remediate', icon: Wrench, key: 'remediate' },
+  { to: '/remediate', icon: Cpu, key: 'remediate' },
   { to: '/verify', icon: ShieldCheck, key: 'verify' },
+  { to: '/roadmap', icon: Map, key: 'roadmap' },
 ]
 
 export default function Sidebar() {

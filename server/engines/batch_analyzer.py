@@ -14,6 +14,7 @@ from typing import Optional
 from engines.ingest_parser import classify_sources, detect_brands
 from engines.inference_lab import classify_gap
 from engines.bilingual_bridge import calculate_fertility
+from engines.knowledge_graph import build_brand_kg, store_kg
 
 
 # --- Main Orchestrator ---
@@ -76,8 +77,11 @@ async def analyze_and_store_batch(
         # 4. Update parity stats
         await _update_parity_stats(db, en_probes, fr_probes)
 
-        # 4.5. Generate mock Fix Kits for the new brand
+        # 4.5. Generate Fix Kits for the new brand
         await _generate_fix_kits(db, brand_id, brand_slug)
+
+        # 4.6. Build and store Knowledge Graph
+        await _build_and_store_kg(db, brand_id, brand_name)
 
         # 5. Build summary
         summary = _build_summary(brand_name, probes, all_results, en_probes, fr_probes, gaps_created)
@@ -323,37 +327,105 @@ def _extract_url_from_label(label: str) -> Optional[str]:
 
 # --- Fix Kit Generation ---
 
+# Maps gap_type to the best remediation strategy
+_GAP_TYPE_TO_KIT = {
+    "Entity Trust": "hardAttributes",
+    "Fact Density": "jsonLd",
+    "Token Decay": "truthClip",
+}
+
+_KIT_TYPE_IMPACTS = {
+    "hardAttributes": {"base": 25, "label": "inference alignment"},
+    "jsonLd": {"base": 30, "label": "fact density score"},
+    "truthClip": {"base": 20, "label": "entity trust"},
+}
+
+
 async def _generate_fix_kits(db, brand_id: str, brand_slug: str):
-    """Generate 3 automated fix kits for a newly ingested brand."""
+    """Generate fix kits adaptively based on actual signal gaps found for this brand."""
     cursor = await db.execute("SELECT id FROM fix_kits WHERE brand_id = ?", (brand_id,))
     if await cursor.fetchone():
         return  # Already has kits
 
-    now = datetime.utcnow().isoformat()
-    kits = [
-        (
-            f"kit-{brand_id}-1", brand_id, f"{brand_slug}-prod-001", "hardAttributes", "ready",
-            json.dumps({"description": f"Verified product attributes for {brand_slug.title()}", "verified": True}),
-            "Expected +20% inference alignment", None, now
-        ),
-        (
-            f"kit-{brand_id}-2", brand_id, f"{brand_slug}-prod-002", "jsonLd", "ready",
-            json.dumps({"@type": "Brand", "name": brand_slug.title(), "founder": "TBD"}),
-            "Expected +30% fact density score", None, now
-        ),
-        (
-            f"kit-{brand_id}-3", brand_id, f"{brand_slug}-vid-001", "truthClip", "ready",
-            json.dumps({"duration": "15s", "content": "Official brand certification", "format": "MP4"}),
-            "Expected +15% entity trust", None, now
-        )
-    ]
-
-    await db.executemany(
-        """INSERT INTO fix_kits (id, brand_id, product_id, type, status, payload, impact, deployed_at, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        kits
+    # Fetch all signal gaps for this brand to base kits on actual problems
+    cursor = await db.execute(
+        """SELECT id, query, lang, gap_type, severity, ai_response_quality, product_id,
+                  source_of_hallucination_label, brand_truth
+           FROM signal_gaps WHERE brand_id = ? ORDER BY
+           CASE severity WHEN 'critical' THEN 0 WHEN 'warning' THEN 1 ELSE 2 END""",
+        (brand_id,),
     )
-    await db.commit()
+    gaps = await cursor.fetchall()
+
+    if not gaps:
+        return  # No gaps = no kits needed
+
+    now = datetime.utcnow().isoformat()
+    kits_to_insert = []
+    seen_types = set()
+
+    for gap in gaps:
+        gap_type = gap["gap_type"]
+        kit_type = _GAP_TYPE_TO_KIT.get(gap_type, "hardAttributes")
+
+        # One kit per remediation type (avoid duplicates)
+        if kit_type in seen_types:
+            continue
+        seen_types.add(kit_type)
+
+        product_id = gap["product_id"] or f"{brand_slug}-prod-generic"
+        severity = gap["severity"]
+        quality = gap["ai_response_quality"] or 0
+        query = gap["query"] or ""
+        toxic_source = gap["source_of_hallucination_label"] or "Unknown source"
+
+        # Build adaptive payload based on gap type
+        if kit_type == "hardAttributes":
+            payload = {
+                "target_query": query,
+                "gap_addressed": gap_type,
+                "toxic_source_to_replace": toxic_source,
+                "attributes_to_inject": f"Verified brand attributes for {brand_slug.title()}",
+                "current_quality": f"{quality}%",
+                "action": "Inject hard product attributes to override stale community sources",
+            }
+        elif kit_type == "jsonLd":
+            payload = {
+                "@type": "Product",
+                "brand": brand_slug.title(),
+                "target_query": query,
+                "gap_addressed": gap_type,
+                "action": "Inject structured JSON-LD to increase fact density in AI responses",
+                "current_quality": f"{quality}%",
+            }
+        else:  # truthClip
+            payload = {
+                "duration": "15s",
+                "format": "MP4/WebM",
+                "target_query": query,
+                "gap_addressed": gap_type,
+                "content": f"Official verification clip for {brand_slug.title()} — counters: {toxic_source}",
+                "target": "Google Gemini multimodal indexing",
+            }
+
+        # Impact scales with severity and current quality deficit
+        impact_info = _KIT_TYPE_IMPACTS.get(kit_type, {"base": 20, "label": "alignment"})
+        boost = impact_info["base"] + (10 if severity == "critical" else 0) + max(0, (50 - quality) // 5)
+        impact = f"Expected +{boost}% {impact_info['label']} for \"{query[:50]}\" queries"
+
+        kits_to_insert.append((
+            f"kit-{brand_id}-{len(kits_to_insert) + 1}",
+            brand_id, product_id, kit_type, "ready",
+            json.dumps(payload), impact, None, now,
+        ))
+
+    if kits_to_insert:
+        await db.executemany(
+            """INSERT INTO fix_kits (id, brand_id, product_id, type, status, payload, impact, deployed_at, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            kits_to_insert,
+        )
+        await db.commit()
 
 
 # --- Parity Stats ---
@@ -445,3 +517,20 @@ def _build_summary(
         "top_toxic_sources": list(set(s["label"] for s in all_toxic))[:5],
         "queries_analyzed": list(unique_queries),
     }
+
+
+# --- Knowledge Graph Construction ---
+
+async def _build_and_store_kg(db, brand_id: str, brand_name: str):
+    """Build a Knowledge Graph from brand products and store it."""
+    cursor = await db.execute(
+        "SELECT * FROM products WHERE brand_id = ?", (brand_id,)
+    )
+    products = [dict(row) for row in await cursor.fetchall()]
+
+    if not products:
+        return
+
+    brand = {"id": brand_id, "name": brand_name, "slug": brand_id}
+    kg = build_brand_kg(brand, products)
+    await store_kg(db, brand_id, kg)

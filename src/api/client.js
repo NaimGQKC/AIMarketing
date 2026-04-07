@@ -43,7 +43,9 @@ export const api = {
   diagnose: {
     gaps: (brandId) => request(`/api/diagnose/gaps${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
     gap: (id) => request(`/api/diagnose/gaps/${id}`),
-    parity: () => request('/api/diagnose/parity'),
+    gapFixKit: (gapId) => request(`/api/diagnose/gaps/${gapId}/fix-kit`),
+    deployKit: (kitId) => request(`/api/remediate/kits/${kitId}/deploy`, { method: 'POST' }),
+    parity: (brandId) => request(`/api/diagnose/parity${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
     probe: (query, lang = 'EN', iterations = 50) =>
       request('/api/diagnose/probe', {
         method: 'POST',
@@ -61,6 +63,8 @@ export const api = {
     preview: (kitId) => request(`/api/remediate/kits/${kitId}/preview`),
     deploy: (kitId) => request(`/api/remediate/kits/${kitId}/deploy`, { method: 'POST' }),
     compare: () => request('/api/remediate/compare'),
+    dpo: (productId) => request(`/api/remediate/dpo/${productId}`),
+    graph: (brandId) => request(`/api/remediate/graph/${brandId}`),
   },
 
   verify: {
@@ -69,7 +73,22 @@ export const api = {
     confidence: () => request('/api/verify/confidence'),
     reasoning: () => request('/api/verify/reasoning'),
     efficiency: () => request('/api/verify/efficiency'),
+    raft: (brandId) => request(`/api/verify/raft${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
+    kg: (brandId) => request(`/api/verify/kg${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
     runAudit: (auditId) => request(`/api/verify/audit/${auditId}/run`, { method: 'POST' }),
+  },
+
+  eee: {
+    syndication: (brandId) => request(`/api/eee/syndication${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
+    freshness: (brandId) => request(`/api/eee/freshness${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
+    authority: (brandId) => request(`/api/eee/authority${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
+    priority: (brandId) => request(`/api/eee/priority${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
+    roadmap: (brandId) => request(`/api/eee/roadmap${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
+    replies: (brandId) => request(`/api/eee/replies${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
+    pings: (brandId) => request(`/api/eee/pings${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
+    drift: (brandId) => request(`/api/eee/drift${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
+    tax: (brandId) => request(`/api/eee/tax${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
+    moat: (brandId) => request(`/api/eee/moat${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
   },
 
   tasks: {

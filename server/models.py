@@ -181,3 +181,105 @@ class UCPManifest(BaseModel):
     data_feeds: list[dict]
     capabilities: list[str]
     contact: dict
+
+
+# --- Knowledge Graph ---
+class KGEntityResponse(BaseModel):
+    id: str
+    entity_type: str
+    label: str
+    label_fr: str = ""
+    triples: list[dict] = []
+    kgqa_score: float = 0.0
+
+
+class KGValidationRequest(BaseModel):
+    entity_id: str
+    claims: dict  # {attribute: claimed_value}
+
+
+class KGValidationResponse(BaseModel):
+    entity_id: str
+    total_claims: int
+    grounded: int
+    violations: int
+    unverifiable: int
+    grounding_ratio: float
+    kgqa_score: float
+    boundary_score: float
+    verdict: str
+    results: list[dict]
+
+
+# --- E-Score ---
+class EScoreResponse(BaseModel):
+    e_score: float
+    s_in: float
+    s_out: float
+    delta: float
+    delta_e: float
+    status: str
+    interpretation: str
+    formula: str
+    thresholds: dict
+    path_to_optimal: list[dict]
+
+
+# --- RAFT ---
+class RAFTCadenceResponse(BaseModel):
+    brand_id: str
+    current_e_score: float
+    target_e_score: float
+    cadence_interval_days: int
+    urgency: str
+    total_cycles: int
+    schedule: list[dict]
+    methodology: dict
+
+
+class RAFTCycleRequest(BaseModel):
+    brand_id: str
+
+
+# --- DPO Constraints ---
+class DPOConstraintSet(BaseModel):
+    product_id: str
+    product_name: str
+    brand: str
+    constraints: list[dict]
+    total_constraints: int
+    contextual_success_rate: float
+    kg_boundary_score: float
+    dpo_config: dict
+
+
+# --- EEE (External Environment Engineering) ---
+class SyndicationNode(BaseModel):
+    id: str
+    type: str
+    tier: str
+    tier_label: str
+    authority_weight: float
+    status: str
+    deployment: dict
+    freshness_target: str
+
+
+class CitationAuthority(BaseModel):
+    brand_id: str
+    authority_ratio: float
+    total_citations_analyzed: int
+    toxic_source_count: int
+    clean_source_count: int
+    countermeasures: list[dict]
+
+
+class EEERoadmapPhase(BaseModel):
+    phase: int
+    name: str
+    eee_vector: str
+    duration: str
+    projected_e: float
+    actions: list[str]
+    success_metric: str
+    e_score_mechanism: str

@@ -194,4 +194,84 @@ CREATE TABLE IF NOT EXISTS reasoning_snapshots (
     after_confidence TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Knowledge Graph Entities
+CREATE TABLE IF NOT EXISTS kg_entities (
+    id TEXT PRIMARY KEY,
+    brand_id TEXT NOT NULL REFERENCES brands(id),
+    entity_type TEXT NOT NULL,  -- 'Brand' | 'Product' | 'Organization' | 'Certification'
+    label TEXT NOT NULL,
+    label_fr TEXT,
+    metadata TEXT,  -- JSON
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Knowledge Graph Triples
+CREATE TABLE IF NOT EXISTS kg_triples (
+    id TEXT PRIMARY KEY,
+    brand_id TEXT NOT NULL REFERENCES brands(id),
+    subject TEXT NOT NULL,
+    predicate TEXT NOT NULL,
+    object TEXT NOT NULL,
+    confidence REAL NOT NULL DEFAULT 1.0,
+    source TEXT DEFAULT 'pim',  -- 'pim' | 'certification_body' | 'bilingual_bridge'
+    lang TEXT DEFAULT 'en',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- RAFT (Retrieval-Augmented Fine-Tuning) Schedule
+CREATE TABLE IF NOT EXISTS raft_schedule (
+    id TEXT PRIMARY KEY,
+    brand_id TEXT NOT NULL REFERENCES brands(id),
+    cycle INTEGER NOT NULL,
+    scheduled_date TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'scheduled',  -- scheduled | running | completed | failed
+    e_score_before REAL,
+    e_score_after REAL,
+    delta_e REAL,
+    e1_errors_purged INTEGER DEFAULT 0,
+    detail TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Syndication Nodes (EEE Semantic Saturation)
+CREATE TABLE IF NOT EXISTS syndication_nodes (
+    id TEXT PRIMARY KEY,
+    brand_id TEXT NOT NULL REFERENCES brands(id),
+    node_type TEXT NOT NULL,
+    tier TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'planned',  -- planned | active | deployed | stale
+    authority_weight REAL DEFAULT 0,
+    last_touched TIMESTAMP,
+    uri TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Freshness Cycles (EEE External RAFT)
+CREATE TABLE IF NOT EXISTS freshness_cycles (
+    id TEXT PRIMARY KEY,
+    brand_id TEXT NOT NULL REFERENCES brands(id),
+    cycle_number INTEGER NOT NULL,
+    executed_at TIMESTAMP,
+    freshness_score REAL,
+    e_score_before REAL,
+    e_score_after REAL,
+    nodes_touched INTEGER DEFAULT 0,
+    status TEXT NOT NULL DEFAULT 'scheduled',  -- scheduled | running | completed
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- E-Score History (tracks 0.6 → 1.4+ path)
+CREATE TABLE IF NOT EXISTS e_score_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    brand_id TEXT REFERENCES brands(id),
+    e_score REAL NOT NULL,
+    s_in REAL,
+    s_out REAL,
+    delta REAL,
+    status TEXT,  -- critical_failure | sub_threshold | marginal | strong | optimal
+    trigger TEXT,  -- 'audit' | 'raft_cycle' | 'kit_deployment' | 'manual'
+    detail TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 """

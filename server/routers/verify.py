@@ -1,14 +1,17 @@
 """
-VisiMind — Verify API Router
-GET/POST /api/verify/schedule | timeline | confidence | reasoning | audit
+VisiMind — Verify API Router (v2 — Neuro-Symbolic)
+GET/POST /api/verify/schedule | timeline | confidence | reasoning | audit | efficiency | escore | raft | kg
 """
 import json
+from typing import Optional
 from fastapi import APIRouter, Depends
 import aiosqlite
 
 from database import get_db
-from models import ScheduleAuditRequest
-from engines.verification import schedule_audit, run_audit
+from models import ScheduleAuditRequest, RAFTCycleRequest
+from engines.verification import (
+    schedule_audit, run_audit, compute_e_score, build_raft_cadence,
+)
 
 router = APIRouter(prefix="/api/verify", tags=["verify"])
 
@@ -129,27 +132,25 @@ async def trigger_audit(audit_id: str, db: aiosqlite.Connection = Depends(get_db
 @router.get("/efficiency")
 async def get_efficiency(db: aiosqlite.Connection = Depends(get_db)):
     """
-    Live Remediation Efficiency: E = (S_out / S_in) · (1 − δ)
-    Where δ = Token Decay Factor derived from bilingual bridge fertility analysis.
+    Live Remediation Efficiency with full E-Score breakdown.
+    E = (S_out / S_in) * (1 - delta)
+    Includes path from 0.6 failure state to 1.4+ optimal.
     """
     from engines.bilingual_bridge import calculate_fertility
 
-    # Representative bilingual content for live δ calculation
-    sample_en = "Mackage Lena jacket 800-fill power goose down rated -30°C seam-sealed construction"
-    sample_fr = "Mackage Lena manteau duvet d'oie facteur gonflement 800 indice thermique -30°C coutures scellées"
+    sample_en = "Mackage Lena jacket 800-fill power goose down rated -30C seam-sealed construction"
+    sample_fr = "Mackage Lena manteau duvet d'oie facteur gonflement 800 indice thermique -30C coutures scellees"
 
     en_fertility = calculate_fertility(sample_en, "en")
     fr_fertility = calculate_fertility(sample_fr, "fr")
 
-    # Token Decay Factor: normalized difference in fertility
-    # δ = (fr_fertility - en_fertility) / fr_fertility, clamped [0, 1]
+    # Token Decay Factor
     delta = max(0, min(1,
         (fr_fertility["fertility"] - en_fertility["fertility"]) / fr_fertility["fertility"]
     )) if fr_fertility["fertility"] > 0 else 0
     delta = round(delta, 3)
 
-    # Semantic clarity scores from aggregate metrics
-    # S_in = baseline PIM quality, S_out = post-remediation quality
+    # Get S_in and S_out from audit data
     cursor = await db.execute(
         "SELECT score_overall FROM audit_runs WHERE status = 'passed' ORDER BY scheduled_date DESC LIMIT 1"
     )
@@ -163,15 +164,152 @@ async def get_efficiency(db: aiosqlite.Connection = Depends(get_db)):
     s_in = round(failed["score_overall"] / 10, 1) if failed and failed["score_overall"] else 3.2
     s_out = round(passed["score_overall"] / 10, 1) if passed and passed["score_overall"] else 8.5
 
-    # Compute E
-    e_score = round((s_out / s_in) * (1 - delta), 2) if s_in > 0 else 0
+    # Check for KG grounding score
+    kg_grounding = None
+    cursor3 = await db.execute(
+        "SELECT AVG(confidence) as avg_conf FROM kg_triples LIMIT 1"
+    )
+    kg_row = await cursor3.fetchone()
+    if kg_row and kg_row["avg_conf"]:
+        kg_grounding = round(kg_row["avg_conf"], 3)
+
+    # Compute full E-Score with path
+    e_data = compute_e_score(s_in, s_out, delta, kg_grounding)
+
+    # Add fertility data
+    e_data["en_fertility"] = en_fertility["fertility"]
+    e_data["fr_fertility"] = fr_fertility["fertility"]
+    e_data["kg_grounding"] = kg_grounding
+
+    # Get E-Score history
+    cursor4 = await db.execute(
+        "SELECT e_score, status, trigger, created_at FROM e_score_history ORDER BY created_at DESC LIMIT 10"
+    )
+    history_rows = await cursor4.fetchall()
+    e_data["history"] = [
+        {
+            "e_score": r["e_score"],
+            "status": r["status"],
+            "trigger": r["trigger"],
+            "date": r["created_at"],
+        }
+        for r in history_rows
+    ]
+
+    return e_data
+
+
+@router.get("/raft")
+async def get_raft_cadence(
+    brand_id: Optional[str] = None,
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """
+    Get RAFT (Retrieval-Augmented Fine-Tuning) cadence plan.
+    Computes schedule based on current E-Score.
+    """
+    from engines.bilingual_bridge import calculate_fertility
+
+    # Get current E-Score
+    sample_en = "Mackage Lena jacket 800-fill power goose down rated -30C"
+    sample_fr = "Mackage Lena manteau duvet d'oie facteur gonflement 800"
+    en_fert = calculate_fertility(sample_en, "en")
+    fr_fert = calculate_fertility(sample_fr, "fr")
+    delta = max(0, min(1,
+        (fr_fert["fertility"] - en_fert["fertility"]) / fr_fert["fertility"]
+    )) if fr_fert["fertility"] > 0 else 0
+
+    cursor = await db.execute(
+        "SELECT score_overall FROM audit_runs WHERE status = 'passed' ORDER BY scheduled_date DESC LIMIT 1"
+    )
+    passed = await cursor.fetchone()
+    cursor2 = await db.execute(
+        "SELECT score_overall FROM audit_runs WHERE status = 'failed' ORDER BY scheduled_date ASC LIMIT 1"
+    )
+    failed = await cursor2.fetchone()
+
+    s_in = round(failed["score_overall"] / 10, 1) if failed and failed["score_overall"] else 3.2
+    s_out = round(passed["score_overall"] / 10, 1) if passed and passed["score_overall"] else 8.5
+
+    e_data = compute_e_score(s_in, s_out, delta)
+    current_e = e_data["e_score"]
+
+    bid = brand_id or "mackage"
+    cadence = build_raft_cadence(bid, current_e, delta)
+
+    # Get existing RAFT schedule from DB
+    cursor3 = await db.execute(
+        "SELECT * FROM raft_schedule WHERE brand_id = ? ORDER BY cycle", (bid,)
+    )
+    existing = await cursor3.fetchall()
+    if existing:
+        cadence["db_schedule"] = [
+            {
+                "cycle": r["cycle"],
+                "date": r["scheduled_date"],
+                "status": r["status"],
+                "e_before": r["e_score_before"],
+                "e_after": r["e_score_after"],
+                "e1_purged": r["e1_errors_purged"],
+            }
+            for r in existing
+        ]
+
+    return cadence
+
+
+@router.get("/kg")
+async def get_kg_stats(
+    brand_id: Optional[str] = None,
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """Knowledge Graph statistics and KGQA scores for a brand."""
+    bid = brand_id or "mackage"
+
+    # Entity count
+    cursor = await db.execute(
+        "SELECT COUNT(*) as cnt FROM kg_entities WHERE brand_id = ?", (bid,)
+    )
+    entity_count = (await cursor.fetchone())["cnt"]
+
+    # Triple count and avg confidence
+    cursor2 = await db.execute(
+        "SELECT COUNT(*) as cnt, AVG(confidence) as avg_conf FROM kg_triples WHERE brand_id = ?",
+        (bid,),
+    )
+    row = await cursor2.fetchone()
+    triple_count = row["cnt"]
+    avg_confidence = round(row["avg_conf"], 3) if row["avg_conf"] else 0
+
+    # Hard constraint count (confidence >= 0.9)
+    cursor3 = await db.execute(
+        "SELECT COUNT(*) as cnt FROM kg_triples WHERE brand_id = ? AND confidence >= 0.9",
+        (bid,),
+    )
+    hard_count = (await cursor3.fetchone())["cnt"]
+
+    # Compute fuzzy boundary
+    cursor4 = await db.execute(
+        "SELECT confidence FROM kg_triples WHERE brand_id = ?", (bid,)
+    )
+    confidences = [r["confidence"] for r in await cursor4.fetchall()]
+
+    boundary_score = 0.0
+    if confidences:
+        product = 1.0
+        for c in confidences:
+            product *= (1.0 - c)
+        boundary_score = round(1.0 - product, 6)
 
     return {
-        "e_score": e_score,
-        "s_in": s_in,
-        "s_out": s_out,
-        "delta": delta,
-        "en_fertility": en_fertility["fertility"],
-        "fr_fertility": fr_fertility["fertility"],
-        "formula": f"E = ({s_out} / {s_in}) × (1 − {delta}) = {e_score}",
+        "brand_id": bid,
+        "entity_count": entity_count,
+        "triple_count": triple_count,
+        "avg_confidence": avg_confidence,
+        "hard_constraint_count": hard_count,
+        "boundary_score": boundary_score,
+        "formulas": {
+            "kgqa": "S_KGQA_out = {(e, Score(e)) : e in E}",
+            "fuzzy_union": "T(v?) = I - prod_{1<=i<=K}(I - T(v_i))",
+        },
     }

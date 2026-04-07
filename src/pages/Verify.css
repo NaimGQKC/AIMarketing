@@ -976,3 +976,272 @@
     font-size: 2.5rem;
   }
 }
+
+/* ─── E-Score Interpretation ─── */
+.e-score-interpretation {
+  margin-top: var(--space-md);
+  padding: var(--space-md);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--radius-sm);
+  border-left: 2px solid var(--cyan);
+  text-align: left;
+  width: 100%;
+}
+
+/* ─── Path to Optimal ─── */
+.path-section {
+  margin-bottom: var(--space-xl);
+}
+
+.path-milestones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.path-milestone-card {
+  padding: var(--space-lg) !important;
+}
+
+.path-milestone-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-sm);
+}
+
+.path-milestone-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 229, 255, 0.15);
+  color: var(--cyan);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.path-milestone-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.path-milestone-e {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.path-milestone-mechanism {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-bottom: var(--space-sm);
+}
+
+.path-milestone-kit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.path-delta {
+  font-family: 'Courier New', monospace;
+  font-size: 0.7rem;
+  color: var(--cyan);
+  padding: 2px 8px;
+  background: rgba(0, 229, 255, 0.08);
+  border-radius: var(--radius-sm);
+}
+
+/* ─── Neuro-Symbolic Row (KG + RAFT) ─── */
+.neuro-symbolic-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+
+.neuro-section {
+  display: flex;
+  flex-direction: column;
+}
+
+/* KG Card */
+.kg-card {
+  margin-top: var(--space-md);
+}
+
+.kg-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+}
+
+.kg-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kg-stat-value {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.kg-stat-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
+.kg-formulas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+}
+
+.kg-formula {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.kg-formula-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--lavender);
+  min-width: 80px;
+}
+
+.kg-formula code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* RAFT Card */
+.raft-card {
+  margin-top: var(--space-md);
+}
+
+.raft-header-info {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.raft-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.raft-stat-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
+.raft-stat-value {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.raft-methodology {
+  margin-bottom: var(--space-lg);
+}
+
+.raft-methodology h4 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.raft-steps {
+  padding-left: var(--space-lg);
+  margin: 0;
+}
+
+.raft-step {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding: 2px 0;
+}
+
+.raft-schedule-preview h4 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.raft-cycles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.raft-cycle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+}
+
+.raft-cycle-num {
+  font-family: 'Courier New', monospace;
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+  min-width: 24px;
+}
+
+.raft-cycle-date {
+  color: var(--text-secondary);
+  min-width: 90px;
+}
+
+.raft-cycle-e {
+  font-weight: 700;
+  font-family: var(--font-heading);
+  flex: 1;
+}
+
+@media (max-width: 1024px) {
+  .neuro-symbolic-row {
+    grid-template-columns: 1fr;
+  }
+  .kg-stats-grid,
+  .raft-header-info {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
