@@ -3,6 +3,7 @@ VisiMind — Dashboard API Router
 GET /api/dashboard/metrics | alerts | trend | protocols
 """
 import json
+from typing import Optional
 from fastapi import APIRouter, Depends
 import aiosqlite
 
@@ -129,6 +130,6 @@ async def get_trend(brand_id: Optional[str] = None, db: aiosqlite.Connection = D
 async def get_protocols(db: aiosqlite.Connection = Depends(get_db)):
     """UCP/ACP connection health."""
     return [
-        {"name": "UCP (Google)", "status": "connected", "last_ping": "2s ago", "feeds": 1247},
-        {"name": "ACP (OpenAI)", "status": "connected", "last_ping": "5s ago", "feeds": 1183},
+        {"name": "UCP (Google)", "status": "connected", "lastPing": "2s ago", "feeds": 1247},
+        {"name": "ACP (OpenAI)", "status": "connected", "lastPing": "5s ago", "feeds": 1183},
     ]

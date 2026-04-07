@@ -457,9 +457,10 @@ def build_raft_cadence(brand_id: str, current_e: float, delta: float) -> dict:
             "status": "scheduled",
             "projected_e_score": projected_e,
             "actions": [
-                "Collect fresh probe data (50 iterations EN + 50 FR)",
+                "Collect fresh probe data (5 variations x 3 iterations, EN + FR)",
+                "Run Self-Consistency Mining — compute contradiction rate per variation",
                 "Run G-Eval against current KG ground truth",
-                "Generate DPO training pairs from E1 violations",
+                "Generate DPO training pairs from E1 violations + contradictions",
                 "Execute fine-tuning pass with updated Hard Attributes",
                 "Validate E-Score improvement against previous cycle",
                 f"Purge stale priors with delta > {delta:.3f}",
@@ -552,12 +553,22 @@ async def run_audit(db, audit_id: str) -> dict:
     )
     await db.commit()
 
-    from engines.inference_lab import probe_query_single
+    from engines.inference_lab import probe_query_single, build_golden_set, compute_contradiction_rate
 
+    # Use Golden Set (3 variations x 3 iterations = 9 probes) instead of 10 identical probes
+    variations = build_golden_set(audit["query"], "EN")[:3]
     results = []
-    for _ in range(10):
-        result = await probe_query_single(audit["query"], "EN")
-        results.append(result)
+    variation_responses = []
+    for variation in variations:
+        responses_for_variation = []
+        for _ in range(3):
+            result = await probe_query_single(variation["query"], "EN", temperature=0.7)
+            results.append(result)
+            responses_for_variation.append(result["response_text"])
+        variation_responses.extend(responses_for_variation)
+
+    # Compute contradiction rate across all responses
+    contradiction = compute_contradiction_rate(variation_responses)
 
     mention_rate = sum(1 for r in results if r["brand_mentioned"]) / len(results) * 100
     avg_logprob = (
@@ -574,8 +585,18 @@ async def run_audit(db, audit_id: str) -> dict:
         lang="EN",
     )
 
-    overall_score = round(mention_rate * 0.4 + geval_scores["overall"] * 20 * 0.6, 1)
+    # Factor contradiction rate into overall score — high contradiction penalizes
+    contradiction_penalty = contradiction["contradiction_rate"] * 15  # 0-15 point penalty
+    overall_score = round(mention_rate * 0.4 + geval_scores["overall"] * 20 * 0.6 - contradiction_penalty, 1)
+    overall_score = max(0, overall_score)
     status = "passed" if overall_score >= 60 else "failed"
+
+    detail = (
+        f"Mention rate: {mention_rate}%, Avg logprob: {round(avg_logprob, 3)}, "
+        f"E1 errors: {geval_scores.get('e1_errors', 0)}, "
+        f"Contradiction rate: {contradiction['contradiction_rate']}, "
+        f"Hallucinating: {contradiction['is_hallucinating']}"
+    )
 
     await db.execute(
         """UPDATE audit_runs SET
@@ -587,7 +608,7 @@ async def run_audit(db, audit_id: str) -> dict:
            WHERE id = ?""",
         (
             status,
-            f"Mention rate: {mention_rate}%, Avg logprob: {round(avg_logprob, 3)}, E1 errors: {geval_scores.get('e1_errors', 0)}",
+            detail,
             geval_scores["technical_accuracy"],
             geval_scores["citation_fidelity"],
             geval_scores["linguistic_parity"],
@@ -604,4 +625,6 @@ async def run_audit(db, audit_id: str) -> dict:
         "geval": geval_scores,
         "mention_rate": mention_rate,
         "avg_logprob": round(avg_logprob, 3),
+        "contradiction_rate": contradiction["contradiction_rate"],
+        "is_hallucinating": contradiction["is_hallucinating"],
     }

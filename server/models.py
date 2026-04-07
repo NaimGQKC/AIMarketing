@@ -96,7 +96,9 @@ class ParityStats(BaseModel):
 class ProbeRequest(BaseModel):
     query: str
     lang: str = "EN"
-    iterations: int = Field(default=50, ge=1, le=200)
+    iterations: int = Field(default=3, ge=1, le=10)
+    use_golden_set: bool = Field(default=True, description="Generate 5 query variations instead of repeating one query")
+    temperature: float = Field(default=0.7, ge=0.0, le=2.0)
 
 
 class TaskStatus(BaseModel):

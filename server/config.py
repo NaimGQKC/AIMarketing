@@ -22,7 +22,9 @@ PORT: int = int(os.getenv("PORT", "8000"))
 DEBUG: bool = os.getenv("DEBUG", "true").lower() == "true"
 
 # --- Probing ---
-PROBE_ITERATIONS: int = int(os.getenv("PROBE_ITERATIONS", "50"))
+PROBE_ITERATIONS: int = int(os.getenv("PROBE_ITERATIONS", "3"))
+PROBE_TEMPERATURE: float = float(os.getenv("PROBE_TEMPERATURE", "0.7"))
+GOLDEN_SET_VARIATIONS: int = int(os.getenv("GOLDEN_SET_VARIATIONS", "5"))
 PROBE_MODEL: str = os.getenv("PROBE_MODEL", "gemini-2.5-flash")
 JUDGE_MODEL: str = os.getenv("JUDGE_MODEL", "gemini-2.5-pro")
 
