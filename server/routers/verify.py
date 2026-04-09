@@ -28,11 +28,7 @@ async def get_schedule(db: aiosqlite.Connection = Depends(get_db)):
     rows = await cursor.fetchall()
 
     if not rows:
-        return [
-            {"day": 3, "date": "2026-03-28", "status": "scheduled", "label": "Day 3 — Initial Check"},
-            {"day": 7, "date": "2026-04-01", "status": "scheduled", "label": "Day 7 — Mid Audit"},
-            {"day": 14, "date": "2026-04-08", "status": "scheduled", "label": "Day 14 — Full Verification"},
-        ]
+        return []
 
     return [
         {
@@ -80,16 +76,58 @@ async def get_timeline(db: aiosqlite.Connection = Depends(get_db)):
 
 @router.get("/confidence")
 async def get_confidence(db: aiosqlite.Connection = Depends(get_db)):
-    """Confidence shift chart data per brand."""
-    return [
-        {"day": "Baseline", "mackage": 23, "ssense": 35, "aldo": 38},
-        {"day": "Day 1", "mackage": 25, "ssense": 36, "aldo": 39},
-        {"day": "Day 3", "mackage": 48, "ssense": 45, "aldo": 52},
-        {"day": "Day 5", "mackage": 62, "ssense": 58, "aldo": 61},
-        {"day": "Day 7", "mackage": 81, "ssense": 72, "aldo": 74},
-        {"day": "Day 10", "mackage": 85, "ssense": 78, "aldo": 79},
-        {"day": "Day 14", "mackage": None, "ssense": None, "aldo": None},
-    ]
+    """Confidence shift chart data per brand — computed from audit_runs scores."""
+    # Get all brands
+    cursor = await db.execute("SELECT id, slug FROM brands")
+    brands = await cursor.fetchall()
+
+    if not brands:
+        return []
+
+    # Get audit scores per brand, ordered by day_number
+    brand_slugs = {b["id"]: b["slug"] for b in brands}
+
+    cursor = await db.execute(
+        """SELECT brand_id, day_number, score_overall, label
+           FROM audit_runs
+           WHERE score_overall IS NOT NULL
+           ORDER BY day_number"""
+    )
+    audits = await cursor.fetchall()
+
+    # Build day-indexed structure
+    day_data = {}
+    for a in audits:
+        day_label = f"Day {a['day_number']}" if a["day_number"] else "Baseline"
+        if day_label not in day_data:
+            day_data[day_label] = {"day": day_label}
+        slug = brand_slugs.get(a["brand_id"], a["brand_id"])
+        day_data[day_label][slug] = round(a["score_overall"], 1)
+
+    # Also add baseline from signal_gaps (avg ai_response_quality per brand)
+    cursor2 = await db.execute(
+        "SELECT brand_id, AVG(ai_response_quality) as avg_q FROM signal_gaps GROUP BY brand_id"
+    )
+    baselines = await cursor2.fetchall()
+
+    if baselines:
+        baseline_entry = {"day": "Baseline"}
+        for b in baselines:
+            slug = brand_slugs.get(b["brand_id"], b["brand_id"])
+            baseline_entry[slug] = round(b["avg_q"], 1)
+        # Insert baseline at the beginning
+        result = [baseline_entry] + sorted(day_data.values(), key=lambda x: x["day"])
+    else:
+        result = sorted(day_data.values(), key=lambda x: x["day"])
+
+    # Add pending days with None values
+    for brand in brands:
+        slug = brand["slug"]
+        for entry in result:
+            if slug not in entry:
+                entry[slug] = None
+
+    return result if result else []
 
 
 @router.get("/reasoning")
@@ -138,11 +176,18 @@ async def get_efficiency(db: aiosqlite.Connection = Depends(get_db)):
     """
     from engines.bilingual_bridge import calculate_fertility
 
-    sample_en = "Mackage Lena jacket 800-fill power goose down rated -30C seam-sealed construction"
-    sample_fr = "Mackage Lena manteau duvet d'oie facteur gonflement 800 indice thermique -30C coutures scellees"
+    # Use real product data from DB instead of hardcoded sample strings
+    cursor_p = await db.execute(
+        "SELECT description_en, description_fr FROM products WHERE description_en IS NOT NULL LIMIT 1"
+    )
+    product = await cursor_p.fetchone()
 
-    en_fertility = calculate_fertility(sample_en, "en")
-    fr_fertility = calculate_fertility(sample_fr, "fr")
+    if product and product["description_en"] and product["description_fr"]:
+        en_fertility = calculate_fertility(product["description_en"], "en")
+        fr_fertility = calculate_fertility(product["description_fr"], "fr")
+    else:
+        en_fertility = {"fertility": 0, "tokens": 0, "words": 0}
+        fr_fertility = {"fertility": 0, "tokens": 0, "words": 0}
 
     # Token Decay Factor
     delta = max(0, min(1,
@@ -161,8 +206,16 @@ async def get_efficiency(db: aiosqlite.Connection = Depends(get_db)):
     )
     failed = await cursor2.fetchone()
 
-    s_in = round(failed["score_overall"] / 10, 1) if failed and failed["score_overall"] else 3.2
-    s_out = round(passed["score_overall"] / 10, 1) if passed and passed["score_overall"] else 8.5
+    s_in = round(failed["score_overall"] / 10, 1) if failed and failed["score_overall"] else 0.0
+    s_out = round(passed["score_overall"] / 10, 1) if passed and passed["score_overall"] else 0.0
+
+    if s_in == 0 and s_out == 0:
+        return {
+            "e_score": 0, "s_in": 0, "s_out": 0, "delta": 0, "delta_e": 0,
+            "status": "no_data", "interpretation": "No audit data yet. Run probes and audits to compute E-Score.",
+            "formula": "E = (S_out / S_in) * (1 - delta)", "thresholds": {},
+            "path_to_optimal": [], "history": [],
+        }
 
     # Check for KG grounding score
     kg_grounding = None
@@ -210,11 +263,18 @@ async def get_raft_cadence(
     """
     from engines.bilingual_bridge import calculate_fertility
 
-    # Get current E-Score
-    sample_en = "Mackage Lena jacket 800-fill power goose down rated -30C"
-    sample_fr = "Mackage Lena manteau duvet d'oie facteur gonflement 800"
-    en_fert = calculate_fertility(sample_en, "en")
-    fr_fert = calculate_fertility(sample_fr, "fr")
+    # Get delta from real product data
+    cursor_p = await db.execute(
+        "SELECT description_en, description_fr FROM products WHERE description_en IS NOT NULL LIMIT 1"
+    )
+    product_row = await cursor_p.fetchone()
+    if product_row and product_row["description_en"] and product_row["description_fr"]:
+        en_fert = calculate_fertility(product_row["description_en"], "en")
+        fr_fert = calculate_fertility(product_row["description_fr"], "fr")
+    else:
+        en_fert = {"fertility": 1.0}
+        fr_fert = {"fertility": 1.0}
+
     delta = max(0, min(1,
         (fr_fert["fertility"] - en_fert["fertility"]) / fr_fert["fertility"]
     )) if fr_fert["fertility"] > 0 else 0
@@ -228,8 +288,17 @@ async def get_raft_cadence(
     )
     failed = await cursor2.fetchone()
 
-    s_in = round(failed["score_overall"] / 10, 1) if failed and failed["score_overall"] else 3.2
-    s_out = round(passed["score_overall"] / 10, 1) if passed and passed["score_overall"] else 8.5
+    s_in = round(failed["score_overall"] / 10, 1) if failed and failed["score_overall"] else 0.0
+    s_out = round(passed["score_overall"] / 10, 1) if passed and passed["score_overall"] else 0.0
+
+    if s_in == 0 and s_out == 0:
+        return {
+            "brand_id": brand_id or "mackage",
+            "current_e_score": 0, "target_e_score": 1.4,
+            "cadence_interval_days": 0, "urgency": "no_data",
+            "total_cycles": 0, "schedule": [],
+            "methodology": {"name": "RAFT", "description": "No audit data yet. Run probes and audits first."},
+        }
 
     e_data = compute_e_score(s_in, s_out, delta)
     current_e = e_data["e_score"]

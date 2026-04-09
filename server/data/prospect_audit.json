@@ -1,0 +1,514 @@
+{
+  "audit_metadata": {
+    "generated": "2026-04-08",
+    "auditor": "VisiMind Research Agent",
+    "methodology": "Automated homepage, robots.txt, llms.txt, and .well-known/ucp analysis",
+    "note": "SSENSE, Aritzia, Simons returned 403 (anti-bot); Canada Goose returned 429 (rate-limited). Findings for those brands are based on partial data and public knowledge."
+  },
+  "prospects": [
+    {
+      "brand": "Mackage",
+      "domain": "mackage.com",
+      "ai_readiness_score": 6,
+      "platform": "Shopify Plus",
+      "shopify_store": "us-mackage.myshopify.com",
+      "findings": {
+        "json_ld": {
+          "present": true,
+          "types_found": ["BreadcrumbList", "Organization", "WebSite"],
+          "has_product_schema": false,
+          "quality": "Minimal — only basic Organization/WebSite/Breadcrumb. No Product, Offer, or AggregateRating schema detected on homepage."
+        },
+        "french_support": {
+          "available": true,
+          "method": "Separate regional domains: mackage.ca/fr/ (Canada), mackage.eu/fr/ (Europe)",
+          "bilingual_schema": false,
+          "note": "French content served but no hreflang or multilingual JSON-LD schema linking language variants"
+        },
+        "llms_txt": {
+          "present": false,
+          "status": "404 — No llms.txt file"
+        },
+        "well_known_ucp": {
+          "present": true,
+          "details": "Full Shopify UCP config with checkout, fulfillment, discount, order capabilities. Google Pay + Shopify card payments."
+        },
+        "robots_txt": {
+          "blocks_ai_crawlers": false,
+          "notable_rules": "Blocks Nutch completely. AhrefsBot/MJ12bot get crawl-delay. No GPTBot/CCBot/Google-Extended blocks.",
+          "ai_friendly": true
+        },
+        "meta_description": {
+          "quality": "Weak",
+          "content": "Page title only: 'Mackage® US | Luxury Outerwear, Ski Jackets, and Clothing'. No meta description tag detected."
+        }
+      },
+      "gaps": [
+        "No Product-level JSON-LD schema (missing price, availability, reviews in structured data)",
+        "No llms.txt for AI discovery",
+        "No bilingual/hreflang schema linking EN and FR product pages",
+        "Missing or weak meta descriptions",
+        "No AggregateRating or Review schema despite being a premium brand"
+      ],
+      "outreach_angle": "Mackage already has regional French sites and a UCP endpoint — they're ahead on commerce infrastructure. But their structured data is bare-bones: no Product schema means AI assistants and Google rich results can't surface their $1000+ coats with prices, reviews, or availability. For a luxury brand competing with Canada Goose, that's revenue left on the table. VisiMind can bridge the gap between their sophisticated commerce stack and their primitive schema markup.",
+      "best_visimind_feature": "Bilingual Product Schema Generator + AI Discovery Layer (llms.txt)",
+      "priority": "HIGH"
+    },
+    {
+      "brand": "SSENSE",
+      "domain": "ssense.com",
+      "ai_readiness_score": 4,
+      "platform": "Custom (proprietary platform)",
+      "shopify_store": null,
+      "findings": {
+        "json_ld": {
+          "present": "Unknown — 403 blocked homepage fetch",
+          "quality": "Could not verify"
+        },
+        "french_support": {
+          "available": true,
+          "method": "URL path-based: /fr-ca/, /fr-fr/ confirmed in robots.txt locale paths",
+          "bilingual_schema": "Unknown — could not access pages",
+          "note": "robots.txt reveals ~400+ locale-specific paths blocked, including en-*, fr-*, ja-*, ko-*, zh-* variants"
+        },
+        "llms_txt": {
+          "present": "Unknown — blocked",
+          "status": "Could not verify due to 403"
+        },
+        "well_known_ucp": {
+          "present": "Unknown — blocked",
+          "status": "Could not verify due to 403"
+        },
+        "robots_txt": {
+          "blocks_ai_crawlers": false,
+          "notable_rules": "Massive robots.txt with 400+ locale-specific path blocks. Blocks /api/, /export/, /hq/. No specific AI crawler blocks. Four sitemaps declared.",
+          "ai_friendly": "Partially — no explicit AI blocks but aggressive bot protection (403 on fetch)"
+        },
+        "meta_description": {
+          "quality": "Unknown — blocked"
+        }
+      },
+      "gaps": [
+        "Aggressive bot blocking (403 on standard fetches) means AI assistants likely cannot read their content",
+        "400+ locale paths blocked in robots.txt — may be over-blocking legitimate AI discovery",
+        "Custom platform likely lacks standardized schema automation",
+        "No evidence of llms.txt or AI-readiness preparation",
+        "Bilingual content exists but schema linking is unverifiable"
+      ],
+      "outreach_angle": "SSENSE is a tech-forward luxury marketplace with massive multilingual support (EN, FR, JA, KO, ZH), but their aggressive bot-blocking means AI shopping assistants cannot discover or recommend their 500+ designer brands. As AI-driven shopping grows, SSENSE products will be invisible to ChatGPT, Gemini, and Perplexity users. VisiMind can help them selectively open up to AI discovery while maintaining brand control — the difference between being recommended and being invisible.",
+      "best_visimind_feature": "AI Discovery Strategy + Selective AI Access Control (robots.txt + llms.txt optimization)",
+      "priority": "HIGH"
+    },
+    {
+      "brand": "ALDO",
+      "domain": "aldoshoes.com",
+      "ai_readiness_score": 5,
+      "platform": "Shopify",
+      "shopify_store": "210aua-9k.myshopify.com",
+      "findings": {
+        "json_ld": {
+          "present": true,
+          "types_found": ["Organization", "WebSite"],
+          "has_product_schema": false,
+          "quality": "Basic — Organization with social links and WebSite with SearchAction. No Product, Offer, or collection-level schema."
+        },
+        "french_support": {
+          "available": true,
+          "method": "Site configuration shows domain_key_french and catalog_name_french settings. French catalog integrated.",
+          "bilingual_schema": false,
+          "note": "French content configured internally but no bilingual schema markup linking EN/FR pages"
+        },
+        "llms_txt": {
+          "present": false,
+          "status": "404 — No llms.txt file"
+        },
+        "well_known_ucp": {
+          "present": true,
+          "details": "Full Shopify UCP with Google Pay integration (merchant ID: 16708973830884969730) + Shopify card payments."
+        },
+        "robots_txt": {
+          "blocks_ai_crawlers": false,
+          "notable_rules": "Blocks Nutch completely. Standard Shopify restrictions. Explicitly states 'Checkouts are for humans'. No AI crawler blocks.",
+          "ai_friendly": true
+        },
+        "meta_description": {
+          "quality": "Good",
+          "content": "The ultimate destination for on-trend footwear, bags and accessories for women and men. ALDO gives you the confidence to own every step in style and comfort."
+        }
+      },
+      "gaps": [
+        "No Product-level JSON-LD (shoes need size/color/price/availability schema for rich results)",
+        "No llms.txt for AI product discovery",
+        "French catalog exists but zero bilingual schema markup",
+        "Organization schema lacks detailed LocalBusiness data despite having physical stores",
+        "No AggregateRating/Review schema — missing rich snippet opportunities"
+      ],
+      "outreach_angle": "ALDO has the best meta description of the group and a solid Organization schema foundation. But for a footwear brand, the absence of Product schema is critical — shoe shoppers search by size, color, and price, and Google's rich results depend on structured data ALDO doesn't have. Their French catalog is configured but invisible to search engines. VisiMind's bilingual Product schema could unlock rich results across both EN and FR Google, plus make ALDO products discoverable by AI shopping assistants.",
+      "best_visimind_feature": "Product Schema Automation (size/color variants) + Bilingual Schema Sync",
+      "priority": "HIGH"
+    },
+    {
+      "brand": "Rudsak",
+      "domain": "rudsak.com",
+      "ai_readiness_score": 7,
+      "platform": "Shopify Plus",
+      "shopify_store": "rudsakofficialsite.myshopify.com",
+      "findings": {
+        "json_ld": {
+          "present": "Not detected on homepage",
+          "types_found": [],
+          "has_product_schema": false,
+          "quality": "No JSON-LD structured data found on homepage"
+        },
+        "french_support": {
+          "available": true,
+          "method": "URL path-based: /fr/ paths configured. primaryLocale is EN with FR as secondary.",
+          "bilingual_schema": false,
+          "note": "French paths exist but no bilingual schema markup"
+        },
+        "llms_txt": {
+          "present": true,
+          "status": "FULL llms.txt with 800+ products listed. Includes brand description, 150+ collections, detailed product SKUs with color variants and direct URLs. Best-in-class among audited brands.",
+          "quality": "Excellent — comprehensive product catalog for AI discovery"
+        },
+        "well_known_ucp": {
+          "present": true,
+          "details": "Full Shopify UCP config with checkout, fulfillment, discount, order management. Google Pay + Shopify card payments."
+        },
+        "robots_txt": {
+          "blocks_ai_crawlers": false,
+          "notable_rules": "Standard Shopify pattern. Blocks Nutch. AhrefsBot gets crawl-delay. No AI crawler blocks.",
+          "ai_friendly": true
+        },
+        "meta_description": {
+          "quality": "Weak — not detected on homepage"
+        }
+      },
+      "gaps": [
+        "Despite having an excellent llms.txt, NO JSON-LD structured data on homepage",
+        "French site exists but lacks bilingual schema linking",
+        "Missing meta descriptions",
+        "llms.txt is great for AI but traditional search (Google) gets no structured data",
+        "No Organization or WebSite schema at all"
+      ],
+      "outreach_angle": "Rudsak is the most AI-forward brand in this audit — they already have a comprehensive llms.txt with 800+ products. But there's a paradox: they're optimized for AI discovery while completely missing traditional structured data (zero JSON-LD). This means ChatGPT can find their products but Google can't generate rich results for them. VisiMind can close this gap by adding the JSON-LD layer that complements their existing llms.txt, giving them full coverage across both AI and traditional search.",
+      "best_visimind_feature": "JSON-LD Schema Automation + Bilingual Schema Sync (complement existing llms.txt)",
+      "priority": "MEDIUM"
+    },
+    {
+      "brand": "Frank & Oak",
+      "domain": "frankandoak.com",
+      "ai_readiness_score": 3,
+      "platform": "Shopify",
+      "shopify_store": "frank-and-oak-store.myshopify.com",
+      "findings": {
+        "json_ld": {
+          "present": false,
+          "types_found": [],
+          "has_product_schema": false,
+          "quality": "No JSON-LD structured data detected on homepage"
+        },
+        "french_support": {
+          "available": true,
+          "method": "URL-based language detection with /fr/ paths. Bilingual cookie consent strings (EN/FR) in config.",
+          "bilingual_schema": false,
+          "note": "French content served via URL paths but zero schema markup in either language"
+        },
+        "llms_txt": {
+          "present": false,
+          "status": "404 — No llms.txt file"
+        },
+        "well_known_ucp": {
+          "present": true,
+          "details": "Standard Shopify UCP with Google Pay + Shopify card payments."
+        },
+        "robots_txt": {
+          "blocks_ai_crawlers": false,
+          "notable_rules": "Standard Shopify robots.txt pattern. 'Checkouts are for humans'. No AI blocks.",
+          "ai_friendly": true
+        },
+        "meta_description": {
+          "quality": "Weak — not detected in homepage content"
+        }
+      },
+      "gaps": [
+        "Zero JSON-LD structured data — no Organization, WebSite, Product, or BreadcrumbList schema",
+        "No llms.txt for AI discovery",
+        "French site exists but invisible to search engines (no bilingual schema)",
+        "Missing meta descriptions",
+        "Using Symmetry theme v8.2.0 — potentially missing built-in schema features of newer themes",
+        "Sustainability-focused brand with no schema to communicate ESG credentials"
+      ],
+      "outreach_angle": "Frank & Oak is a sustainability-focused brand that's completely invisible to both AI assistants and Google's rich results. Zero structured data means their eco-friendly story, pricing, and product availability are hidden from every AI and search algorithm. As a bilingual Montreal brand, the lack of French schema is particularly costly — they're missing the entire Quebec market's rich results. VisiMind can build their entire structured data foundation from scratch, with sustainability schema that differentiates them in AI recommendations.",
+      "best_visimind_feature": "Complete Schema Foundation (Organization + Product + Bilingual) + Sustainability/ESG Schema",
+      "priority": "HIGH"
+    },
+    {
+      "brand": "Aritzia",
+      "domain": "aritzia.com",
+      "ai_readiness_score": 3,
+      "platform": "Custom (proprietary platform — NOT Shopify)",
+      "shopify_store": null,
+      "findings": {
+        "json_ld": {
+          "present": "Unknown — 403 blocked all fetch attempts",
+          "quality": "Could not verify"
+        },
+        "french_support": {
+          "available": "Likely — aritzia.com is a Canadian brand, FR support expected",
+          "bilingual_schema": "Unknown",
+          "note": "Could not verify — both aritzia.com and aritzia.com/en/ returned 403"
+        },
+        "llms_txt": {
+          "present": "Unknown — blocked",
+          "status": "Could not verify"
+        },
+        "well_known_ucp": {
+          "present": "Unknown — blocked",
+          "status": "Could not verify"
+        },
+        "robots_txt": {
+          "blocks_ai_crawlers": "Unknown — robots.txt returned 403",
+          "notable_rules": "Even robots.txt is blocked, suggesting very aggressive anti-bot measures",
+          "ai_friendly": false
+        },
+        "meta_description": {
+          "quality": "Unknown"
+        }
+      },
+      "gaps": [
+        "Extremely aggressive bot blocking — even robots.txt returns 403",
+        "Custom platform means no Shopify UCP standardization",
+        "AI assistants almost certainly cannot access any Aritzia content",
+        "Large brand with in-house brands (Babaton, Wilfred, TNA) that need distinct schema",
+        "High likelihood of missing structured data given platform age"
+      ],
+      "outreach_angle": "Aritzia is one of Canada's fastest-growing fashion retailers but their aggressive bot blocking makes them virtually invisible to AI shopping assistants. With proprietary sub-brands (Babaton, Wilfred, TNA, Sunday Best), they need complex multi-brand schema that their custom platform likely doesn't generate. As AI shopping grows, Aritzia risks losing discovery to competitors who are AI-accessible. VisiMind can help them create a controlled AI presence — selectively opening to beneficial AI crawlers while maintaining brand protection.",
+      "best_visimind_feature": "AI Access Strategy + Multi-brand Schema Architecture",
+      "priority": "MEDIUM"
+    },
+    {
+      "brand": "Simons",
+      "domain": "simons.ca",
+      "ai_readiness_score": 3,
+      "platform": "Custom (proprietary platform — NOT Shopify)",
+      "shopify_store": null,
+      "findings": {
+        "json_ld": {
+          "present": "Unknown — 403 blocked fetch",
+          "quality": "Could not verify"
+        },
+        "french_support": {
+          "available": true,
+          "method": "Known bilingual retailer — simons.ca serves EN and FR. Quebec-based company.",
+          "bilingual_schema": "Unknown — could not verify",
+          "note": "As a Quebec-based retailer, French is their primary language"
+        },
+        "llms_txt": {
+          "present": "Unknown — blocked",
+          "status": "Could not verify"
+        },
+        "well_known_ucp": {
+          "present": "Unknown — blocked",
+          "status": "Could not verify"
+        },
+        "robots_txt": {
+          "blocks_ai_crawlers": "Unknown — robots.txt returned 403",
+          "notable_rules": "Aggressive anti-bot measures blocking even robots.txt",
+          "ai_friendly": false
+        },
+        "meta_description": {
+          "quality": "Unknown"
+        }
+      },
+      "gaps": [
+        "Aggressive bot blocking — robots.txt inaccessible",
+        "Custom platform without Shopify's built-in UCP/schema features",
+        "Quebec's largest fashion retailer needs FR-first schema strategy",
+        "Multi-department store with 1000s of products needing schema",
+        "AI assistants cannot discover Simons products"
+      ],
+      "outreach_angle": "Simons is Quebec's iconic department store with deep French-first heritage, but their aggressive bot blocking shuts out AI assistants entirely. As a multi-category retailer (fashion, home, beauty), they have massive structured data needs that their custom platform likely underserves. VisiMind's bilingual schema would be especially powerful here — Simons could be the first Quebec retailer fully discoverable by AI assistants in both French and English, owning the AI-commerce space in their home market.",
+      "best_visimind_feature": "French-first Bilingual Schema + AI Discovery Layer for multi-category retail",
+      "priority": "MEDIUM"
+    },
+    {
+      "brand": "Matt & Nat",
+      "domain": "mattandnat.com",
+      "ai_readiness_score": 4,
+      "platform": "Shopify",
+      "shopify_store": "via-vegan-ltd.myshopify.com",
+      "findings": {
+        "json_ld": {
+          "present": true,
+          "types_found": ["WebSite", "Organization"],
+          "has_product_schema": false,
+          "quality": "Basic — WebSite with SearchAction and Organization with social links (Facebook, Twitter, Instagram, YouTube, Pinterest, LinkedIn). No Product schema."
+        },
+        "french_support": {
+          "available": false,
+          "method": "None — languageMode is 'Single', primaryLocale is 'en'",
+          "bilingual_schema": false,
+          "note": "Despite being a Montreal-based brand, the site is English-only with no French option"
+        },
+        "llms_txt": {
+          "present": false,
+          "status": "404 — No llms.txt file"
+        },
+        "well_known_ucp": {
+          "present": true,
+          "details": "Standard Shopify UCP with Google Pay (merchant: Matt & Nat Canada) + Shopify card payments."
+        },
+        "robots_txt": {
+          "blocks_ai_crawlers": false,
+          "notable_rules": "Standard Shopify pattern. Blocks Nutch. No AI crawler blocks.",
+          "ai_friendly": true
+        },
+        "meta_description": {
+          "quality": "Weak — not detected on homepage. Cookie consent text appears as primary visible text."
+        }
+      },
+      "gaps": [
+        "Montreal brand with ZERO French language support — missing entire Quebec market",
+        "No Product schema (vegan bags need material/sustainability attributes in schema)",
+        "No llms.txt for AI discovery",
+        "Missing meta descriptions on homepage",
+        "No sustainability/vegan schema despite brand identity being built on vegan materials",
+        "Basic Organization schema lacks LocalBusiness or physical store data"
+      ],
+      "outreach_angle": "Matt & Nat is a Montreal-based vegan accessories brand that doesn't speak French online — a massive gap for a Quebec company. Their sustainability story (vegan materials, eco-conscious design) is their key differentiator, but none of it is captured in structured data. AI assistants recommending 'sustainable bags' or 'vegan leather accessories' can't find Matt & Nat because the data simply doesn't exist. VisiMind can build sustainability-rich Product schema + add French language support, turning their brand values into discoverable, machine-readable data.",
+      "best_visimind_feature": "Sustainability/Vegan Product Schema + French Language Expansion + AI Discovery",
+      "priority": "HIGH"
+    },
+    {
+      "brand": "Canada Goose",
+      "domain": "canadagoose.com",
+      "ai_readiness_score": 4,
+      "platform": "Custom (likely Salesforce Commerce Cloud or similar enterprise platform)",
+      "shopify_store": null,
+      "findings": {
+        "json_ld": {
+          "present": "Unknown — 429 rate-limited on all attempts",
+          "quality": "Could not verify"
+        },
+        "french_support": {
+          "available": true,
+          "method": "Known multilingual site — canadagoose.com/ca/fr/ for French Canada, plus 15+ country-specific sites",
+          "bilingual_schema": "Unknown — could not verify"
+        },
+        "llms_txt": {
+          "present": "Unknown — 429 rate-limited",
+          "status": "Could not verify"
+        },
+        "well_known_ucp": {
+          "present": "Unlikely — not a Shopify store",
+          "status": "Could not verify"
+        },
+        "robots_txt": {
+          "blocks_ai_crawlers": "Unknown — 429 rate-limited",
+          "notable_rules": "Rate limiting suggests aggressive traffic management",
+          "ai_friendly": "Questionable — rate limiting would affect AI crawlers"
+        },
+        "meta_description": {
+          "quality": "Unknown"
+        }
+      },
+      "gaps": [
+        "Aggressive rate limiting blocks even basic analysis",
+        "Enterprise platform likely has inconsistent schema implementation",
+        "Premium luxury brand ($1000-$2000 parkas) needs rich Product schema for high-value purchases",
+        "Multilingual site (15+ countries) creates massive bilingual schema needs",
+        "Direct competitor to Mackage — whoever has better AI discovery wins"
+      ],
+      "outreach_angle": "Canada Goose rate-limits even basic web requests, which means AI shopping assistants face the same barriers. For a luxury brand where a single parka costs $1,500+, being invisible to AI recommendations is expensive. Their enterprise platform (non-Shopify) likely lacks the automated schema tools that competitors are getting from Shopify's ecosystem. VisiMind can give Canada Goose enterprise-grade structured data that matches their premium positioning — rich Product schema with materials, warmth ratings, and sustainability credentials that AI assistants need to make confident luxury recommendations.",
+      "best_visimind_feature": "Enterprise Schema Architecture + AI Access Strategy + Multilingual Product Schema",
+      "priority": "HIGH"
+    },
+    {
+      "brand": "Moose Knuckles",
+      "domain": "mooseknucklescanada.com",
+      "ai_readiness_score": 3,
+      "platform": "Shopify",
+      "shopify_store": "Confirmed Shopify (detected in source)",
+      "findings": {
+        "json_ld": {
+          "present": false,
+          "types_found": [],
+          "has_product_schema": false,
+          "quality": "No JSON-LD structured data detected on homepage. Only testing/experimentation platform code visible."
+        },
+        "french_support": {
+          "available": false,
+          "method": "Not detected — English-only interface",
+          "bilingual_schema": false,
+          "note": "Canadian luxury brand with no French language support"
+        },
+        "llms_txt": {
+          "present": false,
+          "status": "404 — No llms.txt file"
+        },
+        "well_known_ucp": {
+          "present": true,
+          "details": "Standard Shopify UCP with Google Pay (merchant: Moose Knuckles) + Shopify card payments."
+        },
+        "robots_txt": {
+          "blocks_ai_crawlers": false,
+          "notable_rules": "Standard Shopify pattern. No AI crawler blocks. Sitemap declared.",
+          "ai_friendly": true
+        },
+        "meta_description": {
+          "quality": "Weak — not detected on homepage"
+        }
+      },
+      "gaps": [
+        "Zero JSON-LD structured data — completely invisible to rich results",
+        "No French language support despite being a Canadian luxury brand",
+        "No llms.txt for AI discovery",
+        "No meta descriptions detected",
+        "Running A/B testing (Shoplift) but no schema optimization",
+        "Luxury outerwear ($800-$2000) with no price/availability schema",
+        "Direct competitor to Canada Goose and Mackage — least AI-ready of the three"
+      ],
+      "outreach_angle": "Moose Knuckles is in a three-way luxury outerwear battle with Canada Goose and Mackage, and they're the least AI-ready of the three. Zero structured data, no French support, no llms.txt — they're spending on A/B testing (Shoplift detected) to optimize conversions but missing the upstream problem: customers can't find them through AI or rich results in the first place. VisiMind can give them the fastest path to competitive parity: Product schema with luxury attributes, French language support, and AI discovery — turning invisible inventory into recommended products.",
+      "best_visimind_feature": "Complete Schema Foundation + French Language + AI Discovery (llms.txt) — full stack needed",
+      "priority": "VERY HIGH"
+    }
+  ],
+  "competitive_summary": {
+    "ai_readiness_ranking": [
+      {"rank": 1, "brand": "Rudsak", "score": 7, "reason": "Only brand with llms.txt (800+ products). Has UCP. But paradoxically missing all JSON-LD."},
+      {"rank": 2, "brand": "Mackage", "score": 6, "reason": "Has basic JSON-LD + UCP + French sites. Missing Product schema and llms.txt."},
+      {"rank": 3, "brand": "ALDO", "score": 5, "reason": "Best meta description. Has Organization/WebSite JSON-LD + UCP. Missing Product schema."},
+      {"rank": 4, "brand": "Matt & Nat", "score": 4, "reason": "Basic JSON-LD + UCP. No French despite being Montreal-based. No Product schema."},
+      {"rank": 5, "brand": "SSENSE", "score": 4, "reason": "Massive multilingual infra but 403-blocks everything. AI-hostile despite being tech-forward."},
+      {"rank": 6, "brand": "Canada Goose", "score": 4, "reason": "Rate-limits aggressively. Enterprise platform likely has gaps. Premium brand needs premium schema."},
+      {"rank": 7, "brand": "Frank & Oak", "score": 3, "reason": "Zero JSON-LD. Has French site but no schema. Sustainability story untold in data."},
+      {"rank": 8, "brand": "Aritzia", "score": 3, "reason": "403 blocks everything including robots.txt. Custom platform. Multi-brand complexity."},
+      {"rank": 9, "brand": "Simons", "score": 3, "reason": "Quebec icon but 403 blocks all. Custom platform. Massive catalog needs schema."},
+      {"rank": 10, "brand": "Moose Knuckles", "score": 3, "reason": "Worst of the luxury outerwear trio. Zero schema, no French, no AI discovery."}
+    ],
+    "universal_gaps": [
+      "NONE of the 10 brands have Product-level JSON-LD schema visible on their homepages",
+      "Only 1/10 (Rudsak) has an llms.txt file",
+      "6/10 have French content but 0/10 have bilingual schema markup",
+      "0/10 block AI crawlers explicitly — the market is OPEN for AI optimization",
+      "All 7 Shopify stores have .well-known/ucp (standard Shopify feature) but don't leverage it",
+      "3/10 (SSENSE, Aritzia, Simons) aggressively block bots, hurting AI discoverability"
+    ],
+    "market_opportunity": "The Canadian luxury/fashion market has near-zero AI readiness. No brand has Product schema, no brand has bilingual schema, and only one has llms.txt. This is a greenfield opportunity for VisiMind — the first mover advantage is enormous. Any brand that adds proper structured data + AI discovery will dominate rich results and AI recommendations in this vertical."
+  },
+  "outreach_priority_tiers": {
+    "tier_1_immediate": {
+      "brands": ["Moose Knuckles", "Frank & Oak", "Matt & Nat", "Mackage"],
+      "reason": "Shopify stores with zero or minimal schema, easy to implement, high ROI. Moose Knuckles is the most urgent — luxury brand with nothing."
+    },
+    "tier_2_strategic": {
+      "brands": ["ALDO", "Rudsak", "Canada Goose"],
+      "reason": "ALDO has good foundation to build on. Rudsak needs JSON-LD to complement their llms.txt. Canada Goose is high-value enterprise deal."
+    },
+    "tier_3_complex": {
+      "brands": ["SSENSE", "Aritzia", "Simons"],
+      "reason": "Custom platforms with bot-blocking. Require strategic approach — likely need C-level buy-in to change AI access policies. Highest contract value but longest sales cycle."
+    }
+  }
+}

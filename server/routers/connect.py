@@ -62,26 +62,44 @@ async def sync_integration(provider: str, db: aiosqlite.Connection = Depends(get
 
 @router.get("/feeds")
 async def get_feeds(db: aiosqlite.Connection = Depends(get_db)):
-    """Feed status table data."""
-    # Build from brands + protocols
-    cursor = await db.execute("SELECT name FROM brands")
-    brands = await cursor.fetchall()
+    """Feed status table data — derived from actual PIM connections and product counts."""
+    cursor = await db.execute(
+        """SELECT pc.name, pc.provider, pc.status, pc.last_sync, pc.items_synced, pc.errors,
+                  b.id as brand_id, b.name as brand_name
+           FROM pim_connections pc
+           LEFT JOIN brands b ON LOWER(b.slug) = LOWER(pc.provider)
+                               OR (pc.provider = 'shopify' AND b.id IS NOT NULL)
+           ORDER BY pc.name"""
+    )
+    rows = await cursor.fetchall()
 
     feeds = []
-    for b in brands:
-        name = b["name"]
-        for protocol in ["UCP", "ACP"]:
-            cursor = await db.execute(
-                "SELECT COUNT(*) as c FROM products WHERE brand_id = (SELECT id FROM brands WHERE name = ?)",
-                (name,),
-            )
-            count = (await cursor.fetchone())["c"]
-            feeds.append({
-                "feed": f"{name} — {protocol}",
-                "items": count * 85 + (50 if protocol == "UCP" else 43),
-                "last_sync": "12 min ago" if protocol == "UCP" else "25 min ago",
-                "status": "success" if count > 0 else "warning",
-                "errors": 0 if protocol == "UCP" else count + 1,
-            })
+    for r in rows:
+        last_sync = r["last_sync"]
+        if last_sync:
+            try:
+                sync_time = datetime.fromisoformat(last_sync)
+                delta = datetime.utcnow() - sync_time
+                seconds = int(delta.total_seconds())
+                if seconds < 60:
+                    last_sync = f"{seconds}s ago"
+                elif seconds < 3600:
+                    last_sync = f"{seconds // 60}m ago"
+                elif seconds < 86400:
+                    last_sync = f"{seconds // 3600}h ago"
+                else:
+                    last_sync = f"{seconds // 86400}d ago"
+            except (ValueError, TypeError):
+                pass
+        else:
+            last_sync = "Never"
+
+        feeds.append({
+            "feed": r["name"],
+            "items": r["items_synced"] or 0,
+            "last_sync": last_sync,
+            "status": "success" if r["status"] == "connected" else "warning",
+            "errors": r["errors"] or 0,
+        })
 
     return feeds

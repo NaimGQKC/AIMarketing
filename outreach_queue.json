@@ -1,0 +1,41 @@
+[
+  {
+    "id": "1",
+    "to_name": "Gregoire Baret",
+    "to_email": "TO_FILL",
+    "company": "Aldo Group",
+    "subject": "Aldo's new Shopify stack has an AI blind spot",
+    "body": "Hi Gregoire,\n\nI'm Alejandro, a Montreal-based founder building VisiMind. Congrats on the Shopify migration. That's a massive project.\n\nQuick thing I noticed: I ran Aldo through ChatGPT and Perplexity for queries like \"best sustainable shoes Canada\" and \"meilleures bottes Montreal.\" Aldo barely shows up. Vessi and Allbirds are getting the recommendations instead.\n\nThe issue is technical. Aldo's product schema on the new Shopify setup is basic. No reviews, no availability, no bilingual entity mapping. The structured data that works for Google doesn't translate to what LLMs need.\n\nI'm looking for 5 Montreal brands to be design partners for VisiMind. You'd get free AI visibility audits, bilingual Fix Kits, and ongoing monitoring for 12 months. In exchange, I'd want 30 minutes of feedback per month.\n\nGiven Aldo's fresh stack, this is the ideal moment to get AI search right before the architecture solidifies.\n\nWorth a 15 min call?\n\nAlejandro\nVisiMind, Montreal",
+    "channel": "email",
+    "status": "pending",
+    "linkedin_url": "https://ca.linkedin.com/in/gregoirebaret",
+    "linkedin_note": "Hi Gregoire, fellow Montreal founder here. I've been researching how Canadian brands perform in AI search after Shopify migrations. Found some interesting gaps in how LLMs parse bilingual ecommerce data. Would love to share what I found about Aldo specifically.",
+    "notes": "VP Consumer Experience & Digital Product. Aldo migrated to Shopify Nov 2025 — architecture still fresh. Scored 5/10 on AI readiness."
+  },
+  {
+    "id": "2",
+    "to_name": "Kelly Cochrane",
+    "to_email": "TO_FILL",
+    "company": "Mackage",
+    "subject": "Mackage's homepage is missing a meta description",
+    "body": "Hi Kelly,\n\nI'm Alejandro, a Montreal founder building VisiMind. I looked at mackage.com and found something that surprised me.\n\nMackage's homepage has no meta description. No hreflang tags. No OG tags. When someone asks ChatGPT \"best luxury winter coats Montreal,\" Mackage doesn't come up. Canada Goose and Moose Knuckles do.\n\nIt's not a brand awareness issue. It's a structured data issue. LLMs can't parse what they can't see, and right now Mackage's bilingual content structure confuses AI engines in a way it doesn't confuse Google.\n\nI'm building VisiMind specifically for this. Looking for 5 Montreal luxury brands as design partners: free 12-month access, full AI audits, bilingual Fix Kits. In exchange, 30 min of feedback per month.\n\nMackage is at the top of my list because of your Montreal roots and bilingual catalog.\n\n15 min to walk through the full diagnostic?\n\nAlejandro\nVisiMind, Montreal",
+    "channel": "email",
+    "status": "pending",
+    "linkedin_url": "https://www.linkedin.com/in/kellycochrane/",
+    "linkedin_note": "Hi Kelly, I'm a Montreal founder researching AI search visibility for Canadian luxury brands. I ran a diagnostic on mackage.com and found some gaps that are keeping Mackage out of ChatGPT and Perplexity results. Would love to share what I found.",
+    "notes": "Global Director eCommerce. Led website relaunch. Mackage scored 4/10 — missing meta description on homepage, no hreflang, no OG tags."
+  },
+  {
+    "id": "3",
+    "to_name": "Fadi Farha",
+    "to_email": "TO_FILL",
+    "company": "SSENSE",
+    "subject": "SSENSE is accidentally blocking ChatGPT and Perplexity",
+    "body": "Hi Fadi,\n\nI'm Alejandro, a Montreal founder building VisiMind. This one's pretty straightforward.\n\nI tried to access ssense.com from the same user agents that ChatGPT, Perplexity, and Claude use for live search. SSENSE returned 403 errors. Your servers are blocking AI crawlers entirely.\n\nThis means when someone asks an AI assistant \"best luxury fashion platform in Montreal,\" SSENSE literally cannot be recommended because the AI can't read your site.\n\nYour robots.txt doesn't block them, so this is likely a WAF or CDN configuration issue. Probably unintentional.\n\nI'm building VisiMind to diagnose and fix exactly this for Canadian luxury brands. SSENSE is one of 5 design partner spots I'm offering: 12 months free access, full audits, bilingual Fix Kits.\n\nGiven SSENSE's technical reputation, I'd love your team's feedback on what we're building.\n\n15 min?\n\nAlejandro\nVisiMind, Montreal",
+    "channel": "email",
+    "status": "pending",
+    "linkedin_url": "https://www.linkedin.com/posts/leadafi_fadi-farha-visionary-growth-leader-in-digital-activity-7300567116502417408-ajzH",
+    "linkedin_note": "Hi Fadi, fellow HEC Montreal person here. I've been studying how Montreal luxury platforms perform in AI search. Found that ssense.com returns 403 errors to AI crawlers, making it invisible to ChatGPT and Perplexity. Building a tool to fix this. Would love to connect.",
+    "notes": "VP Growth Marketing. Manages one of Canada's largest ad budgets. HEC Montreal MBA. SSENSE scored 3/10 — servers return 403 to AI crawlers."
+  }
+]

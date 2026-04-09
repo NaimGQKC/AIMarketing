@@ -7,7 +7,45 @@ import { useBrand } from '../context/BrandContext'
 import GlassCard from '../components/GlassCard'
 import StatusBadge from '../components/StatusBadge'
 import AnimatedCounter from '../components/AnimatedCounter'
-import { evaluationRubric } from '../data/mockData'
+// Rubric structure — values populated from real audit data
+const evaluationRubric = {
+  semanticAlignment: {
+    label: 'Semantic Alignment',
+    description: 'Accuracy of product truths after LLM processing',
+    standard: 'Zero hallucinations',
+    current: 0,
+    target: 9,
+    before: 0,
+    unit: '/10',
+  },
+  temporalAccuracy: {
+    label: 'Temporal Accuracy',
+    description: 'Delta between PIM update and Agent awareness',
+    standard: '< 60 seconds',
+    current: 0,
+    target: 60,
+    before: 0,
+    unit: 's',
+  },
+  linguisticDensity: {
+    label: 'Linguistic Density',
+    description: 'Preservation of technical French terms',
+    standard: 'No Token Decay',
+    current: 0,
+    target: 9,
+    before: 0,
+    unit: '/10',
+  },
+  discoverability: {
+    label: 'Discoverability',
+    description: 'Probability of appearing in top agentic selection',
+    standard: 'Top 3 for non-branded queries',
+    current: 0,
+    target: 9,
+    before: 0,
+    unit: '/10',
+  },
+}
 import './Verify.css'
 
 const statusIcons = {

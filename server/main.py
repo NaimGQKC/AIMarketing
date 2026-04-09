@@ -37,9 +37,9 @@ async def lifespan(app: FastAPI):
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
         await seed_database(db)
-    print(f"✓ VisiMind backend ready — http://{HOST}:{PORT}")
-    print(f"  └─ API docs: http://{HOST}:{PORT}/docs")
-    print(f"  └─ UCP manifest: http://{HOST}:{PORT}/.well-known/ucp")
+    print(f"[OK] VisiMind backend ready -- http://{HOST}:{PORT}")
+    print(f"     API docs: http://{HOST}:{PORT}/docs")
+    print(f"     UCP manifest: http://{HOST}:{PORT}/.well-known/ucp")
     yield
 
 
