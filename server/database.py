@@ -261,6 +261,18 @@ CREATE TABLE IF NOT EXISTS freshness_cycles (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Crawler Visits (AI bot detection logging)
+CREATE TABLE IF NOT EXISTS crawler_visits (
+    id TEXT PRIMARY KEY,
+    timestamp TEXT,
+    crawler_name TEXT,
+    user_agent TEXT,
+    path TEXT,
+    brand_id TEXT,
+    response_code INTEGER,
+    response_time_ms REAL
+);
+
 -- E-Score History (tracks 0.6 → 1.4+ path)
 CREATE TABLE IF NOT EXISTS e_score_history (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

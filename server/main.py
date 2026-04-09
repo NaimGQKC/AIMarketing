@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from config import HOST, PORT, DEBUG, DB_PATH
 from database import init_db, get_db
 from data.seed import seed_database
-from engines.remediation import build_ucp_manifest
+from engines.remediation import build_ucp_manifest, generate_youtube_deployment
 
 # Import routers
 from routers.dashboard import router as dashboard_router
@@ -27,6 +27,9 @@ from routers.remediate import router as remediate_router
 from routers.verify import router as verify_router
 from routers.ingest import router as ingest_router
 from routers.eee import router as eee_router
+from routers.crawler_check import router as crawler_check_router
+from routers.crawler_stats import router as crawler_stats_router
+from middleware.ai_crawler import AICrawlerMiddleware
 
 
 # --- Lifespan ---
@@ -60,6 +63,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- AI Crawler Detection Middleware ---
+app.add_middleware(AICrawlerMiddleware)
+
 # --- Register Routers ---
 app.include_router(dashboard_router)
 app.include_router(connect_router)
@@ -68,6 +74,8 @@ app.include_router(remediate_router)
 app.include_router(verify_router)
 app.include_router(ingest_router)
 app.include_router(eee_router)
+app.include_router(crawler_check_router)
+app.include_router(crawler_stats_router)
 
 
 # ============================================
@@ -129,6 +137,47 @@ async def get_task_status(task_id: str, db: aiosqlite.Connection = Depends(get_d
         "total": task["total"],
         "result": result,
         "error": task["error"],
+    }
+
+
+# --- YouTube Recommendations (convenience alias at /api/youtube-recommendations) ---
+@app.get("/api/youtube-recommendations/{brand_id}")
+async def youtube_recommendations_alias(brand_id: str, db: aiosqlite.Connection = Depends(get_db)):
+    """
+    YouTube video deployment recommendations for all products of a brand.
+    Convenience alias — canonical endpoint is /api/remediate/youtube-recommendations/{brand_id}.
+    """
+    cursor = await db.execute(
+        "SELECT p.*, b.name as brand_name FROM products p JOIN brands b ON p.brand_id = b.id WHERE b.id = ?",
+        (brand_id,),
+    )
+    products = await cursor.fetchall()
+
+    if not products:
+        return {"error": "No products found for brand", "brand_id": brand_id}
+
+    recommendations = []
+    for p in products:
+        product = dict(p)
+        product["brand_name"] = p["brand_name"]
+        yt = generate_youtube_deployment(product)
+        recommendations.append({
+            "product_id": product["id"],
+            "product_name_en": product["name_en"],
+            "product_name_fr": product.get("name_fr", ""),
+            "youtube_deployment": yt,
+        })
+
+    return {
+        "brand_id": brand_id,
+        "brand_name": products[0]["brand_name"],
+        "total_recommendations": len(recommendations),
+        "rationale": (
+            "YouTube mentions correlate at 0.737 with AI brand visibility "
+            "(Ahrefs, 75K brand study). French YouTube content for this brand "
+            "is near-zero, creating a bilingual visibility gap."
+        ),
+        "recommendations": recommendations,
     }
 
 
