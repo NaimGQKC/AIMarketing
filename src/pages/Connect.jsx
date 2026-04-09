@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ShoppingBag, Database, Eye, Search, CheckCircle, XCircle, RefreshCw, ArrowRight, Zap } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import GlassCard from '../components/GlassCard'
 import StatusBadge from '../components/StatusBadge'
-import { pimIntegrations, monitoringAccounts, feedStatus } from '../data/mockData'
 import DataIngester from '../components/DataIngester'
+import api from '../api/client'
 import './Connect.css'
 
 const iconMap = { ShoppingBag, Database, Eye, Search }
@@ -12,10 +12,25 @@ const iconMap = { ShoppingBag, Database, Eye, Search }
 export default function Connect() {
   const { t } = useLanguage()
   const [connecting, setConnecting] = useState(null)
+  const [integrations, setIntegrations] = useState([])
+  const [feeds, setFeeds] = useState([])
 
-  const handleConnect = (id) => {
-    setConnecting(id)
-    setTimeout(() => setConnecting(null), 2500)
+  useEffect(() => {
+    api.connect.integrations().then(setIntegrations).catch(() => {})
+    api.connect.feeds().then(setFeeds).catch(() => {})
+  }, [])
+
+  const pimIntegrations = integrations.filter(i => i.type === 'pim')
+  const monitoringAccounts = integrations.filter(i => i.type === 'monitoring')
+
+  const handleConnect = async (provider) => {
+    setConnecting(provider)
+    try {
+      await api.connect.sync(provider)
+      const updated = await api.connect.integrations()
+      setIntegrations(updated)
+    } catch (e) { /* ignore */ }
+    setConnecting(null)
   }
 
   return (
@@ -61,8 +76,9 @@ export default function Connect() {
       {/* PIM Integrations */}
       <h3 className="section-title fade-in-up fade-in-up-delay-3">{t('pimIntegrations')}</h3>
       <div className="page-grid grid-2" style={{ marginBottom: 'var(--space-2xl)' }}>
+        {pimIntegrations.length === 0 && <p style={{ color: 'var(--text-secondary)' }}>No PIM connections configured.</p>}
         {pimIntegrations.map((pim) => {
-          const Icon = iconMap[pim.icon]
+          const Icon = iconMap[pim.icon] || Database
           return (
             <GlassCard key={pim.id} className={`connect-card fade-in-up fade-in-up-delay-2 ${pim.status === 'connected' ? 'card-connected' : ''}`}>
               <div className="connect-card-header">
@@ -76,24 +92,24 @@ export default function Connect() {
               {pim.status === 'connected' ? (
                 <div className="connect-card-stats">
                   <div className="connect-stat">
-                    <span className="connect-stat-value">{pim.itemsSynced.toLocaleString()}</span>
+                    <span className="connect-stat-value">{(pim.items_synced || 0).toLocaleString()}</span>
                     <span className="connect-stat-label">{t('itemsSynced')}</span>
                   </div>
                   <div className="connect-stat">
-                    <span className="connect-stat-value" style={{ color: pim.errors > 0 ? 'var(--coral)' : 'var(--green)' }}>{pim.errors}</span>
+                    <span className="connect-stat-value" style={{ color: (pim.errors || 0) > 0 ? 'var(--coral)' : 'var(--green)' }}>{pim.errors || 0}</span>
                     <span className="connect-stat-label">{t('errors')}</span>
                   </div>
-                  <button className="btn btn-ghost btn-sm">
+                  <button className="btn btn-ghost btn-sm" onClick={() => handleConnect(pim.provider)}>
                     <RefreshCw size={14} /> Resync
                   </button>
                 </div>
               ) : (
                 <button
                   className="btn btn-primary"
-                  onClick={() => handleConnect(pim.id)}
-                  disabled={connecting === pim.id}
+                  onClick={() => handleConnect(pim.provider)}
+                  disabled={connecting === pim.provider}
                 >
-                  {connecting === pim.id ? (
+                  {connecting === pim.provider ? (
                     <><RefreshCw size={14} className="spin" /> {t('syncing')}</>
                   ) : (
                     t('connectNow')
@@ -108,8 +124,9 @@ export default function Connect() {
       {/* Monitoring Sync */}
       <h3 className="section-title fade-in-up fade-in-up-delay-3">{t('monitoringSync')}</h3>
       <div className="page-grid grid-2" style={{ marginBottom: 'var(--space-2xl)' }}>
+        {monitoringAccounts.length === 0 && <p style={{ color: 'var(--text-secondary)' }}>No monitoring accounts configured.</p>}
         {monitoringAccounts.map((acc) => {
-          const Icon = iconMap[acc.icon]
+          const Icon = iconMap[acc.icon] || Eye
           return (
             <GlassCard key={acc.id} className="connect-card card-connected fade-in-up fade-in-up-delay-3">
               <div className="connect-card-header">
@@ -122,10 +139,10 @@ export default function Connect() {
               <p className="connect-card-desc">{acc.description}</p>
               <div className="connect-card-stats">
                 <div className="connect-stat">
-                  <span className="connect-stat-value">{acc.queriesTracked}</span>
+                  <span className="connect-stat-value">{acc.queries_tracked || 0}</span>
                   <span className="connect-stat-label">Queries Tracked</span>
                 </div>
-                <button className="btn btn-ghost btn-sm">
+                <button className="btn btn-ghost btn-sm" onClick={() => handleConnect(acc.provider)}>
                   <RefreshCw size={14} /> Resync
                 </button>
               </div>
@@ -148,13 +165,16 @@ export default function Connect() {
             </tr>
           </thead>
           <tbody>
-            {feedStatus.map((row, i) => (
+            {feeds.length === 0 && (
+              <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No feeds synced yet.</td></tr>
+            )}
+            {feeds.map((row, i) => (
               <tr key={i}>
                 <td style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{row.feed}</td>
-                <td>{row.items.toLocaleString()}</td>
-                <td>{row.lastSync}</td>
+                <td>{(row.items || 0).toLocaleString()}</td>
+                <td>{row.last_sync || 'Never'}</td>
                 <td><StatusBadge status={row.status} /></td>
-                <td style={{ color: row.errors > 0 ? 'var(--coral)' : 'var(--green)' }}>{row.errors}</td>
+                <td style={{ color: (row.errors || 0) > 0 ? 'var(--coral)' : 'var(--green)' }}>{row.errors || 0}</td>
               </tr>
             ))}
           </tbody>

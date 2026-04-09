@@ -43,10 +43,20 @@ async def _get_brand_and_products(db, brand_id: str):
 
 
 async def _get_current_e_and_delta(db):
-    sample_en = "Mackage Lena jacket 800-fill power goose down rated -30C"
-    sample_fr = "Mackage Lena manteau duvet d'oie facteur gonflement 800"
-    en_fert = calculate_fertility(sample_en, "en")
-    fr_fert = calculate_fertility(sample_fr, "fr")
+    """Compute current E-Score and delta from real audit data. Returns zeros if no data."""
+    # Get delta from product data in DB rather than hardcoded sample strings
+    cursor = await db.execute(
+        "SELECT description_en, description_fr FROM products WHERE description_en IS NOT NULL LIMIT 1"
+    )
+    product = await cursor.fetchone()
+
+    if product and product["description_en"] and product["description_fr"]:
+        en_fert = calculate_fertility(product["description_en"], "en")
+        fr_fert = calculate_fertility(product["description_fr"], "fr")
+    else:
+        en_fert = {"fertility": 1.0, "tokens": 0, "words": 0}
+        fr_fert = {"fertility": 1.0, "tokens": 0, "words": 0}
+
     delta = max(0, min(1,
         (fr_fert["fertility"] - en_fert["fertility"]) / fr_fert["fertility"]
     )) if fr_fert["fertility"] > 0 else 0
@@ -60,8 +70,11 @@ async def _get_current_e_and_delta(db):
     )
     failed = await cursor2.fetchone()
 
-    s_in = round(failed["score_overall"] / 10, 1) if failed and failed["score_overall"] else 3.2
-    s_out = round(passed["score_overall"] / 10, 1) if passed and passed["score_overall"] else 8.5
+    s_in = round(failed["score_overall"] / 10, 1) if failed and failed["score_overall"] else 0.0
+    s_out = round(passed["score_overall"] / 10, 1) if passed and passed["score_overall"] else 0.0
+
+    if s_in == 0 and s_out == 0:
+        return 0.0, delta, en_fert, fr_fert
 
     e_data = compute_e_score(s_in, s_out, delta)
     return e_data["e_score"], delta, en_fert, fr_fert

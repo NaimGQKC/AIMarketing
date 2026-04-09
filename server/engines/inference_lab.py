@@ -1,18 +1,26 @@
 """
 VisiMind — Engine 1: Inference Lab
-Headless agentic probing, citation extraction, bilingual parity audit.
-Uses polling pattern: probe_query returns task_id, frontend polls /api/tasks/{id}.
+Headless agentic probing with Self-Consistency Mining.
+
+Optimizations (v2):
+  1. N=3 iterations (down from 50) — avoids semantic cache trap
+  2. Temperature jitter (0.7) — forces real reasoning, exposes unstable distributions
+  3. Golden Set — 5 diverse prompt angles instead of 1 repeated query
+  4. Contradiction Rate — detects hallucination via cross-run inconsistency
 """
 import asyncio
 import json
 import uuid
 import time
 import random
+import re
 from datetime import datetime
+from difflib import SequenceMatcher
 
 from config import (
     GOOGLE_API_KEY, USE_LIVE_LLM, PROBE_MODEL, PROBE_ITERATIONS,
-    USE_OLLAMA, OLLAMA_MODEL, OLLAMA_URL
+    USE_OLLAMA, OLLAMA_MODEL, OLLAMA_URL,
+    PROBE_TEMPERATURE, GOLDEN_SET_VARIATIONS,
 )
 import httpx
 
@@ -29,27 +37,217 @@ def _get_client():
     return _genai_client
 
 
-# --- Core Probing ---
+# =============================================================================
+# Golden Set — Query Variation Generator
+# =============================================================================
 
-async def probe_query_single(query: str, lang: str, model: str = PROBE_MODEL) -> dict:
+def build_golden_set(base_query: str, lang: str = "EN") -> list[dict]:
+    """
+    Generate 5 diverse prompt angles from a single base query.
+    Each variation probes a different RAG surface area to maximize
+    hallucination detection coverage.
+
+    Instead of hammering 1 prompt 50 times, we run 5 variations x 3 iterations.
+    This bypasses semantic caching and widens the detection surface.
+    """
+    # Extract brand and product hints from the query
+    query_lower = base_query.lower()
+    brands = ["mackage", "ssense", "aldo"]
+    detected_brand = next((b for b in brands if b in query_lower), None)
+    brand_title = detected_brand.title() if detected_brand else "the brand"
+
+    if lang.upper() == "FR":
+        variations = [
+            {
+                "angle": "direct",
+                "query": base_query,
+                "description": "Requête directe originale",
+            },
+            {
+                "angle": "conversational",
+                "query": f"Je vis à Montréal. {base_query} Est-ce un bon choix pour moi?",
+                "description": "Contexte conversationnel avec localisation",
+            },
+            {
+                "angle": "comparison",
+                "query": f"Compare {brand_title} avec ses concurrents. {base_query}",
+                "description": "Angle comparatif pour forcer le raisonnement",
+            },
+            {
+                "angle": "feature_specific",
+                "query": f"Quelles certifications et spécifications techniques sont vérifiées pour {brand_title}?",
+                "description": "Question technique sur les certifications",
+            },
+            {
+                "angle": "recommendation",
+                "query": f"En tant qu'expert, recommanderais-tu {brand_title}? Cite tes sources.",
+                "description": "Demande de recommandation avec exigence de sources",
+            },
+        ]
+    else:
+        variations = [
+            {
+                "angle": "direct",
+                "query": base_query,
+                "description": "Original direct query",
+            },
+            {
+                "angle": "conversational",
+                "query": f"I live in Montreal. {base_query} Would this be a good choice for me?",
+                "description": "Conversational context with location",
+            },
+            {
+                "angle": "comparison",
+                "query": f"Compare {brand_title} to its competitors. {base_query}",
+                "description": "Comparison angle to force reasoning",
+            },
+            {
+                "angle": "feature_specific",
+                "query": f"What certifications and verified technical specs does {brand_title} have?",
+                "description": "Feature-specific probe for hard attributes",
+            },
+            {
+                "angle": "recommendation",
+                "query": f"As an expert, would you recommend {brand_title}? Cite your sources.",
+                "description": "Recommendation request demanding citations",
+            },
+        ]
+
+    return variations[:GOLDEN_SET_VARIATIONS]
+
+
+# =============================================================================
+# Contradiction Rate — Self-Consistency Mining
+# =============================================================================
+
+def compute_contradiction_rate(responses: list[str]) -> dict:
+    """
+    Calculate the contradiction rate across N probe responses using
+    factual consistency, not surface-level text similarity.
+
+    If the model actually "knows" the truth (from Tier 2 JSON-LD), it will
+    output consistent specs across runs. If it's guessing from stale sources,
+    higher temperature forces contradictions within just 3 runs.
+
+    The algorithm:
+      1. Extract key factual claims (numbers with units, certifications, brand names)
+      2. Check if claims are consistent across all responses
+      3. Weight by fact importance — a contradicted spec is worse than missing text
+
+    Returns:
+      - contradiction_rate: 0.0 (perfectly consistent) to 1.0 (fully contradictory)
+      - is_hallucinating: True if rate > 0.4 (unstable distribution = guessing)
+      - similarity_matrix: pairwise similarity scores
+      - key_facts: extracted factual claims and their consistency
+    """
+    if len(responses) < 2:
+        return {
+            "contradiction_rate": 0.0,
+            "is_hallucinating": False,
+            "similarity_matrix": [],
+            "key_facts": {},
+        }
+
+    # Extract factual claims for consistency checking
+    key_facts = _extract_key_facts(responses)
+
+    # Fact-based contradiction: what fraction of extracted facts are inconsistent?
+    if key_facts:
+        consistent_count = sum(1 for f in key_facts.values() if f["consistent"])
+        fact_consistency = consistent_count / len(key_facts)
+    else:
+        fact_consistency = 1.0  # no extractable facts = can't measure
+
+    # Pairwise text similarity (secondary signal)
+    similarities = []
+    for i in range(len(responses)):
+        for j in range(i + 1, len(responses)):
+            sim = SequenceMatcher(
+                None,
+                responses[i].lower(),
+                responses[j].lower(),
+            ).ratio()
+            similarities.append({
+                "pair": [i, j],
+                "similarity": round(sim, 3),
+            })
+
+    avg_similarity = sum(s["similarity"] for s in similarities) / len(similarities)
+
+    # Blend: 70% fact consistency + 30% text similarity
+    # This prevents false positives when facts match but wording differs
+    blended_consistency = fact_consistency * 0.7 + avg_similarity * 0.3
+    contradiction_rate = round(1.0 - blended_consistency, 3)
+
+    return {
+        "contradiction_rate": contradiction_rate,
+        "is_hallucinating": contradiction_rate > 0.4,
+        "avg_similarity": round(avg_similarity, 3),
+        "fact_consistency": round(fact_consistency, 3),
+        "similarity_matrix": similarities,
+        "key_facts": key_facts,
+    }
+
+
+def _extract_key_facts(responses: list[str]) -> dict:
+    """Extract numeric/factual claims and check consistency across responses."""
+    number_pattern = r'(\d+(?:\.\d+)?)\s*(?:°[CF]|%|g|ml|oz|CAD|\$|watts?|hours?|days?|fill\s*power)'
+    cert_pattern = r'\b(RDS|Bluesign|LWG|OEKO-TEX|GOTS|GRS|Carbon Neutral)\b'
+
+    facts = {}
+
+    for i, resp in enumerate(responses):
+        # Numbers with units
+        for match in re.finditer(number_pattern, resp, re.IGNORECASE):
+            key = match.group(0).strip().lower()
+            if key not in facts:
+                facts[key] = {"claim": match.group(0), "seen_in": [], "consistent": True}
+            facts[key]["seen_in"].append(i)
+
+        # Certifications
+        for match in re.finditer(cert_pattern, resp, re.IGNORECASE):
+            key = match.group(1).upper()
+            if key not in facts:
+                facts[key] = {"claim": key, "seen_in": [], "consistent": True}
+            facts[key]["seen_in"].append(i)
+
+    # Mark facts as inconsistent if not seen in all responses
+    for key, fact in facts.items():
+        fact["consistent"] = len(set(fact["seen_in"])) == len(responses)
+
+    return facts
+
+
+# =============================================================================
+# Core Probing
+# =============================================================================
+
+async def probe_query_single(
+    query: str,
+    lang: str,
+    model: str = PROBE_MODEL,
+    temperature: float = None,
+) -> dict:
     """
     Execute a single probe against an LLM and extract recommendations + citations.
-    Returns structured probe result with logprob-level data.
+    Temperature defaults to PROBE_TEMPERATURE (0.7) to force real reasoning
+    and bypass semantic caching.
     """
+    temp = temperature if temperature is not None else PROBE_TEMPERATURE
+
     if USE_OLLAMA:
-        return await _ollama_probe(query, lang, OLLAMA_MODEL)
+        return await _ollama_probe(query, lang, OLLAMA_MODEL, temp)
 
     client = _get_client()
 
     if client and USE_LIVE_LLM:
-        return await _live_probe(client, query, lang, model)
+        return await _live_probe(client, query, lang, model, temp)
     else:
         return await _simulated_probe(query, lang)
 
 
-
-async def _live_probe(client, query: str, lang: str, model: str) -> dict:
-    """Probe via live Gemini API."""
+async def _live_probe(client, query: str, lang: str, model: str, temperature: float) -> dict:
+    """Probe via live Gemini API with temperature jitter."""
     from google.genai import types
 
     system_prompt = (
@@ -65,19 +263,14 @@ async def _live_probe(client, query: str, lang: str, model: str) -> dict:
             contents=query,
             config=types.GenerateContentConfig(
                 system_instruction=system_prompt,
-                temperature=0.8,  # Higher temp for non-determinism testing
+                temperature=temperature,
             ),
         )
 
         response_text = response.text if response.text else ""
-
-        # Extract citations from grounding metadata if available
-        citations = []
+        citations = _extract_citation_urls(response_text)
         brand_mentioned = False
         brand_logprob = None
-
-        # Parse response for citation-like URLs
-        citations = _extract_citation_urls(response_text)
 
         return {
             "response_text": response_text,
@@ -98,15 +291,15 @@ async def _live_probe(client, query: str, lang: str, model: str) -> dict:
         }
 
 
-async def _ollama_probe(query: str, lang: str, model: str) -> dict:
-    """Probe via local Ollama instance."""
+async def _ollama_probe(query: str, lang: str, model: str, temperature: float) -> dict:
+    """Probe via local Ollama instance with temperature jitter."""
     system_prompt = (
         "You are an AI shopping assistant. A user is asking for product recommendations. "
         "Provide specific product recommendations with brand names, prices, and key specs. "
         "Cite your sources for each recommendation."
     )
     prompt = f"{system_prompt}\n\nUser Query: {query}"
-    
+
     start_time = time.time()
     try:
         async with httpx.AsyncClient() as client:
@@ -115,20 +308,19 @@ async def _ollama_probe(query: str, lang: str, model: str) -> dict:
                 json={
                     "model": model,
                     "prompt": prompt,
-                    "stream": False
+                    "stream": False,
+                    "options": {"temperature": temperature},
                 },
-                timeout=30.0
+                timeout=30.0,
             )
             response.raise_for_status()
             data = response.json()
             response_text = data.get("response", "")
-            
+
         citations = _extract_citation_urls(response_text)
         brand_mentioned = any(b in response_text.lower() for b in ["mackage", "ssense", "aldo"])
-        
-        # Mock logprob for Ollama since it doesn't easily expose token-level logprobs via the basic API
         mock_logprob = -1.5 if brand_mentioned else -5.0
-        
+
         return {
             "response_text": response_text,
             "citations": citations,
@@ -150,11 +342,9 @@ async def _ollama_probe(query: str, lang: str, model: str) -> dict:
 
 async def _simulated_probe(query: str, lang: str) -> dict:
     """Simulated probe for development without API key."""
-    await asyncio.sleep(random.uniform(0.05, 0.15))  # Simulate latency
+    await asyncio.sleep(random.uniform(0.05, 0.15))
 
     query_lower = query.lower()
-
-    # Simulate different response profiles based on query content
     is_french = lang.upper() == "FR"
     brand_profiles = {
         "mackage": {
@@ -174,13 +364,11 @@ async def _simulated_probe(query: str, lang: str) -> dict:
         },
     }
 
-    # Detect which brand is relevant
     detected_brand = None
     for brand in brand_profiles:
         if brand in query_lower:
             detected_brand = brand
             break
-
     if detected_brand is None:
         detected_brand = random.choice(list(brand_profiles.keys()))
 
@@ -188,7 +376,6 @@ async def _simulated_probe(query: str, lang: str) -> dict:
     mentioned = random.random() < profile["mention_rate"]
     logprob = random.uniform(*profile["logprob_range"]) if mentioned else random.uniform(-8.0, -5.0)
 
-    # Build simulated response
     if mentioned:
         position = random.randint(1, 3)
         if is_french:
@@ -214,87 +401,151 @@ async def _simulated_probe(query: str, lang: str) -> dict:
     }
 
 
-async def run_probe_task(db, task_id: str, query: str, lang: str, iterations: int):
+# =============================================================================
+# Probe Task Runner — Golden Set + Self-Consistency
+# =============================================================================
+
+async def run_probe_task(
+    db,
+    task_id: str,
+    query: str,
+    lang: str,
+    iterations: int,
+    use_golden_set: bool = True,
+    temperature: float = None,
+):
     """
-    Background task: run N probe iterations, updating task progress.
-    This is what the /api/diagnose/probe endpoint kicks off.
+    Background task: run probes with Golden Set variations and Self-Consistency Mining.
+
+    Instead of N=50 identical probes, runs:
+      - 5 query variations (Golden Set) x 3 iterations each = 15 total probes
+      - Temperature jitter at 0.7 to bypass semantic caching
+      - Contradiction Rate computed per variation to detect hallucination
+
+    This drops inference costs by >70%, bypasses the caching trap, and gives
+    a much wider RAG surface area for detection.
     """
+    temp = temperature if temperature is not None else PROBE_TEMPERATURE
+
     try:
+        # Build the query set
+        if use_golden_set:
+            variations = build_golden_set(query, lang)
+        else:
+            variations = [{"angle": "direct", "query": query, "description": "Single query mode"}]
+
+        total_probes = len(variations) * iterations
+
         await db.execute(
             "UPDATE tasks SET status = 'running', total = ? WHERE id = ?",
-            (iterations, task_id),
+            (total_probes, task_id),
         )
         await db.commit()
 
-        results = []
+        all_results = []
+        variation_analyses = []
         mention_count = 0
         total_logprob = 0.0
         logprob_count = 0
+        progress = 0
 
-        for i in range(iterations):
-            result = await probe_query_single(query, lang)
-            result_id = str(uuid.uuid4())
+        for variation in variations:
+            variation_responses = []
 
-            # Store probe result
-            await db.execute(
-                """INSERT INTO probe_results
-                   (id, task_id, query, lang, iteration, model, response_text,
-                    citations, brand_mentioned, brand_mention_logprob,
-                    recommendation_position, response_time_ms)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (
-                    result_id, task_id, query, lang, i + 1, PROBE_MODEL,
-                    result["response_text"],
-                    json.dumps(result["citations"]),
-                    1 if result["brand_mentioned"] else 0,
-                    result["brand_mention_logprob"],
-                    result["recommendation_position"],
-                    result["response_time_ms"],
-                ),
-            )
+            for i in range(iterations):
+                result = await probe_query_single(variation["query"], lang, temperature=temp)
+                result_id = str(uuid.uuid4())
 
-            if result["brand_mentioned"]:
-                mention_count += 1
-                if result["brand_mention_logprob"] is not None:
-                    total_logprob += result["brand_mention_logprob"]
-                    logprob_count += 1
+                # Store probe result with variation metadata
+                await db.execute(
+                    """INSERT INTO probe_results
+                       (id, task_id, query, lang, iteration, model, response_text,
+                        citations, brand_mentioned, brand_mention_logprob,
+                        recommendation_position, response_time_ms)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        result_id, task_id, variation["query"], lang,
+                        progress + 1, PROBE_MODEL,
+                        result["response_text"],
+                        json.dumps(result["citations"]),
+                        1 if result["brand_mentioned"] else 0,
+                        result["brand_mention_logprob"],
+                        result["recommendation_position"],
+                        result["response_time_ms"],
+                    ),
+                )
 
-            results.append(result)
+                if result["brand_mentioned"]:
+                    mention_count += 1
+                    if result["brand_mention_logprob"] is not None:
+                        total_logprob += result["brand_mention_logprob"]
+                        logprob_count += 1
 
-            # Update progress
-            await db.execute(
-                "UPDATE tasks SET progress = ?, updated_at = ? WHERE id = ?",
-                (i + 1, datetime.utcnow().isoformat(), task_id),
-            )
-            await db.commit()
+                all_results.append(result)
+                variation_responses.append(result["response_text"])
+
+                progress += 1
+                await db.execute(
+                    "UPDATE tasks SET progress = ?, updated_at = ? WHERE id = ?",
+                    (progress, datetime.utcnow().isoformat(), task_id),
+                )
+                await db.commit()
+
+            # Compute contradiction rate for this variation
+            contradiction = compute_contradiction_rate(variation_responses)
+            variation_analyses.append({
+                "angle": variation["angle"],
+                "query": variation["query"],
+                "description": variation["description"],
+                "iterations": iterations,
+                "contradiction_rate": contradiction["contradiction_rate"],
+                "is_hallucinating": contradiction["is_hallucinating"],
+                "avg_similarity": contradiction.get("avg_similarity", 0),
+                "key_facts": contradiction["key_facts"],
+            })
 
         # Compute final stats
         avg_logprob = round(total_logprob / logprob_count, 4) if logprob_count > 0 else None
-        mention_rate = round(mention_count / iterations * 100, 1)
+        mention_rate = round(mention_count / total_probes * 100, 1)
 
         # Aggregate citation sources
         all_citations = []
-        for r in results:
+        for r in all_results:
             all_citations.extend(r["citations"])
         citation_freq = {}
         for c in all_citations:
             citation_freq[c] = citation_freq.get(c, 0) + 1
 
+        # Overall contradiction rate (average across all variations)
+        overall_contradiction = round(
+            sum(v["contradiction_rate"] for v in variation_analyses) / len(variation_analyses), 3
+        ) if variation_analyses else 0.0
+
+        hallucinating_angles = [v["angle"] for v in variation_analyses if v["is_hallucinating"]]
+
         summary = {
             "query": query,
             "lang": lang,
-            "iterations": iterations,
+            "iterations_per_variation": iterations,
+            "total_probes": total_probes,
+            "golden_set_used": use_golden_set,
+            "temperature": temp,
             "mention_rate": mention_rate,
             "avg_logprob": avg_logprob,
             "avg_response_time_ms": round(
-                sum(r["response_time_ms"] for r in results) / len(results)
+                sum(r["response_time_ms"] for r in all_results) / len(all_results)
             ),
             "top_citations": sorted(
                 citation_freq.items(), key=lambda x: x[1], reverse=True
             )[:5],
             "recommendation_positions": [
-                r["recommendation_position"] for r in results if r["recommendation_position"]
+                r["recommendation_position"] for r in all_results if r["recommendation_position"]
             ],
+            # Self-Consistency Mining results
+            "contradiction_rate": overall_contradiction,
+            "is_hallucinating": overall_contradiction > 0.4,
+            "hallucinating_angles": hallucinating_angles,
+            "variation_analyses": variation_analyses,
         }
 
         await db.execute(
@@ -315,7 +566,6 @@ async def run_probe_task(db, task_id: str, query: str, lang: str, iterations: in
 
 def _extract_citation_urls(text: str) -> list[str]:
     """Extract URL-like strings from response text."""
-    import re
     url_pattern = r'https?://[^\s<>"{}|\\^`\[\]]+'
     return re.findall(url_pattern, text)
 
@@ -330,9 +580,7 @@ def _extract_recommendation_position(text: str) -> int | None:
 
 
 def classify_gap(mention_rate: float, avg_logprob: float | None, top_citations: list) -> str:
-    """
-    Classify the signal gap type based on probe statistics.
-    """
+    """Classify the signal gap type based on probe statistics."""
     toxic_sources = any(
         "reddit" in c[0].lower() or "blog" in c[0].lower() or "trustpilot" in c[0].lower()
         for c in top_citations

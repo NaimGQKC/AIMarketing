@@ -1,51 +1,65 @@
 import { useState, useEffect } from 'react'
-import { AlertTriangle, ExternalLink, X, FileWarning, Globe } from 'lucide-react'
+import { AlertTriangle, ExternalLink, X, FileWarning, Globe, Cpu, FileJson, Film, Rocket, Check } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import GlassCard from '../components/GlassCard'
 import StatusBadge from '../components/StatusBadge'
 import { useBrand } from '../context/BrandContext'
-import { signalGaps as mockGaps, reasoningParity as mockParity } from '../data/mockData'
 import api from '../api/client'
 import './Diagnose.css'
+
+const typeIcons = { hardAttributes: Cpu, jsonLd: FileJson, truthClip: Film }
+const typeLabels = { hardAttributes: 'Hard Attributes', jsonLd: 'JSON-LD Injection', truthClip: 'Truth Clip' }
 
 export default function Diagnose() {
   const { t } = useLanguage()
   const [selectedGap, setSelectedGap] = useState(null)
-  const [signalGaps, setSignalGaps] = useState(mockGaps)
-  const [reasoningParity, setReasoningParity] = useState(mockParity)
-  const [dataSource, setDataSource] = useState('mock') // 'mock' or 'api'
+  const [signalGaps, setSignalGaps] = useState([])
+  const [reasoningParity, setReasoningParity] = useState({
+    en: 0, fr: 0, enQueries: 0, frQueries: 0,
+    enHallucinations: 0, frHallucinations: 0,
+    tokenBreakdown: { en: { avgTokens: 0, maxTokens: 0 }, fr: { avgTokens: 0, maxTokens: 0 } }
+  })
+  const [loading, setLoading] = useState(true)
   const { selectedBrandId } = useBrand()
+
+  // Fix kit state for the detail panel
+  const [fixKit, setFixKit] = useState(null)
+  const [loadingKit, setLoadingKit] = useState(false)
+  const [deploying, setDeploying] = useState(false)
+  const [deployProgress, setDeployProgress] = useState(0)
+  const [deployed, setDeployed] = useState({})
 
   useEffect(() => {
     async function fetchData() {
       try {
         const [gapsData, parityData] = await Promise.all([
           api.diagnose.gaps(selectedBrandId),
-          api.diagnose.parity(),
+          api.diagnose.parity(selectedBrandId),
         ])
 
-        const transformedGaps = gapsData ? gapsData.map((g, idx) => ({
-          id: g.id || idx + 1,
-          query: g.query,
-          lang: g.lang,
-          gapType: g.gap_type,
-          severity: g.severity,
-          aiResponseQuality: g.ai_response_quality,
-          sourceOfTruth: {
-            label: g.source_of_truth?.label || '',
-            url: g.source_of_truth?.url || null,
-            detail: g.source_of_truth?.detail || '',
-          },
-          sourceOfHallucination: {
-            label: g.source_of_hallucination?.label || '',
-            url: g.source_of_hallucination?.url || null,
-            detail: g.source_of_hallucination?.detail || '',
-          },
-          aiSaid: g.ai_said || '',
-          brandTruth: g.brand_truth || '',
-        })) : []
-        setSignalGaps(transformedGaps)
-        setDataSource('api')
+        if (gapsData) {
+          const transformedGaps = gapsData.map((g, idx) => ({
+            id: g.id || idx + 1,
+            query: g.query,
+            lang: g.lang,
+            gapType: g.gap_type,
+            severity: g.severity,
+            aiResponseQuality: g.ai_response_quality,
+            sourceOfTruth: {
+              label: g.source_of_truth?.label || '',
+              url: g.source_of_truth?.url || null,
+              detail: g.source_of_truth?.detail || '',
+            },
+            sourceOfHallucination: {
+              label: g.source_of_hallucination?.label || '',
+              url: g.source_of_hallucination?.url || null,
+              detail: g.source_of_hallucination?.detail || '',
+            },
+            aiSaid: g.ai_said || '',
+            brandTruth: g.brand_truth || '',
+          }))
+          setSignalGaps(transformedGaps)
+        }
 
         if (parityData && parityData.en !== undefined) {
           setReasoningParity({
@@ -56,18 +70,53 @@ export default function Diagnose() {
             enHallucinations: parityData.en_hallucinations,
             frHallucinations: parityData.fr_hallucinations,
             tokenBreakdown: parityData.token_breakdown || {
-              en: { avgTokens: 6.2, maxTokens: 11 },
-              fr: { avgTokens: 12.8, maxTokens: 23 },
+              en: { avgTokens: 0, maxTokens: 0 },
+              fr: { avgTokens: 0, maxTokens: 0 },
             },
           })
         }
       } catch (err) {
-        console.warn('Failed to fetch diagnose data, using mock:', err)
+        console.error('Failed to fetch diagnose data:', err)
+      } finally {
+        setLoading(false)
       }
     }
 
     fetchData()
   }, [selectedBrandId])
+
+  // Fetch fix kit when a gap is selected
+  useEffect(() => {
+    if (!selectedGap) {
+      setFixKit(null)
+      return
+    }
+    setLoadingKit(true)
+    api.diagnose.gapFixKit(selectedGap.id)
+      .then(kit => setFixKit(kit))
+      .catch(() => setFixKit(null))
+      .finally(() => setLoadingKit(false))
+  }, [selectedGap])
+
+  const handleDeploy = (kitId) => {
+    setDeploying(true)
+    setDeployProgress(0)
+    // Simulate deploy progress, then call actual API
+    const interval = setInterval(() => {
+      setDeployProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          api.diagnose.deployKit(kitId).catch(() => {})
+          setDeploying(false)
+          setDeployed(d => ({ ...d, [kitId]: true }))
+          return 100
+        }
+        return prev + 2
+      })
+    }, 40)
+  }
+
+  if (loading) return <div className="page" style={{ padding: '2rem' }}>Loading Diagnostics...</div>
 
   return (
     <div className="page">
@@ -199,7 +248,7 @@ export default function Diagnose() {
           </div>
         </GlassCard>
 
-        {/* Detail Panel */}
+        {/* Detail Panel — Signal Analysis + Fix Kit */}
         {selectedGap && (
           <div className="gap-detail-panel fade-in-up">
             <div className="gap-detail-header">
@@ -243,22 +292,86 @@ export default function Diagnose() {
             <div className="gap-detail-diff">
               <div className="diff-section">
                 <div className="diff-header diff-ai">
-                  <span>🤖 What AI Said</span>
+                  <span>What AI Said</span>
                   <span className="diff-quality">Quality: {selectedGap.aiResponseQuality}%</span>
                 </div>
                 <div className="diff-body diff-body-ai">{selectedGap.aiSaid}</div>
               </div>
               <div className="diff-section">
                 <div className="diff-header diff-truth">
-                  <span>✅ Brand Truth</span>
+                  <span>Brand Truth</span>
                 </div>
                 <div className="diff-body diff-body-truth">{selectedGap.brandTruth}</div>
               </div>
             </div>
 
-            <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 'var(--space-lg)' }}>
-              {t('deployFix')} →
-            </button>
+            {/* Inline Fix Kit Section */}
+            <div className="fix-kit-inline">
+              <div className="fix-kit-inline-header">
+                <h4>{t('fixKits')}</h4>
+              </div>
+
+              {loadingKit ? (
+                <div className="fix-kit-loading">Loading fix kit...</div>
+              ) : fixKit ? (
+                <GlassCard className="fix-kit-inline-card">
+                  <div className="fix-kit-inline-top">
+                    <div className="fix-kit-inline-icon">
+                      {(() => {
+                        const Icon = typeIcons[fixKit.type] || Cpu
+                        return <Icon size={16} />
+                      })()}
+                    </div>
+                    <div className="fix-kit-inline-info">
+                      <span className="fix-kit-inline-type">{typeLabels[fixKit.type] || fixKit.type}</span>
+                      <span className="fix-kit-inline-target">{fixKit.brand} — {fixKit.product}</span>
+                    </div>
+                    {deployed[fixKit.id] ? (
+                      <StatusBadge status="deployed" label={t('deployed')} />
+                    ) : (
+                      <StatusBadge status={fixKit.status} label={fixKit.status} />
+                    )}
+                  </div>
+
+                  {/* Payload preview */}
+                  {fixKit.payload && (
+                    <div className="fix-kit-payload">
+                      <span className="detail-label">Payload</span>
+                      <div className="fix-kit-attributes">
+                        {Object.entries(fixKit.payload).map(([key, val]) => (
+                          <div key={key} className="attribute-row">
+                            <span className="attribute-key">{key}:</span>
+                            <span className="attribute-value">{typeof val === 'object' ? JSON.stringify(val) : String(val)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <p className="fix-kit-impact">{fixKit.impact}</p>
+
+                  {/* Deploy button */}
+                  <div className="deploy-section">
+                    {deploying ? (
+                      <div className="deploy-progress">
+                        <div className="deploy-progress-bar" style={{ width: `${deployProgress}%` }} />
+                        <span className="deploy-progress-text">{t('deploying')} {deployProgress}%</span>
+                      </div>
+                    ) : deployed[fixKit.id] ? (
+                      <button className="btn btn-primary deploy-btn" disabled>
+                        <Check size={16} /> {t('deployed')}
+                      </button>
+                    ) : (
+                      <button className="btn btn-primary deploy-btn" onClick={() => handleDeploy(fixKit.id)}>
+                        <Rocket size={16} /> {t('deployFix')}
+                      </button>
+                    )}
+                  </div>
+                </GlassCard>
+              ) : (
+                <div className="fix-kit-empty">No fix kit available for this gap yet.</div>
+              )}
+            </div>
           </div>
         )}
       </div>
