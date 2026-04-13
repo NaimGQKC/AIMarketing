@@ -3,10 +3,15 @@ VisiMind — Engine 1: Inference Lab
 Headless agentic probing with Self-Consistency Mining.
 
 Optimizations (v2):
-  1. N=3 iterations (down from 50) — avoids semantic cache trap
+  1. Tiered probe volumes (scout=10, standard=50, enterprise=200 iterations per angle)
   2. Temperature jitter (0.7) — forces real reasoning, exposes unstable distributions
   3. Golden Set — 5 diverse prompt angles instead of 1 repeated query
   4. Contradiction Rate — detects hallucination via cross-run inconsistency
+
+Probe Volume Tiers:
+  - scout:      10 iterations x 5 angles =    50 probes (directional only)
+  - standard:   50 iterations x 5 angles =   250 probes (95% CI +/-6.2%)
+  - enterprise: 200 iterations x 5 angles = 1,000 probes (95% CI +/-3.1%)
 """
 import asyncio
 import json
@@ -21,6 +26,7 @@ from config import (
     GOOGLE_API_KEY, USE_LIVE_LLM, PROBE_MODEL, PROBE_ITERATIONS,
     USE_OLLAMA, OLLAMA_MODEL, OLLAMA_URL,
     PROBE_TEMPERATURE, GOLDEN_SET_VARIATIONS,
+    PROBE_TIER, PROBE_TIER_MAP,
 )
 import httpx
 
@@ -38,6 +44,30 @@ def _get_client():
 
 
 # =============================================================================
+# Probe Volume Tier Resolution
+# =============================================================================
+
+def resolve_probe_tier(probe_tier: str = None) -> dict:
+    """
+    Resolve a probe tier name to its configuration.
+
+    Returns dict with keys: iterations, total_probes, label, ci_label.
+    Falls back to "standard" tier for unknown values.
+
+    Statistical rationale:
+    At N=50 per angle (250 total), we achieve ~95% confidence interval of +/-6.2% on citation rates.
+    At N=200 per angle (1,000 total), CI narrows to +/-3.1%.
+    Scout tier (50 total) is directional only — flag this in UI.
+    """
+    tier_name = (probe_tier or PROBE_TIER).lower()
+    if tier_name not in PROBE_TIER_MAP:
+        tier_name = "standard"
+    tier_config = PROBE_TIER_MAP[tier_name].copy()
+    tier_config["tier"] = tier_name
+    return tier_config
+
+
+# =============================================================================
 # Golden Set — Query Variation Generator
 # =============================================================================
 
@@ -47,7 +77,8 @@ def build_golden_set(base_query: str, lang: str = "EN") -> list[dict]:
     Each variation probes a different RAG surface area to maximize
     hallucination detection coverage.
 
-    Instead of hammering 1 prompt 50 times, we run 5 variations x 3 iterations.
+    Instead of hammering 1 prompt N times, we run 5 variations x N iterations
+    (where N is determined by probe_tier: scout=10, standard=50, enterprise=200).
     This bypasses semantic caching and widens the detection surface.
     """
     # Extract brand and product hints from the query
@@ -410,21 +441,30 @@ async def run_probe_task(
     task_id: str,
     query: str,
     lang: str,
-    iterations: int,
+    iterations: int = None,
     use_golden_set: bool = True,
     temperature: float = None,
+    probe_tier: str = None,
 ):
     """
     Background task: run probes with Golden Set variations and Self-Consistency Mining.
 
-    Instead of N=50 identical probes, runs:
-      - 5 query variations (Golden Set) x 3 iterations each = 15 total probes
-      - Temperature jitter at 0.7 to bypass semantic caching
-      - Contradiction Rate computed per variation to detect hallucination
+    Probe volume is determined by probe_tier (scout/standard/enterprise).
+    If explicit iterations are passed they override the tier default.
 
-    This drops inference costs by >70%, bypasses the caching trap, and gives
-    a much wider RAG surface area for detection.
+    Tier volumes (with Golden Set of 5 angles):
+      - scout:      10 iterations x 5 angles =    50 probes (directional only)
+      - standard:   50 iterations x 5 angles =   250 probes (95% CI +/-6.2%)
+      - enterprise: 200 iterations x 5 angles = 1,000 probes (95% CI +/-3.1%)
+
+    Temperature jitter at 0.7 bypasses semantic caching.
+    Contradiction Rate computed per variation to detect hallucination.
     """
+    # Resolve tier and iteration count
+    tier_config = resolve_probe_tier(probe_tier)
+    if iterations is None:
+        iterations = tier_config["iterations"]
+    resolved_tier = tier_config["tier"]
     temp = temperature if temperature is not None else PROBE_TEMPERATURE
 
     try:
@@ -526,6 +566,7 @@ async def run_probe_task(
         summary = {
             "query": query,
             "lang": lang,
+            "probe_tier": resolved_tier,
             "iterations_per_variation": iterations,
             "total_probes": total_probes,
             "golden_set_used": use_golden_set,
@@ -587,7 +628,7 @@ def classify_gap(mention_rate: float, avg_logprob: float | None, top_citations: 
     )
 
     if avg_logprob is not None and avg_logprob < -4.0:
-        return "Token Decay"
+        return "Tokenization Premium"
     elif toxic_sources and mention_rate < 50:
         return "Entity Trust"
     elif mention_rate < 40:

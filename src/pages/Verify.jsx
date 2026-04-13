@@ -30,7 +30,7 @@ const evaluationRubric = {
   linguisticDensity: {
     label: 'Linguistic Density',
     description: 'Preservation of technical French terms',
-    standard: 'No Token Decay',
+    standard: 'No tokenization premium',
     current: 0,
     target: 9,
     before: 0,
@@ -46,6 +46,63 @@ const evaluationRubric = {
     unit: '/10',
   },
 }
+/**
+ * Statistical Confidence badge — shows the precision of probe results
+ * based on the probe tier used for the latest probe run.
+ *
+ * Tiers:
+ *   scout      (50 probes)   — directional estimate only
+ *   standard   (250 probes)  — 95% CI +/-6%
+ *   enterprise (1,000 probes) — 95% CI +/-3%
+ */
+const PROBE_TIER_BADGES = {
+  scout: {
+    icon: '\u26A1',
+    label: 'Directional estimate',
+    tooltip: 'Based on 50 probes. Upgrade for statistical significance.',
+    color: 'var(--amber)',
+  },
+  standard: {
+    icon: '\uD83D\uDCCA',
+    label: '95% CI \u00B16%',
+    tooltip: 'Based on 250 probes (50 iterations x 5 Golden Set angles).',
+    color: 'var(--cyan)',
+  },
+  enterprise: {
+    icon: '\uD83C\uDFAF',
+    label: '95% CI \u00B13%',
+    tooltip: 'Based on 1,000 probes (200 iterations x 5 Golden Set angles).',
+    color: 'var(--green)',
+  },
+}
+
+function StatisticalConfidenceBadge({ probeTier }) {
+  const tier = (probeTier || 'standard').toLowerCase()
+  const badge = PROBE_TIER_BADGES[tier] || PROBE_TIER_BADGES.standard
+  return (
+    <span
+      className="stat-confidence-badge"
+      title={badge.tooltip}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.35rem',
+        padding: '0.2rem 0.6rem',
+        borderRadius: '6px',
+        fontSize: '0.75rem',
+        fontWeight: 600,
+        color: badge.color,
+        background: 'rgba(255,255,255,0.04)',
+        border: `1px solid ${badge.color}33`,
+        cursor: 'help',
+      }}
+    >
+      <span>{badge.icon}</span>
+      <span>{badge.label}</span>
+    </span>
+  )
+}
+
 import './Verify.css'
 
 const statusIcons = {
@@ -191,6 +248,8 @@ export default function Verify() {
       fr: { fertility: 1.0, severity: 'healthy' }
     }
   })
+  // probe_tier from the most recent probe run — defaults to "standard" for backward compat
+  const [probeTier, setProbeTier] = useState('standard')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -215,6 +274,9 @@ export default function Verify() {
         }
         if (eff) {
           setEfficiency(eff)
+          // If the efficiency data includes a probe_tier field, use it for the confidence badge.
+          // Falls back to "standard" for backward compatibility with older API responses.
+          if (eff.probe_tier) setProbeTier(eff.probe_tier)
           setFertility(prev => ({
             ...prev,
             postFix: {
@@ -264,7 +326,12 @@ export default function Verify() {
           <div className="e-score-value">
             <span className="animated-counter" style={{ animation: 'countUp 0.8s ease both' }}>{eScore}</span>
           </div>
-          <div className="e-score-label">{t('remediationEfficiency')}</div>
+          <div className="e-score-label">
+            {t('remediationEfficiency')}
+            <span style={{ marginLeft: '0.5rem' }}>
+              <StatisticalConfidenceBadge probeTier={probeTier} />
+            </span>
+          </div>
           <div className="e-score-formula">
             E = (S<sub>out</sub> / S<sub>in</sub>) {'\u00B7'} (1 {'\u2212'} {'\u03B4'})
           </div>
@@ -304,7 +371,7 @@ export default function Verify() {
               <h3>{t('tokenFertilityTitle')}</h3>
             </div>
             <div className="fertility-improvement">
-              <span className="badge badge-success">{'\u2193'} {fertility.improvementPct}% decay</span>
+              <span className="badge badge-success">{'\u2193'} {fertility.improvementPct}% premium</span>
             </div>
           </div>
           <p className="fertility-desc">{t('tokenFertilityDesc')}</p>
@@ -570,7 +637,7 @@ export default function Verify() {
                   <p>
                     Your remediation layer has a <strong>{eScore}x semantic multiplier</strong>.
                     For every unit of raw PIM data quality going in, you're outputting {eScore}x the semantic clarity —
-                    even after accounting for a {(delta * 100).toFixed(0)}% Token Decay penalty from French technical term fragmentation.
+                    even after accounting for a {(delta * 100).toFixed(0)}% tokenization premium from French technical term fragmentation (Token Fertility ratio; Petrov et al., NeurIPS 2023).
                   </p>
                 </div>
               </div>

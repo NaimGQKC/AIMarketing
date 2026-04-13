@@ -58,7 +58,7 @@ Reddit is now the #1 cited source across AI search engines (40.1% of all genAI c
 **Pain point:** Fashion and luxury retail brands that invest heavily in visual branding and Instagram marketing discover that AI search engines have essentially zero awareness of their brand. When users ask "best luxury [product] brands in [city]," they're not mentioned.  
 
 **How VisiMind solves this:**  
-- Specifically designed for Montreal luxury retail (the Bilingual Crisis)  
+- Specifically designed for Montreal luxury retail (the bilingual visibility problem)  
 - Maps brand entity presence across all AI platforms simultaneously  
 - Identifies that luxury brands typically over-index on visual content (Instagram, Pinterest) but under-index on the text-based, structured data that AI models consume  
 - Generates remediation plan to build "AI-readable" brand identity  
@@ -72,19 +72,19 @@ Reddit is now the #1 cited source across AI search engines (40.1% of all genAI c
 
 ## CATEGORY 2: "Bilingual/Multilingual SEO Is Breaking Our Brand"
 
-### Target 4 - Montreal Business: French/English Token Decay
+### Target 4 - Montreal Business: French/English Tokenization Premium
 
 **Where found:** Patterns across r/montreal, r/canadianbusiness, r/SEO discussions about bilingual SEO; OptiWeb Marketing analysis of Canadian bilingual SEO  
 **Pain point:** Montreal-based business owner struggles with their brand being split into two separate "entities" by AI engines - the French version and the English version don't link together. AI models treat them as different businesses, diluting authority in both languages.  
 
 **How VisiMind solves this:**  
-- Core VisiMind value proposition - the "Bilingual Crisis" is exactly this  
-- Detects French/English token decay where AI models fragment a single brand into separate entities  
+- Core VisiMind value proposition - the "bilingual visibility problem" is exactly this  
+- Detects French/English tokenization premium where AI models fragment a single brand into separate entities  
 - Identifies when AI models serve France-French content to Quebec users (wrong dialect)  
 - Unified schema markup strategy that tells AI models these are the same brand in two languages  
 
 **Suggested DM:**
-> Hey - saw your post about the bilingual SEO struggle. We're based in Montreal and this is literally the exact problem we built our tool to solve. We call it the "Bilingual Crisis" - AI engines like ChatGPT and Perplexity treat your French and English presences as two separate brands, which means you have half the authority in both languages.
+> Hey - saw your post about the bilingual SEO struggle. We're based in Montreal and this is literally the exact problem we built our tool to solve. We call it the "Bilingual AI Gap" - AI engines like ChatGPT and Perplexity treat your French and English presences as two separate brands, which means you have half the authority in both languages.
 >
 > We built a free diagnostic that shows you exactly how AI models perceive your brand in French vs. English - including whether they're serving France-French instead of Quebec French (which happens way more than you'd think). Want me to run one? It takes 2 minutes and the results are usually a wake-up call.
 

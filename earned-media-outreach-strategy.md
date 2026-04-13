@@ -10,8 +10,8 @@
 ### 1. TWIML AI Podcast (This Week in Machine Learning & AI)
 - **Host:** Sam Charrington
 - **Audience:** ~50K+ downloads/episode; deep technical ML community
-- **Why VisiMind fits:** The show focuses on applied ML research. French/English token decay in LLMs is a novel technical finding that fits their "real ML problems in production" format.
-- **Pitch angle:** "We discovered that major LLMs exhibit systematic token decay in bilingual French/English contexts, causing AI search engines to under-recommend Canadian luxury brands. Here's the data."
+- **Why VisiMind fits:** The show focuses on applied ML research. The French/English tokenization premium in LLMs is a novel technical finding that fits their "real ML problems in production" format.
+- **Pitch angle:** "We discovered that major LLMs impose a real, measurable tokenization premium in bilingual French/English contexts, causing AI search engines to under-recommend Canadian luxury brands. Here's the data."
 - **Contact:** twimlai.com/contact or podcast@twimlai.com; Sam is active on LinkedIn and Twitter (@ShijsC)
 
 ### 2. Practical AI (Changelog)
@@ -31,15 +31,15 @@
 ### 4. The AI Podcast (NVIDIA)
 - **Host:** Noah Kravitz
 - **Audience:** Large (NVIDIA distribution), ~25-min focused interviews
-- **Why VisiMind fits:** They profile AI solving specific industry problems. Bilingual token decay is a compelling, underreported problem.
-- **Pitch angle:** "Using AI to fix AI: How we're solving the bilingual crisis in AI-powered search engines."
+- **Why VisiMind fits:** They profile AI solving specific industry problems. Bilingual tokenization premium is a compelling, underreported problem.
+- **Pitch angle:** "Using AI to fix AI: How we're solving the bilingual visibility problem in AI-powered search engines."
 - **Contact:** blogs.nvidia.com/ai-podcast; pitch via NVIDIA PR or LinkedIn
 
 ### 5. Latent Space
 - **Host:** Alessio Fanelli & swyx (Shawn Wang)
 - **Audience:** AI engineers, ~30K+ downloads/episode
-- **Why VisiMind fits:** Deep technical audience interested in LLM internals. Token decay research is novel and publishable.
-- **Pitch angle:** "French token decay in production LLMs: What happens when AI search engines can't handle Canada's two official languages."
+- **Why VisiMind fits:** Deep technical audience interested in LLM internals. Tokenization premium research is novel and publishable.
+- **Pitch angle:** "French tokenization premium in production LLMs: What happens when AI search engines can't handle Canada's two official languages."
 - **Contact:** latent.space; swyx is highly responsive on Twitter (@swyx)
 
 ---
@@ -77,7 +77,7 @@
 ### 10. My Wife Quit Her Job
 - **Host:** Steve Chou
 - **Audience:** 400+ episodes; large bootstrapper audience
-- **Why VisiMind fits:** Founder journey + practical insight. The bilingual crisis discovery story is compelling.
+- **Why VisiMind fits:** Founder journey + practical insight. The bilingual AI gap discovery story is compelling.
 - **Pitch angle:** "We discovered that AI is biased against our Canadian clients' stores, so we built a tool to fix it."
 - **Contact:** mywifequitherjob.com/contact
 
@@ -102,7 +102,7 @@
 ### 13. EDGE of the Web
 - **Host:** Erin Sparks (Site Strategics)
 - **Audience:** SEO professionals, data-driven marketing
-- **Why VisiMind fits:** Data-heavy SEO format. VisiMind's contradiction rates and token decay metrics provide rich data storytelling.
+- **Why VisiMind fits:** Data-heavy SEO format. VisiMind's contradiction rates and Token Fertility metrics provide rich data storytelling.
 - **Pitch angle:** "Data-driven discovery: How we measured AI search engines' failure to recommend bilingual Canadian brands."
 - **Contact:** edgeofthewebradio.com; Erin on Twitter
 
@@ -156,13 +156,13 @@
 ---
 
 ## Pitch Template 1: TECHNICAL ANGLE
-**Subject: We Discovered French AI Token Decay -- Data Inside**
+**Subject: We Discovered a French AI Tokenization Premium -- Data Inside**
 
 Hi [Host Name],
 
 I'm [Your Name], founder of VisiMind. We've uncovered something that I think your audience would find fascinating.
 
-While auditing how AI search engines (ChatGPT, Perplexity, Google AI Overviews) recommend Canadian luxury brands, we discovered a systematic failure we call "French AI Token Decay." When brands have bilingual French/English content -- as virtually all Canadian brands do -- large language models exhibit measurable degradation in their ability to correctly parse, rank, and recommend those brands.
+While auditing how AI search engines (ChatGPT, Perplexity, Google AI Overviews) recommend Canadian luxury brands, we discovered a systematic, measurable tokenization premium we call the "French AI Token Tax." When brands have bilingual French/English content -- as virtually all Canadian brands do -- large language models exhibit real, measurable degradation in their ability to correctly parse, rank, and recommend those brands.
 
 Here's what the data shows:
 - AI search engines fail to recommend Canadian luxury brands at rates 40-60% higher than equivalent English-only brands
@@ -191,7 +191,7 @@ Quick question: When you ask ChatGPT or Perplexity to recommend a luxury skincar
 
 We tested this across hundreds of queries. The answer is almost never.
 
-I'm [Your Name], founder of VisiMind. We've discovered what we call the "Bilingual Crisis" -- a systematic failure where AI search engines can't properly process brands that operate in both French and English. For Canadian luxury, fashion, and beauty brands, this means they're essentially invisible in the fastest-growing discovery channel in the world.
+I'm [Your Name], founder of VisiMind. We've discovered what we call the "Bilingual AI Gap" -- a systematic failure where AI search engines can't properly process brands that operate in both French and English. For Canadian luxury, fashion, and beauty brands, this means they're essentially invisible in the fastest-growing discovery channel in the world.
 
 The business impact is staggering:
 - AI-powered search is projected to influence $1.2T+ in e-commerce purchasing decisions by 2027
@@ -220,7 +220,7 @@ I built VisiMind because I found something that made me angry: the AI tools that
 
 I'm [Your Name], based in Montreal -- Canada's bilingual tech hub. While working with Canadian luxury brands on their digital strategy, I noticed something strange: when I asked AI search engines to recommend products, my clients never appeared. Not because their products were bad, but because their bilingual French/English content was confusing the AI.
 
-I went down the rabbit hole. What I found was a fundamental flaw in how large language models handle bilingual content -- something I call "French AI Token Decay." The deeper I dug, the bigger the problem got. It wasn't just one brand or one AI engine. It was systematic.
+I went down the rabbit hole. What I found was a fundamental flaw in how large language models handle bilingual content -- a real, measurable tokenization premium on French content. The deeper I dug, the bigger the problem got. It wasn't just one brand or one AI engine. It was systematic.
 
 So I built VisiMind: a platform that audits how AI search engines perceive a brand, identifies where the breakdowns occur, and generates automated fixes. We use a technique called Self-Consistency Mining that probes AI engines multiple times to detect contradictions -- kind of like cross-examining a witness.
 
@@ -243,7 +243,7 @@ Founder, VisiMind
 
 ### 1. Search Engine Land
 - **Audience:** 500K+ monthly readers; SEO professionals
-- **Article pitch:** "Generative Engine Optimization Has a Bilingual Problem: How French/English Token Decay Breaks AI Search for Canadian Brands"
+- **Article pitch:** "Generative Engine Optimization Has a Bilingual Problem: How the French/English Tokenization Premium Breaks AI Search for Canadian Brands"
 - **Contact:** searchengineland.com; editorial@searchengineland.com
 - **Format:** Data-driven feature (1,500-2,000 words) with charts showing contradiction rates
 
@@ -313,7 +313,7 @@ Founder, VisiMind
 
 ### 12. The Gradient (Stanford AI newsletter)
 - **Audience:** AI researchers and practitioners
-- **Article pitch:** "When LLMs Can't Handle Two Languages: Token Decay in Bilingual AI Search"
+- **Article pitch:** "When LLMs Can't Handle Two Languages: The Tokenization Premium in Bilingual AI Search"
 - **Contact:** thegradient.pub; submit via their contributor process
 
 ### 13. Andreessen Horowitz (a16z) Blog
@@ -323,7 +323,7 @@ Founder, VisiMind
 
 ### 14. Foundation Inc. Lab
 - **Audience:** Content marketers and SaaS leaders
-- **Article pitch:** "The Complete Guide to GEO for Canadian E-Commerce: French/English Token Decay and How to Fix It"
+- **Article pitch:** "The Complete Guide to GEO for Canadian E-Commerce: The French/English Tokenization Premium and How to Address It"
 - **Contact:** foundationinc.co (Canadian company; Ross Simmonds on LinkedIn)
 
 ---
@@ -350,7 +350,7 @@ Founder, VisiMind
 ### 4. AITechTrend
 - **Topics:** AI, ML, Deep Learning news and trends
 - **Guidelines:** aitechtrend.com/write-for-us
-- **Pitch:** "French AI Token Decay: A Bilingual Blind Spot in Large Language Models"
+- **Pitch:** "The French Tokenization Premium: A Bilingual Blind Spot in Large Language Models"
 
 ### 5. ZPlatform.ai
 - **Topics:** AI tools, productivity, marketing automation
@@ -375,7 +375,7 @@ Founder, VisiMind
 ### 9. First Page Sage
 - **Topics:** GEO, AI search optimization (recognized GEO authority)
 - **Guidelines:** firstpagesage.com; contact editorial
-- **Pitch:** "Generative Engine Optimization for Multilingual Markets: Lessons from the Canadian Bilingual Crisis"
+- **Pitch:** "Generative Engine Optimization for Multilingual Markets: Lessons from the Canadian Bilingual AI Gap"
 
 ### 10. Foundation Inc. Lab
 - **Topics:** Content marketing, SaaS, B2B growth (Canadian company)
@@ -422,11 +422,11 @@ Hi [Editor Name],
 
 I noticed [Publication Name] recently covered [specific recent article on AI/GEO/e-commerce]. I'd love to contribute a follow-up piece that explores an under-covered angle:
 
-**Proposed title:** "The Bilingual Crisis: How AI Search Engines Are Systematically Failing Non-English E-Commerce Brands"
+**Proposed title:** "The Bilingual AI Gap: How AI Search Engines Are Systematically Failing Non-English E-Commerce Brands"
 
 **Key points the article would cover:**
 1. Data showing bilingual brands are recommended 40-60% less by AI search engines
-2. Why this happens (token decay in French/English contexts)
+2. Why this happens (tokenization premium in French/English contexts)
 3. The revenue impact for Canadian luxury and beauty brands
 4. A practical framework for diagnosing and fixing AI search visibility
 5. What this means for any brand operating across languages globally
@@ -534,7 +534,7 @@ Founder, VisiMind
 - **Venue:** Palais des Congres, Montreal
 - **Audience:** 6,500+ participants from 40 countries
 - **Why:** Canada's largest AI conference. Featuring Yoshua Bengio, Aidan Gomez. Perfect home-turf event.
-- **Talk pitch:** "The Bilingual Crisis: How AI Search Fails Canada's Brands and What We're Building to Fix It"
+- **Talk pitch:** "The Bilingual AI Gap: How AI Search Fails Canada's Brands and What We're Building to Fix It"
 - **Submit:** allinevent.ai (check for CFP opening)
 
 ### 2. ODSC AI East 2026
@@ -588,7 +588,7 @@ Founder, VisiMind
 - **Date:** April 27-30, 2026 (New York City)
 - **Audience:** SEO professionals; 4 themed days focused on AI search
 - **Why:** Explicitly focused on "adapt and win in AI search" -- perfect alignment.
-- **Talk pitch:** "Multilingual GEO: The Token Decay Problem and a Framework for Auditing AI Search in Bilingual Markets"
+- **Talk pitch:** "Multilingual GEO: The Tokenization Premium Problem and a Framework for Auditing AI Search in Bilingual Markets"
 - **Submit:** Via iPullRank / SEO Week website
 
 ### 9. BrightonSEO

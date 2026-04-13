@@ -10,7 +10,7 @@ Upgraded architecture implementing:
      - Eliminates Semantic Override (E1) errors
   3. Multimodal Bypass: MRC Q-Former Truth Clips
      - 15-second temporal constraint for O(n^2) attention optimization
-     - Cross-modal attention anchoring for French token decay bypass
+     - Bypasses text tokenization entirely via language-agnostic visual embeddings
   4. Knowledge Graph Integration
      - Fuzzy logic constraint boundaries from KG engine
      - KGQA scoring for validation
@@ -313,7 +313,7 @@ def generate_truth_clip_metadata(product: dict) -> dict:
     - Uses Multi-Resolution Causal Q-Former architecture
     - Connects pre-trained audio-visual encoders to the LLM backbone
     - Provides language-agnostic visual embeddings that bypass text-token brittleness
-    - Cross-modal attention layers redirect French token decay queries to stable visual space
+    - Cross-modal attention layers redirect French queries to stable visual space, sidestepping text tokenization
 
     The 15-second constraint is architectural, not arbitrary:
     - Avoids noise from prolonged video (class imbalance, dominant modality drowning)
@@ -403,12 +403,12 @@ def generate_truth_clip_metadata(product: dict) -> dict:
             ),
             "crossModalAttention": {
                 "description": (
-                    "When French Token Decay triggers embedding variance, "
+                    "When French tokenization premium triggers embedding variance, "
                     "cross-modal attention layers redirect to stable visual embeddings. "
                     "The video metadata bridges the gap, supplying relational logic "
                     "that the text tokenizer failed to construct."
                 ),
-                "tokenDecayBypass": True,
+                "tokenizationBypass": True,
                 "targetLanguages": ["fr", "multilingual"],
             },
             "temporalConstraint": {
@@ -447,7 +447,7 @@ def generate_fix_kit(gap: dict, product: dict, kg_boundary: dict = None) -> dict
         return _build_hard_attributes_kit(gap, product, kg_boundary)
     elif gap_type == "Fact Density":
         return _build_jsonld_kit(gap, product, kg_boundary)
-    elif gap_type == "Token Decay":
+    elif gap_type in ("Token Decay", "Tokenization Premium"):
         return _build_truth_clip_kit(gap, product, kg_boundary)
     else:
         return _build_jsonld_kit(gap, product, kg_boundary)
@@ -497,7 +497,7 @@ def _build_jsonld_kit(gap: dict, product: dict, kg_boundary: dict = None) -> dic
         "payload": {
             "graph": graph,
             "bilingual_mapping": mapping,
-            "target_protocols": ["UCP", "ACP"],
+            "target_protocols": ["UCP", "MCP"],  # MCP is the dominant standard — 97M+ monthly SDK downloads, governed by Linux Foundation Agentic AI Foundation.
             "mechanism": "Deterministic @graph ID schema overriding heuristic parsers",
         },
         "impact": f"Expected +{_estimate_impact('Fact Density', kg_boundary)}% fact density score",
@@ -507,7 +507,7 @@ def _build_jsonld_kit(gap: dict, product: dict, kg_boundary: dict = None) -> dic
 def _build_truth_clip_kit(gap: dict, product: dict, kg_boundary: dict = None) -> dict:
     """
     Truth Clip Kit — MRC Q-Former multimodal bypass.
-    Bypasses French Token Decay via cross-modal attention grounding.
+    Bypasses text tokenization entirely by anchoring brand identity in language-agnostic visual embeddings.
     """
     clip_meta = generate_truth_clip_metadata(product)
 
@@ -533,7 +533,7 @@ def _build_truth_clip_kit(gap: dict, product: dict, kg_boundary: dict = None) ->
                 "MRC Q-Former anchors LLM in continuous visual vector space, "
                 "bypassing O(n^2) attention scaling degradation in French queries"
             ),
-            "token_decay_bypass": {
+            "tokenization_bypass": {
                 "target_languages": ["fr"],
                 "cross_modal_attention": True,
                 "visual_embedding_type": "language_agnostic",
@@ -548,7 +548,7 @@ def _estimate_impact(gap_type: str, kg_boundary: dict = None) -> int:
     Heuristic impact estimation based on gap type.
     Boosted by KG boundary score (higher boundary = more constrained = more impact).
     """
-    base = {"Token Decay": 35, "Fact Density": 25, "Entity Trust": 45}.get(gap_type, 30)
+    base = {"Token Decay": 35, "Tokenization Premium": 35, "Fact Density": 25, "Entity Trust": 45}.get(gap_type, 30)
 
     if kg_boundary:
         boundary_boost = int(kg_boundary.get("boundary_score", 0) * 10)
@@ -630,11 +630,12 @@ async def build_ucp_manifest(brand: dict = None) -> dict:
 
 
 # =============================================================================
-# ACP Feed Formatting
+# MCP Feed Formatting
 # =============================================================================
 
-def format_acp_feed(products: list[dict]) -> dict:
-    """Format product data for OpenAI ACP (Agentic Commerce Protocol) discovery feed."""
+def format_mcp_feed(products: list[dict]) -> dict:
+    """Format product data for MCP (Model Context Protocol, Anthropic) compatible discovery feed."""
+    # MCP is the dominant standard — 97M+ monthly SDK downloads, governed by Linux Foundation Agentic AI Foundation.
     items = []
     for p in products:
         items.append({
@@ -657,7 +658,7 @@ def format_acp_feed(products: list[dict]) -> dict:
         })
 
     return {
-        "protocol": "acp",
+        "protocol": "mcp",
         "version": "1.0",
         "publisher": "VisiMind",
         "updated_at": datetime.utcnow().isoformat(),

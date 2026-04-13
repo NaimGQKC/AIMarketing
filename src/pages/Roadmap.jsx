@@ -218,7 +218,7 @@ export default function Roadmap() {
             </div>
             <div className="moat-detail">
               <div className="moat-detail-row">
-                <span>Token Tax:</span>
+                <span>Tokenization Premium:</span>
                 <span style={{ color: 'var(--coral)' }}>+{moat.token_tax_pct}%</span>
               </div>
               <div className="moat-detail-row">

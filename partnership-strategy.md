@@ -112,7 +112,7 @@ As Shopify's longest-standing partner agency, you have seen every ecommerce shif
 
 I am building VisiMind, an AI remediation layer specifically for Canadian luxury brands on Shopify. We solve three problems your clients face today:
 
-1. **French/English token decay** - AI models blend or drop bilingual product data, damaging brand accuracy
+1. **French/English tokenization premium** - AI models blend or drop bilingual product data, damaging brand accuracy
 2. **Missing AI-optimized schema** - Standard Shopify JSON-LD is built for Google Rich Snippets, not for LLM citation
 3. **Zero visibility into AI search** - No one is tracking whether ChatGPT or Perplexity recommends their products
 
@@ -248,7 +248,7 @@ VisiMind
 1. Akeneo stores rich, structured product data - but that data is optimized for ecommerce platforms, not AI search engines
 2. VisiMind reads Akeneo product attributes and generates bilingual JSON-LD Fix Kits that bridge the gap
 3. When a brand updates a product in Akeneo, VisiMind automatically regenerates the AI-optimized schema
-4. For Canadian brands using Akeneo, the French/English token decay problem is especially acute - PIM data in both languages needs separate AI optimization
+4. For Canadian brands using Akeneo, the French/English tokenization premium problem is especially acute - PIM data in both languages needs separate AI optimization
 
 **Connector Architecture:**
 - Akeneo REST API connector (VisiMind already has Akeneo integration in the codebase)
@@ -287,7 +287,7 @@ ChatGPT now handles 800M+ weekly queries. Google AI Overviews appear in 16% of s
 
 VisiMind is an AI remediation layer that connects directly to Akeneo PIM and:
 1. Reads product attributes via the Akeneo REST API
-2. Identifies bilingual (FR/EN) token decay and schema gaps
+2. Identifies bilingual (FR/EN) tokenization premium and schema gaps
 3. Generates JSON-LD Fix Kits optimized for LLM citation
 4. Monitors AI visibility across ChatGPT, Perplexity, and Gemini
 
@@ -416,7 +416,7 @@ I am building VisiMind, an AI remediation layer for luxury brands. Here is why I
 Specifically, VisiMind:
 - Generates bilingual (FR/EN) JSON-LD Fix Kits that make AI models cite brands correctly
 - Connects to Shopify and Akeneo PIM to remediate product data at scale
-- Solves the French/English token decay problem that destroys brand accuracy in AI responses
+- Addresses the French/English tokenization premium that degrades brand accuracy in AI responses
 
 **What a partnership looks like:**
 1. **Referral flow:** When Peec AI users see low visibility scores, recommend VisiMind as the remediation path
@@ -462,7 +462,7 @@ Your Semrush App Center launch was a smart move - putting AI search monitoring i
 Right now, Otterly.ai tells marketers: "You are not visible in AI search for [query]." The marketer then asks: "What do I do about it?" That is where VisiMind comes in.
 
 VisiMind is an AI remediation layer that:
-- Diagnoses WHY a brand is invisible (schema gaps, bilingual token decay, missing structured data)
+- Diagnoses WHY a brand is invisible (schema gaps, bilingual tokenization premium, missing structured data)
 - Generates JSON-LD Fix Kits that make AI models cite the brand correctly
 - Deploys fixes via Shopify and Akeneo PIM integrations
 
@@ -560,7 +560,7 @@ VisiMind
 
 **Week 2: Enablement**
 - 1-hour certification training (recorded, self-paced available)
-- Topics: AI search landscape, VisiMind product walkthrough, bilingual token decay explained, how to pitch the audit
+- Topics: AI search landscape, VisiMind product walkthrough, bilingual tokenization premium explained, how to pitch the audit
 - Partner receives 5 pre-built client pitch decks (customizable)
 
 **Week 3: First Audit**
@@ -597,8 +597,8 @@ This question is becoming more common. ChatGPT has 800M+ weekly users. Google AI
 
 **VisiMind solves this.** We are an AI remediation layer that:
 - Audits how AI models describe your clients' brands and products
-- Identifies bilingual (FR/EN) token decay and schema gaps
-- Generates JSON-LD Fix Kits that improve AI citation accuracy
+- Identifies bilingual (FR/EN) tokenization premium and schema gaps
+- Generates JSON-LD Fix Kits that improve entity recognition and AI citation accuracy
 - Monitors ongoing AI visibility via integrations with Peec AI and Otterly.ai
 
 **What you get as a VisiMind Partner:**
@@ -648,7 +648,7 @@ P.S. We are accepting our first 20 Certified Partners this quarter. Early partne
 - **Duration:** 3 months
 - **Focus:** AI startups across all industries and markets
 - **Partner:** Real Ventures (leading Montreal VC)
-- **VisiMind Positioning:** "Applied AI that solves a measurable business problem - French/English token decay in AI search engines costs Canadian luxury brands millions in lost visibility. We use neuro-symbolic AI (Knowledge Graphs + DPO constraints) to fix it."
+- **VisiMind Positioning:** "Applied AI that solves a measurable business problem - the French/English tokenization premium in AI search engines costs Canadian luxury brands millions in lost visibility. We use neuro-symbolic AI (Knowledge Graphs + DPO constraints) to address it."
 - **Application:** https://www.techstars.com/montreal-ai-program/
 - **Status:** Check for next cohort application window
 
@@ -729,7 +729,7 @@ P.S. We are accepting our first 20 Certified Partners this quarter. Early partne
 - No existing tool fixes this - the market is monitoring-only
 
 **Solution (differentiated):**
-- VisiMind is the only AI remediation layer (not monitoring - remediation)
+- VisiMind is a specialized AI remediation layer (not monitoring - active remediation)
 - Bilingual JSON-LD Fix Kits generated automatically from PIM data
 - Neuro-symbolic architecture: Knowledge Graphs + DPO constraints + Self-Consistency Mining
 - Integrates with Shopify, Akeneo, Peec AI, Otterly.ai

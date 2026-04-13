@@ -15,6 +15,7 @@
 - Confidential / Prepared exclusively for [Brand Name]
 
 ### Section 1: Inference Alignment Score (Hero Metric)
+> The Inference Alignment Score measures how accurately AI systems represent your brand across languages, using methodology adapted from GEO visibility research (Princeton, 2024).
 Large circular gauge, 0-100, color-coded:
 - 0-30: Red ("Invisible")
 - 31-55: Orange ("At Risk")
@@ -276,7 +277,7 @@ Mackage is a $500M+ brand. AI does not know it exists.
 Here is why (and what it means for your brand): [thread emoji]
 ```
 
-### Tweet 2 (The Bilingual Crisis)
+### Tweet 2 (The Bilingual AI Gap)
 ```
 Canada has a hidden AI problem that nobody is talking about:
 
@@ -419,7 +420,7 @@ DM me your brand name. I will send it.
 1. Brand selector (prospect types name)
 2. Inference Alignment Score (big scary number)
 3. LLM Response Matrix (they are not there)
-4. Bilingual Token Decay (the twist)
+4. Bilingual Tokenization Premium (the twist)
 5. Knowledge Graph Gaps (the technical proof)
 6. E-Score Roadmap (the fix)
 7. Booking CTA

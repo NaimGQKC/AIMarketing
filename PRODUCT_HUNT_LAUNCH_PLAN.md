@@ -23,7 +23,7 @@
 
 1. Product Hunt now has a **dedicated GEO category** -- this is our primary launch category
 2. Tools cluster around two jobs: (a) measuring brand presence across AI assistants, (b) turning gaps into publishable, citation-friendly content
-3. **No one is solving the bilingual/multilingual token decay problem** -- this is VisiMind's white space
+3. **No one is solving the bilingual/multilingual tokenization premium problem** -- this is VisiMind's white space
 4. **No one has a JSON-LD Fix Kit generator with PIM integration** -- another differentiator
 5. The "agentic commerce" narrative is gaining mainstream traction (Fortune, Search Engine Land)
 
@@ -71,12 +71,12 @@ Hey Product Hunt!
 I'm Alejandro, and I built VisiMind after discovering something alarming: 
 French luxury brands in Canada are literally invisible to AI search engines.
 
-The root cause? Token decay. When an LLM tokenizes "manteau d'hiver en duvet 
+The root cause? A tokenization premium. When an LLM tokenizes "manteau d'hiver en duvet 
 d'oie certifie" it generates ~40% more tokens than the English equivalent. 
 More tokens = more noise = more hallucinations = your brand disappears from 
 AI recommendations.
 
-We call this the "Bilingual Crisis" and it affects every Canadian retailer 
+We call this the "Bilingual AI Gap" and it affects every Canadian retailer 
 operating in both languages.
 
 VisiMind is the fix:
@@ -105,7 +105,7 @@ I'll run a free diagnosis.
 
 1. **Bilingual Signal Gap Diagnosis** -- Probe ChatGPT, Perplexity, Claude, and Gemini with your brand queries. See exactly where and why AI fails to recommend you in English and French.
 
-2. **JSON-LD Fix Kit Generator** -- Auto-generate @graph structured data that eliminates the "Interpretation Tax" (the extra tokens AI wastes parsing your HTML instead of clean JSON-LD).
+2. **JSON-LD Fix Kit Generator** -- Auto-generate @graph structured data that improves entity recognition and fact density for AI extraction. Eliminates the "Interpretation Tax" (the extra tokens AI wastes parsing your HTML instead of clean JSON-LD).
 
 3. **One-Click PIM Sync** -- Push Fix Kits directly to Shopify and Akeneo. No copy-pasting, no developer tickets. Your product data updates across all AI crawlers simultaneously.
 
@@ -161,7 +161,7 @@ Product Hunt allows you to create a "Coming Soon" page when you schedule your la
 |-----------|--------|----------|
 | Product Hunt discussions | Comment helpfully on 5-10 posts/week | Start 6 weeks before |
 | r/SEO, r/ecommerce, r/shopify | Share insights about AI visibility (never pitch) | Start 4 weeks before |
-| GEO-focused LinkedIn groups | Post thought leadership about bilingual token decay | Start 4 weeks before |
+| GEO-focused LinkedIn groups | Post thought leadership about bilingual tokenization premium | Start 4 weeks before |
 | Indie Hackers | Share building journey posts | Start 4 weeks before |
 | Shopify Partner Slack communities | Help with structured data questions | Start 3 weeks before |
 | Canadian startup Slack groups (e.g., MTL NewTech) | Participate actively | Start 4 weeks before |
@@ -310,13 +310,13 @@ This is the highest-traffic window. All hands on deck.
 
 **X/Twitter** (4-6 posts):
 - 12:05 AM: "We just launched VisiMind on @ProductHunt! [link] -- AI search engines can't see your brand. We fix that."
-- 8:00 AM: Thread explaining the bilingual token decay problem with data
+- 8:00 AM: Thread explaining the bilingual tokenization premium problem with data
 - 12:00 PM: Screenshot of Product Hunt ranking + quote from a comment
 - 4:00 PM: Behind-the-scenes or "what we learned building this"
 - 8:00 PM: Thank you post with results so far
 
 **LinkedIn** (3 posts):
-- 4:00 AM: Long-form post about the problem (bilingual crisis) with PH link at the end
+- 4:00 AM: Long-form post about the problem (bilingual AI gap) with PH link at the end
 - 8:00 AM: "Today we launched VisiMind" with product screenshots
 - 5:00 PM: Update post with ranking and early feedback highlights
 
@@ -335,16 +335,16 @@ This is the highest-traffic window. All hands on deck.
 **Prepared Responses for Common Questions:**
 
 *"How is this different from [competitor]?"*
-> "Great question. Most GEO tools measure visibility -- we fix it. VisiMind generates the actual structured data (JSON-LD Fix Kits) and pushes them to your PIM. We also solve a specific problem nobody else touches: bilingual token decay, where French content generates 40% more tokens than English, causing LLMs to hallucinate brand information away."
+> "Great question. Most GEO tools measure visibility -- we fix it. VisiMind generates the actual structured data (JSON-LD Fix Kits) to improve entity recognition and fact density, and pushes them to your PIM. We also measure a problem nobody else touches: the bilingual tokenization premium, where French content generates 40% more tokens than English. Our Truth Clips bypass text tokenization entirely by anchoring brand identity in language-agnostic visual embeddings."
 
 *"Does this work for languages other than French/English?"*
-> "We built this for the Canadian bilingual market first, but the token decay problem exists in every language pair with different morphological complexity. German, Arabic, and Japanese all have higher fertility ratios than English. We're starting with FR/EN because that's where we have the deepest data, but the architecture is language-agnostic."
+> "We built this for the Canadian bilingual market first, but the tokenization premium problem exists in every language pair with different morphological complexity. German, Arabic, and Japanese all have higher fertility ratios than English. We're starting with FR/EN because that's where we have the deepest data, but the architecture is language-agnostic."
 
 *"What's the pricing?"*
 > "We're currently in design partner mode -- working closely with 3-5 brands to prove the E-Score improvement before setting pricing. If you're interested, I'd love to give you a free diagnosis of your brand's AI visibility. Drop your brand name and I'll run a probe."
 
 *"Is this just for luxury brands?"*
-> "We started with Canadian luxury retail because the problem is most acute there (high-value products, bilingual market, lots of AI shopping queries). But the engine works for any e-commerce brand. The token decay problem and JSON-LD Fix Kit approach apply universally."
+> "We started with Canadian luxury retail because the problem is most acute there (high-value products, bilingual market, lots of AI shopping queries). But the engine works for any e-commerce brand. The tokenization premium problem is universal, and JSON-LD Fix Kits improve entity recognition for any brand."
 
 ---
 
@@ -352,7 +352,7 @@ This is the highest-traffic window. All hands on deck.
 
 ### 1. Hacker News -- Show HN
 
-**Format**: "Show HN: VisiMind -- fixing bilingual token decay so AI search engines recommend your brand"
+**Format**: "Show HN: VisiMind -- measuring bilingual tokenization premium so AI search engines recommend your brand"
 
 **Optimal Post:**
 ```
@@ -360,7 +360,7 @@ Show HN: VisiMind -- Bilingual JSON-LD remediation for AI search visibility
 
 We built an AI remediation layer that solves a specific problem: when LLMs 
 tokenize French product descriptions, they generate ~40% more tokens than 
-English equivalents. This "token decay" causes hallucinations and makes 
+English equivalents. This tokenization premium causes hallucinations and makes 
 bilingual brands invisible to AI search engines.
 
 VisiMind:
@@ -391,7 +391,7 @@ Live demo: [URL]
 Title: "I discovered French costs 40% more tokens than English -- 
 so I built a tool to fix it"
 
-Body: Tell the story. Start with the discovery of token decay. 
+Body: Tell the story. Start with the discovery of the tokenization premium. 
 Show the data. Explain the E-Score. Share revenue/traction numbers 
 honestly. Ask for feedback.
 
@@ -408,7 +408,7 @@ End with: "We just launched on Product Hunt too: [link]"
 **Submission:**
 - **Startup Name**: VisiMind
 - **Tagline**: "Fix how AI sees your brand -- in both languages"
-- **Description**: "AI Remediation Layer that diagnoses bilingual token decay, generates JSON-LD Fix Kits, and pushes structured data to Shopify/Akeneo. Track your E-Score from broken (0.6) to optimized (1.4+)."
+- **Description**: "AI Remediation Layer that measures bilingual tokenization premium, generates JSON-LD Fix Kits for entity recognition, and pushes structured data to Shopify/Akeneo. Track your E-Score from broken (0.6) to optimized (1.4+)."
 - **URL**: Landing page with email capture
 
 **Timing**: Submit 4-6 weeks BEFORE Product Hunt launch. BetaList has a review queue (1-3 weeks). Use BetaList traffic to build your waitlist for the PH launch.
@@ -424,7 +424,7 @@ End with: "We just launched on Product Hunt too: [link]"
 | **SaaSHub** | Standard listing | Anytime | Long-tail discovery |
 | **AI Tool Directory sites** (There's An AI For That, Futurepedia, etc.) | Submit with GEO category tags | After PH launch | Ongoing organic discovery |
 | **r/SaaS** | "I built this" post | Launch day or day after | Community feedback |
-| **LinkedIn Newsletter** | Publish a long-form article on bilingual token decay | 1 week before PH | Build authority, warm your network |
+| **LinkedIn Newsletter** | Publish a long-form article on bilingual tokenization premium | 1 week before PH | Build authority, warm your network |
 
 ### Multi-Platform Launch Calendar
 
@@ -433,7 +433,7 @@ End with: "We just launched on Product Hunt too: [link]"
 | Week 1 (T-42) | BetaList | Submit for review |
 | Week 2 (T-35) | Indie Hackers | Start building-in-public series |
 | Week 3 (T-28) | Product Hunt | Create Coming Soon page |
-| Week 4 (T-21) | LinkedIn | Publish token decay article |
+| Week 4 (T-21) | LinkedIn | Publish tokenization premium article |
 | Week 5 (T-14) | G2, SaaSHub | Create profiles |
 | Week 6 (T-7) | Launching Next | Submit with PH date |
 | Week 6 (T-2) | Indie Hackers | Pre-launch journey post |
@@ -482,7 +482,7 @@ The "Scary Demo" concept: show visitors exactly how invisible their brand is to 
 
 #### SECTION 2: The Problem (Social Proof Through Data)
 
-**Section headline:** "The Bilingual Crisis: Why AI Can't See Canadian Brands"
+**Section headline:** "The Bilingual AI Gap: Why AI Can't See Canadian Brands"
 
 Content:
 - Stat: "French product descriptions generate 40% more tokens than English"
@@ -498,7 +498,7 @@ Content:
 | Step | Title | Description |
 |------|-------|-------------|
 | 1 | **Diagnose** | We probe AI engines with your brand queries and measure the signal gap. See exactly which products are invisible and why. |
-| 2 | **Remediate** | We generate bilingual JSON-LD Fix Kits -- structured data that eliminates token waste and gives AI engines clean, parseable brand facts. |
+| 2 | **Remediate** | We generate bilingual JSON-LD Fix Kits -- structured data that improves entity recognition and fact density, giving AI engines clean, parseable brand facts. Truth Clips bypass text tokenization entirely via visual embeddings. |
 | 3 | **Verify** | Track your E-Score climbing from 0.6 to 1.4+ over 30 days. Automated audits run every 72 hours to prove the fix is holding. |
 
 Each step has a screenshot/GIF of the actual VisiMind dashboard.

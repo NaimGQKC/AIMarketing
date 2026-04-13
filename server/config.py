@@ -22,11 +22,26 @@ PORT: int = int(os.getenv("PORT", "8000"))
 DEBUG: bool = os.getenv("DEBUG", "true").lower() == "true"
 
 # --- Probing ---
-PROBE_ITERATIONS: int = int(os.getenv("PROBE_ITERATIONS", "3"))
+PROBE_ITERATIONS: int = int(os.getenv("PROBE_ITERATIONS", "50"))
 PROBE_TEMPERATURE: float = float(os.getenv("PROBE_TEMPERATURE", "0.7"))
 GOLDEN_SET_VARIATIONS: int = int(os.getenv("GOLDEN_SET_VARIATIONS", "5"))
 PROBE_MODEL: str = os.getenv("PROBE_MODEL", "gemini-2.5-flash")
 JUDGE_MODEL: str = os.getenv("JUDGE_MODEL", "gemini-2.5-flash")
+
+# --- Probe Volume Tiers ---
+# Statistical rationale:
+# At N=50 per angle (250 total), we achieve ~95% confidence interval of ±6.2% on citation rates.
+# At N=200 per angle (1,000 total), CI narrows to ±3.1%.
+# Scout tier (50 total) is directional only — flag this in UI.
+#
+# Market benchmark: Evertune runs 1M+/month, Profound runs 6M+/day.
+# These tiers give us enterprise-credible sample sizes while keeping cost manageable.
+PROBE_TIER: str = os.getenv("PROBE_TIER", "standard")
+PROBE_TIER_MAP: dict = {
+    "scout":     {"iterations": 10,  "total_probes": 50,   "label": "Scout",      "ci_label": "Directional estimate"},
+    "standard":  {"iterations": 50,  "total_probes": 250,  "label": "Standard",   "ci_label": "95% CI +/-6%"},
+    "enterprise":{"iterations": 200, "total_probes": 1000, "label": "Enterprise", "ci_label": "95% CI +/-3%"},
+}
 
 # --- Feature flags ---
 USE_LIVE_LLM: bool = bool(GOOGLE_API_KEY)

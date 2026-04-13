@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS signal_gaps (
     product_id TEXT REFERENCES products(id),
     query TEXT NOT NULL,
     lang TEXT NOT NULL DEFAULT 'EN',
-    gap_type TEXT NOT NULL,  -- 'Entity Trust' | 'Fact Density' | 'Token Decay'
+    gap_type TEXT NOT NULL,  -- 'Entity Trust' | 'Fact Density' | 'Tokenization Premium' (legacy: 'Token Decay')
     severity TEXT NOT NULL DEFAULT 'warning',
     ai_response_quality INTEGER DEFAULT 0,
     source_of_truth_label TEXT,

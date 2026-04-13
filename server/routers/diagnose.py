@@ -12,7 +12,7 @@ import aiosqlite
 
 from database import get_db
 from models import ProbeRequest
-from engines.inference_lab import run_probe_task
+from engines.inference_lab import run_probe_task, resolve_probe_tier
 from engines.bilingual_bridge import calculate_fertility, compare_fertility
 
 router = APIRouter(prefix="/api/diagnose", tags=["diagnose"])
@@ -209,17 +209,25 @@ async def get_parity(brand_id: Optional[str] = None, db: aiosqlite.Connection = 
 async def start_probe(req: ProbeRequest, background_tasks: BackgroundTasks):
     """
     Start an async probe task. Returns task_id immediately.
-    Frontend polls GET /api/tasks/{task_id} for progress (12/50, etc.).
+    Frontend polls GET /api/tasks/{task_id} for progress.
+
+    Probe volume is controlled by probe_tier (scout/standard/enterprise).
+    Explicit iterations override the tier default if provided.
     """
+    # Resolve tier to get effective iteration count
+    tier_config = resolve_probe_tier(req.probe_tier)
+    effective_iterations = req.iterations if req.iterations is not None else tier_config["iterations"]
+
     task_id = str(uuid.uuid4())
 
     # Create task record
+    total = effective_iterations * (5 if req.use_golden_set else 1)
     async with aiosqlite.connect("visimind.db") as db:
         db.row_factory = aiosqlite.Row
         await db.execute(
             """INSERT INTO tasks (id, type, status, progress, total)
                VALUES (?, 'probe', 'pending', 0, ?)""",
-            (task_id, req.iterations),
+            (task_id, total),
         )
         await db.commit()
 
@@ -228,15 +236,22 @@ async def start_probe(req: ProbeRequest, background_tasks: BackgroundTasks):
         async with aiosqlite.connect("visimind.db") as db:
             db.row_factory = aiosqlite.Row
             await run_probe_task(
-                db, task_id, req.query, req.lang, req.iterations,
+                db, task_id, req.query, req.lang,
+                iterations=req.iterations,
                 use_golden_set=req.use_golden_set,
                 temperature=req.temperature,
+                probe_tier=req.probe_tier,
             )
 
     background_tasks.add_task(_run_probe)
 
-    total = req.iterations * (5 if req.use_golden_set else 1)
-    return {"task_id": task_id, "status": "pending", "total": total}
+    return {
+        "task_id": task_id,
+        "status": "pending",
+        "total": total,
+        "probe_tier": tier_config["tier"],
+        "ci_label": tier_config["ci_label"],
+    }
 
 
 @router.post("/fertility")

@@ -47,7 +47,7 @@ Does the AI output correctly reflect the brand's verified product specifications
 
 ### 2. Citation Fidelity (1-5)
 Is the AI citing authoritative, current sources rather than stale or toxic sources?
-- 5: Cites only verified feeds (UCP/ACP), official brand data, or trusted certification bodies
+- 5: Cites only verified feeds (UCP/MCP), official brand data, or trusted certification bodies
 - 4: Mostly verified sources with one minor unverified reference
 - 3: Mix of verified and unverified sources
 - 2: Primarily citing outdated blogs, Reddit threads, or old reviews
@@ -245,7 +245,7 @@ def compute_e_score(s_in: float, s_out: float, delta: float,
     Where:
       S_in  = Baseline PIM quality (pre-remediation semantic clarity)
       S_out = Post-remediation quality
-      delta = Token Decay Factor (French fragmentation penalty)
+      delta = Token Fertility Factor (French fragmentation penalty, per Petrov et al. 2023)
 
     The E-Score is a semantic multiplier:
       - E < 1.0: Remediation is degrading quality (failure state)
@@ -371,7 +371,7 @@ def _compute_remediation_path(s_in: float, s_out: float, delta: float,
         "mechanism": "P(contradictory_token) = 0 eliminates E1 overrides",
     })
 
-    # Milestone 3: Deploy Truth Clip (Token Decay)
+    # Milestone 3: Deploy Truth Clip (Tokenization Premium bypass)
     new_delta = max(0, delta - 0.08)
     e_after_tc = round(((s_out + jsonld_boost + ha_boost) / s_in) * (1 - new_delta), 2)
     path.append({
@@ -379,7 +379,7 @@ def _compute_remediation_path(s_in: float, s_out: float, delta: float,
         "kit_type": "truthClip",
         "projected_e": e_after_tc,
         "delta_reduction": f"{delta:.3f} → {new_delta:.3f}",
-        "mechanism": "Cross-modal attention bypasses French token brittleness",
+        "mechanism": "Bypasses text tokenization entirely via language-agnostic visual embeddings",
     })
 
     # Milestone 4: KG Integration
@@ -553,15 +553,19 @@ async def run_audit(db, audit_id: str) -> dict:
     )
     await db.commit()
 
-    from engines.inference_lab import probe_query_single, build_golden_set, compute_contradiction_rate
+    from engines.inference_lab import probe_query_single, build_golden_set, compute_contradiction_rate, resolve_probe_tier
 
-    # Use Golden Set (3 variations x 3 iterations = 9 probes) instead of 10 identical probes
+    # Use Golden Set with tier-based iteration count for audit re-probes.
+    # Audit re-probes use "scout" tier (10 iterations x 3 angles = 30 probes)
+    # to keep verification fast while still being statistically meaningful.
+    audit_tier = resolve_probe_tier("scout")
+    audit_iterations = audit_tier["iterations"]
     variations = build_golden_set(audit["query"], "EN")[:3]
     results = []
     variation_responses = []
     for variation in variations:
         responses_for_variation = []
-        for _ in range(3):
+        for _ in range(audit_iterations):
             result = await probe_query_single(variation["query"], "EN", temperature=0.7)
             results.append(result)
             responses_for_variation.append(result["response_text"])

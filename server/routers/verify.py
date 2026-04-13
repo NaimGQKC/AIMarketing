@@ -189,7 +189,7 @@ async def get_efficiency(db: aiosqlite.Connection = Depends(get_db)):
         en_fertility = {"fertility": 0, "tokens": 0, "words": 0}
         fr_fertility = {"fertility": 0, "tokens": 0, "words": 0}
 
-    # Token Decay Factor
+    # Token Fertility Factor (tokenization premium)
     delta = max(0, min(1,
         (fr_fertility["fertility"] - en_fertility["fertility"]) / fr_fertility["fertility"]
     )) if fr_fertility["fertility"] > 0 else 0

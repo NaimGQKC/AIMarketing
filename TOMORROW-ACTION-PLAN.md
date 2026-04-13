@@ -223,7 +223,7 @@ Open `TWITTER_OUTREACH_STRATEGY.md`, Part 2: DM Templates (lines 48-70), and `MA
 
 **DM 3: Aleyda Solis (@aleyda)**
 - Use DM Template 1 from `TWITTER_OUTREACH_STRATEGY.md`, lines 53-69
-- She is THE expert on multilingual GEO. Your French token decay finding is exactly her domain.
+- She is THE expert on multilingual GEO. Your French tokenization premium finding is exactly her domain.
 - Customize the template: replace `[specific topic]` with "multilingual GEO frameworks" and reference the bilingual data specifically.
 
 **Before sending:**

@@ -236,8 +236,8 @@ export default function Diagnose() {
                       </div>
                     </td>
                     <td>
-                      <span className={`badge ${gap.gapType === 'Token Decay' ? 'badge-warning' : gap.gapType === 'Entity Trust' ? 'badge-critical' : 'badge-info'}`}>
-                        {gap.gapType}
+                      <span className={`badge ${gap.gapType === 'Token Decay' || gap.gapType === 'Tokenization Premium' ? 'badge-warning' : gap.gapType === 'Entity Trust' ? 'badge-critical' : 'badge-info'}`}>
+                        {gap.gapType === 'Token Decay' ? 'Tokenization Premium' : gap.gapType}
                       </span>
                     </td>
                     <td><StatusBadge status={gap.severity} /></td>

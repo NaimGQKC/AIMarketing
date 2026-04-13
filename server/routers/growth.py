@@ -177,7 +177,7 @@ async def get_referral_programs():
                 "email_templates": {
                     "design_partner_invite": {
                         "subject": "You're invited: VisiMind Design Partner (50% off forever + roadmap influence)",
-                        "body": "Hi {{brand_name}} team,\n\nWe're building VisiMind to solve the Bilingual Crisis in Canadian luxury retail — and we want {{brand_name}} to help shape it.\n\nAs one of our first 100 Design Partners, you get:\n- 50% off VisiMind forever\n- Direct influence on our product roadmap\n- Beta access to new features\n- 5 referral slots to share with brands you trust\n\nWhy you: {{personalized_reason}}\n\nOnly {{slots_remaining}} Design Partner slots remain.\n\n{{signup_link}}\n\n— Alejandro, VisiMind Founder",
+                        "body": "Hi {{brand_name}} team,\n\nWe're building VisiMind to solve the Bilingual AI Gap in Canadian luxury retail — and we want {{brand_name}} to help shape it.\n\nAs one of our first 100 Design Partners, you get:\n- 50% off VisiMind forever\n- Direct influence on our product roadmap\n- Beta access to new features\n- 5 referral slots to share with brands you trust\n\nWhy you: {{personalized_reason}}\n\nOnly {{slots_remaining}} Design Partner slots remain.\n\n{{signup_link}}\n\n— Alejandro, VisiMind Founder",
                     },
                     "referral_from_partner": {
                         "subject": "{{partner_brand}} invited you to VisiMind's Design Partner Network",
@@ -804,7 +804,7 @@ async def get_community_strategy():
                     ],
                 },
                 {
-                    "name": "Bilingual Crisis Report",
+                    "name": "Bilingual AI Gap Report",
                     "format": "Monthly PDF report, shared in community + social",
                     "cadence": "First Tuesday of month",
                     "content": [
@@ -846,7 +846,7 @@ async def get_community_strategy():
                     "name": "Bilingual Bug Bounty",
                     "incentive": "$100 CAD credit per verified bilingual gap reported",
                     "requirement": "Find and document a case where AI gives wrong FR answer",
-                    "distribution": "Added to VisiMind's Bilingual Crisis database",
+                    "distribution": "Added to VisiMind's Bilingual AI Gap database",
                 },
                 {
                     "name": "Template Library Contribution",

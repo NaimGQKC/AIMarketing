@@ -66,7 +66,7 @@ We built a pipeline to detect and fix this:
 Stack: FastAPI + React, SQLite, tiktoken, Gemini/Ollama for probing.
 
 The E-Score formula: E = (S_out / S_in) * (1 - delta), where delta is the
-bilingual token decay factor. We track brands from E=0.6 (broken) to E=1.4+
+bilingual Token Fertility factor (Petrov et al., NeurIPS 2023). We track brands from E=0.6 (broken) to E=1.4+
 (optimal).
 
 Happy to answer questions about the tokenizer analysis or the probing methodology.
@@ -325,7 +325,7 @@ Ask me anything about [specific technical topic from this week].
 
 ---
 
-### Post 2: "The French Token Decay Problem: Why LLMs Can't Recommend Products in French"
+### Post 2: "The French Tokenization Premium: Why LLMs Can't Recommend Products in French"
 
 **Target audience:** SEO practitioners, e-commerce developers, NLP researchers
 **Reading time:** 10 min
@@ -335,7 +335,7 @@ Ask me anything about [specific technical topic from this week].
 
 1. **Hook** (2 paragraphs)
    - "Ask ChatGPT to recommend a winter coat in English. Then ask in French. The brand recommendations change -- and not because of preference."
-   - This is the Bilingual Crisis.
+   - This is the Bilingual AI Gap.
 
 2. **Token Fertility 101** (4 paragraphs + code)
    - What BPE tokenization is (1 paragraph for non-ML readers)
@@ -567,7 +567,7 @@ and compute:
 ## Research
 
 This tool implements the Token Fertility analysis described in:
-- [The French Token Decay Problem](#) (blog post)
+- [The French Tokenization Premium](#) (blog post)
 - [Self-Consistency Mining for AI Visibility](#) (blog post)
 
 Built by [VisiMind](https://visimind.ai) -- AI Remediation Layer for
@@ -654,7 +654,7 @@ MIT
 
 | Community | Size | Engagement Approach |
 |---|---|---|
-| **Ahrefs Insider (Slack-adjacent, primarily Facebook)** | 20k+ | Share the "French Token Decay" findings as they relate to AI Overviews. Position as research, not a tool pitch. |
+| **Ahrefs Insider (Slack-adjacent, primarily Facebook)** | 20k+ | Share the "French Tokenization Premium" findings as they relate to AI Overviews. Position as research, not a tool pitch. |
 | **Traffic Think Tank (Slack)** | 2k+ (paid) | Premium SEO community. The GEO angle is fresh here. Offer to run a bilingual token audit for any member's site for free. |
 | **SEO Signals Lab (Facebook)** | 70k+ | Share the E-Score concept as a new metric for AI visibility. Post data, not product links. |
 | **Women in Tech SEO (Slack)** | 5k+ | Present the multilingual tokenization research. Offer to collaborate on a study. |
@@ -676,14 +676,14 @@ MIT
 | **MTL Tech Slack** | Slack | Home turf. Share VisiMind as a Montreal-built product. The bilingual angle is personal here. Attend Montreal tech meetups and reference the community. |
 | **TechTO** | Events + Slack | Toronto tech community. Present VisiMind at a TechTO event as a case study in bilingual AI. Largest Canadian tech community. |
 | **YC Canada (informal)** | Various | Connect with other Canadian YC-adjacent founders. The "Montreal Moat" concept resonates with Canadian investors. |
-| **Toronto Tech Week** (May 25-29, 2026) | Events | Submit a talk proposal on "The Bilingual Crisis in AI Search" for the upcoming event. |
+| **Toronto Tech Week** (May 25-29, 2026) | Events | Submit a talk proposal on "The Bilingual AI Gap in AI Search" for the upcoming event. |
 | **r/MontrealStartup** | Reddit | Share building-in-public updates. The Montreal angle gives natural relevance. |
 
 ### Where GEO Practitioners Hang Out
 
 | Community | Engagement Approach |
 |---|---|
-| **GEO Conference Community** (geo-conference.com) | The next event is June 18, 2026 in Austin. Submit a talk on bilingual token decay. The conference sold out twice in 2025 -- high-value audience. |
+| **GEO Conference Community** (geo-conference.com) | The next event is June 18, 2026 in Austin. Submit a talk on the bilingual tokenization premium. The conference sold out twice in 2025 -- high-value audience. |
 | **First Page Sage Blog Comments** | First Page Sage pioneered GEO content. Comment thoughtfully on their articles with bilingual data. Offer to contribute a guest post. |
 | **Search Engine Journal / Search Engine Land** | Write contributed articles on the bilingual GEO problem. Both publications cover AI search actively. |
 | **Aleyda Solis's community (Orainti)** | She is the recognized expert in international/multilingual GEO. Share the token fertility research. Offer a collaboration on multilingual GEO frameworks. |
@@ -707,7 +707,7 @@ MIT
 | Week | HN | IndieHackers | Dev.to | GitHub | SO | Communities |
 |------|-----|-------------|--------|--------|-----|------------|
 | 1 | -- | Launch post | -- | Create `bilingual-token-audit` repo | Answer 2 JSON-LD questions | Join 5 communities, lurk and learn norms |
-| 2 | -- | Week 1 update | Post 2: "French Token Decay" | Add README, CI, PyPI publish | Answer 2 tiktoken questions | Start answering questions in 2 communities |
+| 2 | -- | Week 1 update | Post 2: "French Tokenization Premium" | Add README, CI, PyPI publish | Answer 2 tiktoken questions | Start answering questions in 2 communities |
 | 3 | Show HN Variant 2 (research angle) | Week 2 update | -- | First external PR | Answer 2 questions | Share research finding in Hugging Face Discord |
 | 4 | -- | Week 3 update | Post 1: "Self-Consistency Mining" | v0.2.0 release | Answer 2 questions | Offer free audit in Shopify Partners Slack |
 | 5 | -- | Week 4 update | -- | Issue templates, contributor guide | Ask-and-answer canonical Q&A | Present at MTL Tech meetup |

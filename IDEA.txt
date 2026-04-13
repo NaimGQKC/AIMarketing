@@ -1,9 +1,9 @@
-1. The Core Problem: The "Inference Gap"
+1. The Core Problem: The "Inference Gap" (the phenomenon where AI recommends competitors while using your content as a citation source — documented across 541K+ LLM responses by Seer Interactive)
 Brands are losing revenue because AI agents are "discarding" them during the reasoning phase. This happens for two main reasons:
 
-Toxic Citations: Agents prioritize high-authority but stale data (like a 2021 Reddit thread) over a brand’s live, technical data.
+Toxic Citations — stale third-party content (Reddit threads, outdated reviews) that AI prioritizes over your live product data: Agents prioritize high-authority but stale data (like a 2021 Reddit thread) over a brand’s live, technical data.
 
-The Bilingual Crisis (The Montreal Wedge): You identified that LLMs suffer from Token Decay in French. French technical terms are "Scrabble-tiled" into too many tokens, causing the AI’s logic to break down and fail to recommend Montreal brands to French speakers.
+The Bilingual Crisis (the French AI Visibility Gap): You identified that LLMs impose a real, measurable tokenization premium on French. French technical terms are "Scrabble-tiled" into too many tokens (Token Fertility ratio, Petrov et al. 2023), causing the AI’s logic to break down and fail to recommend Montreal brands to French speakers.
 
 2. The Product: A 4-Step Remediation Workflow
 You built a high-fidelity React frontend with a luxury "glassmorphism" aesthetic that follows this loop:
@@ -12,9 +12,9 @@ Connect: Syncs PIM data (Shopify/Akeneo) and monitoring tools (Peec/Otterly).
 
 Diagnose: Identifies "Signal Gaps" where AI is lying or ignoring the brand.
 
-Remediate: Deploys "Fix Kits"—including Bilingual JSON-LD to stop French token decay and UCP/ACP feeds to talk directly to Google/OpenAI protocols.
+Remediate: Deploys "Fix Kits"—including Bilingual JSON-LD to improve entity recognition and fact density for AI extraction (ensuring AI systems correctly identify your brand, products, and attributes in both languages), UCP feeds for Google, MCP-compatible structured data (MCP is the dominant standard — 97M+ monthly SDK downloads, governed by Linux Foundation Agentic AI Foundation), and optimization for GPTBot crawlability and Bing IndexNow submission. Truth Clips bypass text tokenization entirely by anchoring brand identity in language-agnostic visual embeddings.
 
-Verify: Uses "Headless Agentic Probing" (running 50+ queries) to prove the AI's reasoning has shifted and the Inference Alignment Score has increased.
+Verify: Uses "Headless Agentic Probing" (running 50+ queries) to prove the AI's reasoning has shifted and the Inference Alignment Score (measures how accurately AI systems represent your brand across languages, using methodology adapted from GEO visibility research, Princeton, 2024) has increased.
 
 3. Current Technical Status
 Frontend: The UI is largely complete and "visually stunning". It uses mock data to represent "Red Alert" queries and alignment trends.

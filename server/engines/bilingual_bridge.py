@@ -80,7 +80,7 @@ def compare_fertility(text_en: str, text_fr: str) -> dict:
     en_result = calculate_fertility(text_en, "en")
     fr_result = calculate_fertility(text_fr, "fr")
 
-    # The "Token Tax" — how many extra tokens French costs
+    # The "Tokenization Premium" — how many extra tokens French costs
     token_tax = fr_result["token_count"] - en_result["token_count"]
     tax_percentage = round(
         (token_tax / en_result["token_count"]) * 100, 1
@@ -162,8 +162,8 @@ def generate_bilingual_mapping(product: dict) -> dict:
 
 def inject_bilingual_context(product: dict, mapping: dict = None) -> dict:
     """
-    Generate bilingual JSON-LD with high-density French tokens
-    that prevent LLM reasoning decay in Quebec-market queries.
+    Generate bilingual JSON-LD that improves entity recognition and
+    fact density for AI extraction in Quebec-market queries.
     """
     if mapping is None:
         mapping = generate_bilingual_mapping(product)

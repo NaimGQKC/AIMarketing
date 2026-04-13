@@ -11,7 +11,7 @@ const translations = {
     
     // Dashboard
     dashboardTitle: 'Command Center',
-    dashboardSubtitle: 'Real-time inference alignment monitoring for your brand portfolio.',
+    dashboardSubtitle: 'Real-time inference alignment monitoring for your brand portfolio — measuring how accurately AI systems represent your brand, adapted from GEO visibility research (Princeton, 2024).',
     inferenceScore: 'Inference Alignment',
     activeRemediations: 'Active Remediations',
     verifiedFixes: 'Verified Fixes',
@@ -51,7 +51,7 @@ const translations = {
     parityMessage: 'Your English visibility is {en}%, but your French visibility is {fr}% because the LLM is Scrabble-tiling (tokenizing) your technical terms.',
     factDensity: 'Fact Density',
     entityTrust: 'Entity Trust',
-    tokenDecay: 'Token Decay',
+    tokenDecay: 'Tokenization Premium',
     
     // Remediate
     remediateTitle: 'Deploy Fix Kits',
@@ -85,7 +85,7 @@ const translations = {
     remediationEfficiency: 'Remediation Efficiency',
     remediationEfficiencyDesc: 'Live E = (S_out / S_in) · (1 − δ)',
     tokenFertilityTitle: 'Token Fertility',
-    tokenFertilityDesc: 'Bilingual tokenization density — pre vs. post fix',
+    tokenFertilityDesc: 'Measures the tokenization cost premium of your French content vs. English. French typically shows a 1.1-1.5x premium over English for general content, with specialized vocabulary experiencing higher ratios. Research: Petrov et al. 2023, Lundin et al. 2025.',
     technicalDeepDive: 'Technical Deep Dive',
     evaluationRubric: 'Evaluation Rubric',
     semanticAlignment: 'Semantic Alignment',
@@ -94,7 +94,7 @@ const translations = {
     discoverability: 'Discoverability',
     preFix: 'Pre-Fix',
     postFix: 'Post-Fix',
-    tokenDecayFactor: 'Token Decay Factor (δ)',
+    tokenDecayFactor: 'Token Fertility Factor (δ)',
     semanticIn: 'Semantic In (S_in)',
     semanticOut: 'Semantic Out (S_out)',
     current: 'Current',
@@ -122,7 +122,7 @@ const translations = {
     
     // Dashboard
     dashboardTitle: 'Centre de commande',
-    dashboardSubtitle: 'Surveillance en temps réel de l\'alignement d\'inférence pour votre portefeuille de marques.',
+    dashboardSubtitle: 'Surveillance en temps réel de l\'alignement d\'inférence pour votre portefeuille de marques — mesure la fidélité de représentation de votre marque par l\'IA, méthodologie adaptée de la recherche GEO (Princeton, 2024).',
     inferenceScore: 'Alignement d\'inférence',
     activeRemediations: 'Remédiations actives',
     verifiedFixes: 'Corrections vérifiées',
@@ -162,7 +162,7 @@ const translations = {
     parityMessage: 'Votre visibilité en anglais est de {en}%, mais votre visibilité en français est de {fr}% car le LLM fragmente (tokenise) vos termes techniques.',
     factDensity: 'Densité de faits',
     entityTrust: 'Confiance d\'entité',
-    tokenDecay: 'Décroissance de jetons',
+    tokenDecay: 'Prime de tokenisation',
     
     // Remediate
     remediateTitle: 'Déployer les kits de correction',
@@ -196,7 +196,7 @@ const translations = {
     remediationEfficiency: 'Efficacité de remédiation',
     remediationEfficiencyDesc: 'E en direct = (S_out / S_in) · (1 − δ)',
     tokenFertilityTitle: 'Fertilité des jetons',
-    tokenFertilityDesc: 'Densité de tokenisation bilingue — avant vs. après correction',
+    tokenFertilityDesc: 'Mesure la prime de coût de tokenisation de votre contenu français vs. anglais. Le français montre typiquement une prime de 1,1-1,5x par rapport à l\'anglais pour le contenu général. Recherche : Petrov et al. 2023, Lundin et al. 2025.',
     technicalDeepDive: 'Analyse technique approfondie',
     evaluationRubric: 'Grille d\'évaluation',
     semanticAlignment: 'Alignement sémantique',
@@ -205,7 +205,7 @@ const translations = {
     discoverability: 'Découvrabilité',
     preFix: 'Avant correction',
     postFix: 'Après correction',
-    tokenDecayFactor: 'Facteur de décroissance (δ)',
+    tokenDecayFactor: 'Facteur de fertilité des jetons (δ)',
     semanticIn: 'Sémantique entrée (S_in)',
     semanticOut: 'Sémantique sortie (S_out)',
     current: 'Actuel',

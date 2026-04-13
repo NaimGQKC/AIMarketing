@@ -1,5 +1,5 @@
 # VisiMind Design Partner Prospecting List
-## Montreal / Canadian Luxury E-Commerce - Bilingual Crisis Opportunity
+## Montreal / Canadian Luxury E-Commerce - Bilingual AI Gap Opportunity
 Generated: 2026-04-08
 
 ---
@@ -49,7 +49,7 @@ Generated: 2026-04-08
 
 ## PART 2: Canadian E-Commerce Brands Beyond Montreal (17 Brands)
 
-These brands operate nationally, sell in Quebec (requiring bilingual compliance), and face the same AI search bilingual token decay problem.
+These brands operate nationally, sell in Quebec (requiring bilingual compliance), and face the same AI search bilingual tokenization premium problem.
 
 | # | Brand | Website | HQ | Category | Bilingual | Shopify | Key Notes |
 |---|-------|---------|-----|----------|-----------|---------|-----------|
@@ -148,11 +148,11 @@ These agencies work with bilingual e-commerce brands in Canada and could become 
 
 1. **SocialNext Toronto** - April 9, 2026 (TOMORROW). If feasible, attend or monitor for contacts.
 2. **SocialNext Montreal** - June 10-11. Register now ($250 discount expires April 10).
-3. **ALDO Group** - Just migrated to Shopify (Nov 2025). Perfect "bilingual crisis" conversation timing. Target: Gregoire Baret (VP CX & Digital) or Kelly Sherriffs (VP eCommerce).
+3. **ALDO Group** - Just migrated to Shopify (Nov 2025). Perfect "bilingual AI gap" conversation timing. Target: Gregoire Baret (VP CX & Digital) or Kelly Sherriffs (VP eCommerce).
 
 ### Short-Term (April-May 2026)
 
-4. **SSENSE** - Largest target. Fadi Farha (VP E-Commerce). They have the technical depth to understand token decay.
+4. **SSENSE** - Largest target. Fadi Farha (VP E-Commerce). They have the technical depth to understand the tokenization premium.
 5. **Moose Knuckles** - DTC-first strategy, 300% growth. Ian Bertrand (VP Global Marketing).
 6. **La Maison Simons** - #1 digital retailer in Canada (WOW Digital Study). Bilingual by design. Deep digital investment.
 7. **Frank And Oak** - Shopify-native, Montreal-born DTC. Digital-first DNA.
@@ -175,17 +175,17 @@ These agencies work with bilingual e-commerce brands in Canada and could become 
 
 ## KEY TALKING POINTS FOR OUTREACH
 
-**The Bilingual Crisis pitch:**
+**The Bilingual AI Gap pitch:**
 - AI search engines (ChatGPT, Perplexity, Claude) are replacing Google for product discovery
-- French/English token decay means AI models fail to correctly recommend brands with bilingual content
+- The French/English tokenization premium means AI models fail to correctly recommend brands with bilingual content
 - Quebec brands are uniquely vulnerable: legally required to be bilingual, but bilingualism confuses AI ranking
 - VisiMind's Self-Consistency Mining detects contradictions in how AI models perceive brands and fixes them at 70% lower cost
 
 **For ALDO specifically:**
-- "You just migrated to Shopify. Your bilingual content architecture is being rebuilt. This is the ideal moment to ensure AI search engines correctly recommend Aldo - before token decay patterns solidify."
+- "You just migrated to Shopify. Your bilingual content architecture is being rebuilt. This is the ideal moment to ensure AI search engines correctly recommend Aldo - before tokenization premium patterns solidify."
 
 **For agencies:**
-- "Your clients' SEO is being disrupted by AI search. GEO is the answer, but bilingual GEO is unsolved. VisiMind is the only tool that handles French/English token decay. We can white-label or integrate."
+- "Your clients' SEO is being disrupted by AI search. GEO is the answer, but bilingual GEO is unsolved. VisiMind is a specialized measurement stack for the French/English tokenization premium. We can white-label or integrate."
 
 ---
 
