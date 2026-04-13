@@ -72,7 +72,7 @@ Mackage has a sophisticated commerce infrastructure: Shopify Plus, six regional 
 
 ---
 
-#### 4. Bilingual Crisis
+#### 4. Bilingual AI Gap
 
 Mackage serves French content through /fr/ paths on .ca and .eu domains. But there is zero bilingual schema markup connecting these language variants, and no hreflang tags linking them to their English counterparts.
 

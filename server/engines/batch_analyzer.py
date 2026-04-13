@@ -332,6 +332,7 @@ _GAP_TYPE_TO_KIT = {
     "Entity Trust": "hardAttributes",
     "Fact Density": "jsonLd",
     "Token Decay": "truthClip",
+    "Tokenization Premium": "truthClip",
 }
 
 _KIT_TYPE_IMPACTS = {

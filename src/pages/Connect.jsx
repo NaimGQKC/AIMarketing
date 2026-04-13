@@ -63,7 +63,7 @@ export default function Connect() {
           <ArrowRight size={16} className="flow-arrow" />
         </div>
         <div className="flow-node flow-dest">
-          <span className="flow-dest-label">UCP / ACP</span>
+          <span className="flow-dest-label">UCP / MCP</span> {/* MCP is the dominant standard — 97M+ monthly SDK downloads, governed by Linux Foundation Agentic AI Foundation. */}
         </div>
       </div>
 

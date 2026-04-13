@@ -1,5 +1,5 @@
 # VisiMind LinkedIn Outreach Playbook
-## Canadian Luxury Retail - AI Search Visibility & Bilingual Crisis
+## Canadian Luxury Retail - AI Search Visibility & Bilingual AI Gap
 
 ---
 
@@ -16,7 +16,7 @@
 6. **Head of Performance Marketing** - If AI answers cannibalize paid clicks, their CAC math breaks.
 7. **Director of Product (E-Commerce Platform)** - Owns structured data, product feeds, schema markup.
 8. **Director of Content / Content Strategy** - Bilingual content pipelines are their daily burden.
-9. **Localization Manager / Head of French Content** - Directly suffers from French token decay in LLMs; knows the pain intimately.
+9. **Localization Manager / Head of French Content** - Directly suffers from the French tokenization premium in LLMs; knows the pain intimately.
 10. **Director of Brand / Brand Strategy** - Brand misrepresentation in AI answers is a brand safety issue.
 
 ### Tier 3 - Adjacent Stakeholders (Amplifiers & Internal Champions)
@@ -87,7 +87,7 @@ As promised - I ran [Brand]'s product catalog through the top 5 AI engines (Chat
 - French queries ("meilleur manteau d'hiver de luxe canadien"): 0 out of 5
 - Your top competitor appeared in 4 out of 5
 
-The core issue is what we call "French token decay" - LLMs compress or hallucinate French-language product attributes because their training data is overwhelmingly English. Your bilingual content exists on your site, but it never makes it into the AI's knowledge base.
+The core issue is a real, measurable "tokenization premium" on French - LLMs compress or hallucinate French-language product attributes because their training data is overwhelmingly English. Your bilingual content exists on your site, but it never makes it into the AI's knowledge base.
 
 We built VisiMind specifically for this - we probe AI engines weekly, identify exactly where your brand is missing, and remediate the structured data so LLMs can actually surface your products.
 
@@ -100,7 +100,7 @@ Appreciate the connection, [Name].
 
 Montreal's luxury retail ecosystem is world-class - Mackage, SSENSE, Aldo, Rudsak - but I keep finding the same problem: ask any AI assistant to recommend Canadian luxury brands and Montreal barely shows up.
 
-I moved back to Montreal specifically to work on this. We're building VisiMind - an AI visibility platform that diagnoses why brands disappear from LLM results and fixes the underlying data gaps. The bilingual angle is unique to us because, frankly, no one in Silicon Valley cares about French token decay.
+I moved back to Montreal specifically to work on this. We're building VisiMind - an AI visibility platform that diagnoses why brands disappear from LLM results and fixes the underlying data gaps. The bilingual angle is unique to us because, frankly, no one in Silicon Valley cares about the French tokenization premium.
 
 We're working with a small cohort of Montreal-based brands right now as design partners. The commitment is light - we run a free audit of your AI visibility, share the results, and if it's useful, we explore a pilot together.
 
@@ -162,14 +162,14 @@ We're onboarding 5 design partners this quarter - brands willing to share feedba
 
 ## PART 4: LINKEDIN POST TEMPLATES (3 Variants)
 
-### Post 1 - Technical Deep-Dive: French Token Decay
+### Post 1 - Technical Deep-Dive: The French Tokenization Premium
 
 ```
 I spent the last 3 months studying how LLMs handle French-language product data for Canadian brands.
 
 The results are alarming.
 
-Here's what "French token decay" actually means and why it's silently killing bilingual brand visibility in AI search:
+Here's what the "French tokenization premium" actually means and why it's silently killing bilingual brand visibility in AI search:
 
 𝗧𝗵𝗲 𝗣𝗿𝗼𝗯𝗹𝗲𝗺
 When ChatGPT, Perplexity, or Gemini ingest product catalogs, French-language content gets systematically degraded:
@@ -309,7 +309,7 @@ Tagging some folks who might know the right people: [tag 3-5 relevant connection
 > "Love seeing this. Montreal's AI ecosystem is world-class - and one of the most overlooked applications is right in our backyard. We have globally recognized luxury brands (Mackage, SSENSE, Aldo, Rudsak) that are essentially invisible to AI search engines. We started VisiMind specifically because this problem sits at the intersection of Montreal's two superpowers: AI research and fashion retail."
 
 **Type 4: Posts about bilingual marketing / French content**
-> "The bilingual challenge goes even deeper than most marketers realize. LLMs tokenize French differently than English - accented characters get compressed, Quebec-specific terminology gets mapped to European French, and bilingual product attributes get treated as separate (sometimes contradictory) data points. I've been documenting this as 'French token decay' - it's the invisible tax Canadian bilingual brands pay in AI search."
+> "The bilingual challenge goes even deeper than most marketers realize. LLMs tokenize French differently than English - accented characters get compressed, Quebec-specific terminology gets mapped to European French, and bilingual product attributes get treated as separate (sometimes contradictory) data points. I've been documenting this as the 'French tokenization premium' - it's the invisible tax Canadian bilingual brands pay in AI search."
 
 **Type 5: Posts about luxury brand strategy / DTC**
 > "Interesting point about brand control. Here's a blind spot most luxury brands haven't considered: AI assistants are now making product recommendations, and brands have zero control over what they say. I tested this recently - asked ChatGPT about a Canadian luxury jacket and it hallucinated the fill-power rating, got the price wrong by $200, and missed two certifications. For luxury brands where precision IS the brand, this is a serious problem."
@@ -368,7 +368,7 @@ Tagging some folks who might know the right people: [tag 3-5 relevant connection
 
 ### Group Engagement Playbook
 1. **Week 1-2:** Join groups. Like and comment on 3-5 posts per group. Add value, don't pitch.
-2. **Week 3-4:** Post your first "French token decay" technical content in 2-3 groups. Adapt language (French for Quebec groups, English for others).
+2. **Week 3-4:** Post your first "French tokenization premium" technical content in 2-3 groups. Adapt language (French for Quebec groups, English for others).
 3. **Week 5+:** Share your "scary AI search results" post. This is the one that generates DMs.
 4. **Ongoing:** Answer questions about AI search, GEO, structured data. Become the go-to expert.
 5. **Monthly:** Share a new data point or mini-case study. Keep the drumbeat going.

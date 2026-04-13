@@ -41,13 +41,13 @@ Hi {{firstName}},
 
 Quick follow-up. Here are the three biggest AI failures I found for {{brand}}:
 
-1. **French token decay** - Your French product descriptions lose ~40% of their meaning when LLMs tokenize them. "Duvet en duvet d'oie" gets parsed as nonsense.
+1. **French tokenization premium** - Your French product descriptions lose ~40% of their meaning when LLMs tokenize them. "Duvet en duvet d'oie" gets parsed as nonsense.
 2. **Missing structured data** - AI has no reliable JSON-LD to anchor {{brand}}'s products, so it guesses. Badly.
 3. **Stale training data** - Your FW25 collection doesn't exist in any LLM's knowledge base yet.
 
 The result: AI recommends your competitors instead.
 
-I scored {{brand}} at **{{score}}/100** on our Inference Alignment Scale. That means AI understands less than half of what makes your brand relevant.
+I scored {{brand}} at **{{score}}/100** on our Inference Alignment Scale (measures how accurately AI systems represent your brand across languages, using methodology adapted from GEO visibility research, Princeton, 2024). That means AI understands less than half of what makes your brand relevant.
 
 I can share the full report in a 10-minute call. No pitch - just the data.
 
@@ -149,7 +149,7 @@ Happy to send {{brand}}'s full competitive breakdown - no call needed. Just repl
 ---
 ---
 
-# SEQUENCE 3: THE "FRENCH TOKEN DECAY" RESEARCH
+# SEQUENCE 3: THE "FRENCH TOKENIZATION PREMIUM" RESEARCH
 **Target Persona:** CTO / Head of Engineering / Technical SEO Lead
 **Best Send Time:** Thursday 10:00 AM ET (technical audience, later morning)
 
@@ -183,7 +183,7 @@ Interested in the technical breakdown? Happy to share our methodology.
 
 Hi {{firstName}},
 
-Following up on the French token decay research.
+Following up on the French tokenization premium research.
 
 Here's what the Bilingual Probe found for {{brand}}:
 
@@ -208,7 +208,7 @@ Worth a 15-minute technical walkthrough?
 
 Hi {{firstName}},
 
-Last note on this. We're compiling our French token decay research into a technical brief for the Canadian e-commerce community. We want to include real-world brand examples (anonymized, of course).
+Last note on this. We're compiling our French tokenization premium research into a technical brief for the Canadian e-commerce community. We want to include real-world brand examples (anonymized, of course).
 
 Would {{brand}} be open to participating? We'd run the full Bilingual Probe at no cost and share every data point with your team. You'd get:
 
@@ -407,7 +407,7 @@ All times Eastern. Avoid sending between 12-1 PM (lunch) and after 5 PM.
 | If the contact is... | Use this sequence |
 |---|---|
 | A marketer worried about competitors | Sequence 2: Competitor Advantage |
-| Technical (CTO, engineer, technical SEO) | Sequence 3: French Token Decay |
+| Technical (CTO, engineer, technical SEO) | Sequence 3: French Tokenization Premium |
 | Cold, no prior relationship, need to earn trust | Sequence 4: Free Audit |
 | A senior decision-maker at a top-5 target brand | Sequence 5: Design Partner |
 | Anyone else / default sequence | Sequence 1: Scary Report |

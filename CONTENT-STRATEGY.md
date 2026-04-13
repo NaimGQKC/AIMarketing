@@ -56,7 +56,7 @@ Keywords sourced from current search trends, competitor content gaps, and emergi
 |---|---------|-------------------|--------|------------|----------|
 | 26 | how to get my brand recommended by ChatGPT | 720 | I | Low | P3 |
 | 27 | why is my brand not showing in AI search | 480 | I | Low | P3 |
-| 28 | French token decay AI | 50 | I | Very Low | P3 |
+| 28 | French tokenization premium AI | 50 | I | Very Low | P3 |
 | 29 | bilingual JSON-LD implementation | 110 | I | Very Low | P3 |
 | 30 | Canadian luxury brand AI visibility | 90 | I/C | Very Low | P3 |
 | 31 | hreflang tags AI search impact | 170 | I | Very Low | P3 |
@@ -146,23 +146,23 @@ Keywords sourced from current search trends, competitor content gaps, and emergi
   1. The Tools You Need: HubSpot AEO Grader, Otterly, Peec AI, manual probing
   2. Step-by-Step: Query your brand across ChatGPT, Perplexity, Gemini, Google AI Overviews
   3. Scoring Framework: Rate your visibility from 0-100 across six dimensions
-  4. Common Findings: Toxic citations, missing structured data, stale information
+  4. Common Findings: Toxic citations — stale third-party content (Reddit threads, outdated reviews) that AI prioritizes over your live product data — missing structured data, stale information
   5. Prioritizing Fixes: The 80/20 rule for AI visibility remediation
 - **CTA:** Get VisiMind's free AI visibility audit for your brand
 
 ### Week 3 (Apr 28 - May 2)
 
 **Post 5 - TOFU**
-- **Title:** "The Bilingual Crisis: Why Canadian Brands Are Invisible to AI in French"
+- **Title:** "The Bilingual AI Gap: Why Canadian Brands Are Invisible to AI in French"
 - **Target Keyword:** bilingual SEO Canada (Cluster D)
 - **Word Count:** 2,500
 - **Outline:**
   1. The Problem: French-Canadian vocabulary differs from European French, and LLMs don't handle it well
-  2. Token Decay Explained: How French technical terms get "Scrabble-tiled" into too many tokens
+  2. Tokenization Premium Explained: How French technical terms get "Scrabble-tiled" into too many tokens
   3. Real Data: Testing luxury brand queries in French vs. English across 5 AI platforms
   4. The Quebec Market: 8.6 million people, Bill 96, and mandatory digital bilingualism
   5. The Fix: Bilingual structured data, separate content strategies, proper hreflang implementation
-- **CTA:** Download "French Token Decay Whitepaper" (Lead Magnet #2)
+- **CTA:** Download "French Tokenization Premium Whitepaper" (Lead Magnet #2)
 
 **Post 6 - MOFU**
 - **Title:** "JSON-LD for E-commerce: The Complete Implementation Guide"
@@ -248,9 +248,9 @@ Keywords sourced from current search trends, competitor content gaps, and emergi
 - **Word Count:** 2,000
 - **Outline:**
   1. The Starting Point: Brand absent from all French-language AI queries
-  2. The Diagnosis: Token decay, missing schema, toxic citations from 2021
+  2. The Diagnosis: Tokenization premium, missing schema, toxic citations from 2021
   3. The Intervention: Bilingual JSON-LD, citation displacement, agentic probing
-  4. The Results: Inference Alignment Score from 30% to 82%
+  4. The Results: Inference Alignment Score (measures how accurately AI systems represent your brand across languages, using methodology adapted from GEO visibility research, Princeton, 2024) from 30% to 82%
   5. Lessons Learned: What every Canadian e-commerce brand should do immediately
 - **CTA:** Book a VisiMind demo
 
@@ -289,10 +289,10 @@ Keywords sourced from current search trends, competitor content gaps, and emergi
 - **Outline:**
   1. Bill 96 in 2026: What's changed for digital brands
   2. Canadian French vs. European French: Why keyword research must be localized
-  3. The AI Compounding Effect: How token decay worsens the bilingual gap
+  3. The AI Compounding Effect: How the tokenization premium worsens the bilingual gap
   4. Compliance + Performance: Building a bilingual strategy that satisfies both
   5. The VisiMind Approach: Automated bilingual fix kits
-- **CTA:** Download "French Token Decay Whitepaper" (Lead Magnet #2)
+- **CTA:** Download "French Tokenization Premium Whitepaper" (Lead Magnet #2)
 
 **Post 16 - BOFU**
 - **Title:** "VisiMind vs. Manual GEO: Why Automation Wins for Multi-SKU Brands"
@@ -382,7 +382,7 @@ Keywords sourced from current search trends, competitor content gaps, and emergi
   3. The Canadian Case: French-English as a microcosm of the global challenge
   4. Implementation Framework: Language-specific schema, hreflang, content strategy
   5. Tools and Testing: How to probe AI responses across multiple languages
-- **CTA:** Download "French Token Decay Whitepaper" (Lead Magnet #2)
+- **CTA:** Download "French Tokenization Premium Whitepaper" (Lead Magnet #2)
 
 ### Week 12 (Jun 30 - Jul 4)
 
@@ -416,7 +416,7 @@ Keywords sourced from current search trends, competitor content gaps, and emergi
 |------|-----------------|-------|-------------------|-------|
 | 1 | What is GEO? | TOFU | GEO vs. SEO | TOFU |
 | 2 | How AI Search Chooses Brands | TOFU | Audit Your AI Presence | MOFU |
-| 3 | The Bilingual Crisis | TOFU | JSON-LD for E-commerce | MOFU |
+| 3 | The Bilingual AI Gap | TOFU | JSON-LD for E-commerce | MOFU |
 | 4 | Show Up in ChatGPT | TOFU | 5 Reasons AI Gets Your Brand Wrong | MOFU |
 | 5 | What is llms.txt? | TOFU | Structured Data for AI | MOFU |
 | 6 | AI Shopping Agents | MOFU | Case Study: Montreal Brand | BOFU |
@@ -471,7 +471,7 @@ Keywords sourced from current search trends, competitor content gaps, and emergi
    - AI Shopping Agents: Product feed completeness
 
 5. **GEO for Bilingual Markets** (1,000 words)
-   - The token decay problem in non-English languages
+   - The tokenization premium problem in non-English languages
    - Bilingual structured data implementation
    - Language-specific content strategies
    - The Canadian market as case study
@@ -511,12 +511,12 @@ Keywords sourced from current search trends, competitor content gaps, and emergi
 
 **Full Outline:**
 
-1. **The Bilingual Crisis in AI Search** (800 words)
+1. **The Bilingual AI Gap in AI Search** (800 words)
    - Canada's two official languages: Obligation and opportunity
    - Quebec: 8.6M people, Bill 96, mandatory digital bilingualism
-   - The AI compounding effect: How token decay makes bilingual gaps worse
+   - The AI compounding effect: How the tokenization premium makes bilingual gaps worse
 
-2. **How Token Decay Works** (1,200 words)
+2. **How the Tokenization Premium Works** (1,200 words)
    - LLM tokenization explained for non-technical audiences
    - French technical terms get "Scrabble-tiled" - more tokens = higher computational cost
    - Visual examples: English vs. French token counts for luxury product terms
@@ -563,7 +563,7 @@ Keywords sourced from current search trends, competitor content gaps, and emergi
 - Sidebar: "Related Guides" linking to Pillars 1 and 3
 - In-content CTAs: Lead Magnets #2, #3, #5
 
-**Gated Lead Magnet:** "French Token Decay Whitepaper" - ungated executive summary, gated full research
+**Gated Lead Magnet:** "French Tokenization Premium Whitepaper" - ungated executive summary, gated full research
 
 ---
 
@@ -745,7 +745,7 @@ Each pillar links to the other two. Every blog post links to its parent pillar. 
 
 ---
 
-### Lead Magnet #2: "French Token Decay Whitepaper"
+### Lead Magnet #2: "French Tokenization Premium Whitepaper"
 
 **Format:** PDF whitepaper (15-20 pages), research-grade
 **Target Persona:** CTOs, technical marketing leads at Canadian brands
@@ -797,11 +797,11 @@ Each pillar links to the other two. Every blog post links to its parent pillar. 
 
 > **Headline:** Your Brand Is Invisible to 8.6 Million French-Speaking Canadians in AI Search
 >
-> **Subhead:** New research reveals how "token decay" makes AI engines ignore Canadian brands when users search in French.
+> **Subhead:** New research reveals how the tokenization premium makes AI engines ignore Canadian brands when users search in French.
 >
 > **Body:** We tested 20+ Canadian luxury brands across 5 AI platforms with 500+ queries in English and French. The results are alarming.
 >
-> Brands that AI confidently recommends in English completely disappear from French-language responses. The cause? A technical phenomenon called "token decay" that makes French queries computationally expensive for AI, causing it to default to simpler, usually American alternatives.
+> Brands that AI confidently recommends in English completely disappear from French-language responses. The cause? A real, measurable tokenization premium (Token Fertility ratio, Petrov et al. 2023) that makes French queries computationally expensive for AI, causing it to default to simpler, usually American alternatives.
 >
 > **This whitepaper reveals:**
 > - Why French technical terms consume 2x more AI computational budget
@@ -815,13 +815,13 @@ Each pillar links to the other two. Every blog post links to its parent pillar. 
 
 **Email Nurture Sequence:**
 
-**Email 1 (Immediate): "Your French Token Decay Whitepaper"**
+**Email 1 (Immediate): "Your French Tokenization Premium Whitepaper"**
 - Subject: The data on French AI visibility is worse than we expected
 - Deliver the PDF
 - Highlight the single most shocking finding (e.g., "Brand X is recommended 8/10 times in English, 0/10 in French")
 - CTA: "See how your brand compares - take the AI Visibility Scorecard" (Lead Magnet #1)
 
-**Email 2 (Day 4): "The 30-Minute Fix for French Token Decay"**
+**Email 2 (Day 4): "The 30-Minute Fix for French Tokenization Premium"**
 - Subject: You can fix French AI visibility in 30 minutes (here's how)
 - Provide the bilingual JSON-LD quick-start template
 - Step-by-step implementation for Shopify
@@ -1037,7 +1037,7 @@ Each pillar links to the other two. Every blog post links to its parent pillar. 
 5. **The Bilingual Gap** (3 pages)
    - English vs. French visibility scores side by side
    - Brands that disappear entirely in French
-   - The token decay effect in real data
+   - The tokenization premium effect in real data
    - Quebec market revenue implications
 
 6. **The Toxic Citation Problem** (3 pages)
@@ -1139,7 +1139,7 @@ VisiMind must practice what it preaches. The website should be a living example 
         "AI Search Visibility",
         "Bilingual Structured Data",
         "JSON-LD for E-commerce",
-        "French Token Decay Remediation"
+        "French Tokenization Premium Analysis"
       ],
       "sameAs": [
         "https://linkedin.com/company/visimind",
@@ -1177,7 +1177,7 @@ VisiMind must practice what it preaches. The website should be a living example 
         "Headless Agentic Probing with 50+ query verification",
         "Inference Alignment Score tracking",
         "Toxic Citation Detection and Remediation",
-        "French Token Decay Analysis"
+        "French Tokenization Premium Analysis"
       ]
     }
   ]
@@ -1239,7 +1239,7 @@ VisiMind must practice what it preaches. The website should be a living example 
 > VisiMind helps e-commerce brands get recommended by AI search engines (ChatGPT, Perplexity, Gemini, Google AI Overviews) through bilingual structured data remediation, toxic citation displacement, and headless agentic probing.
 
 ## About VisiMind
-- [Company Overview](https://visimind.com/about): Founded in Montreal, Canada. Specializes in solving the "Bilingual Crisis" where AI search engines fail to recommend Canadian luxury brands due to French/English token decay.
+- [Company Overview](https://visimind.com/about): Founded in Montreal, Canada. Specializes in solving the "bilingual visibility problem" where AI search engines fail to recommend Canadian luxury brands due to the French/English tokenization premium.
 - [How It Works](https://visimind.com/how-it-works): 4-step workflow - Connect (sync PIM data), Diagnose (identify signal gaps), Remediate (deploy fix kits), Verify (agentic probing).
 - [Pricing](https://visimind.com/pricing): Plans for e-commerce brands of all sizes.
 
@@ -1248,7 +1248,7 @@ VisiMind must practice what it preaches. The website should be a living example 
 - [Bilingual JSON-LD Generation](https://visimind.com/features/bilingual-jsonld): Automated structured data generation in en-CA and fr-CA with proper @language tags.
 - [Toxic Citation Remediation](https://visimind.com/features/toxic-citations): Identify and displace stale, inaccurate AI citations about your brand.
 - [Headless Agentic Probing](https://visimind.com/features/probing): Run 50+ AI queries to measure your Inference Alignment Score.
-- [French Token Decay Analysis](https://visimind.com/features/token-decay): Diagnose and fix French-language AI visibility gaps.
+- [French Tokenization Premium Analysis](https://visimind.com/features/token-fertility): Diagnose French-language AI visibility gaps and measure the tokenization cost premium.
 
 ## Guides & Resources
 - [The Complete Guide to GEO](https://visimind.com/guide/generative-engine-optimization): Comprehensive guide to Generative Engine Optimization for e-commerce.
@@ -1311,7 +1311,7 @@ Traditional meta descriptions optimize for click-through rate. AI-optimized meta
 
 **Homepage:**
 ```
-VisiMind is an AI visibility platform that helps Canadian e-commerce brands get recommended by ChatGPT, Perplexity, and Google AI Overviews. Our 4-step workflow - Connect, Diagnose, Remediate, Verify - fixes bilingual structured data gaps and French token decay that cause AI to ignore brands in French-language queries. Based in Montreal, serving luxury and premium brands across Canada.
+VisiMind is an AI visibility platform that helps Canadian e-commerce brands get recommended by ChatGPT, Perplexity, and Google AI Overviews. Our 4-step workflow - Connect, Diagnose, Remediate, Verify - fixes bilingual structured data gaps and the French tokenization premium that cause AI to ignore brands in French-language queries. Based in Montreal, serving luxury and premium brands across Canada.
 ```
 (Note: This is intentionally longer than traditional 155-char meta descriptions. The AI-readable version goes in schema description fields. The HTML meta description can be a shorter variant.)
 
@@ -1322,7 +1322,7 @@ The Complete Guide to Generative Engine Optimization (GEO) for e-commerce brands
 
 **Pillar Page 2 (Bilingual Guide):**
 ```
-How Canadian brands can achieve AI search visibility in both English and French. Covers French token decay, bilingual JSON-LD implementation, hreflang for AI crawlers, and the Quebec market opportunity. Includes research data from 500+ bilingual AI queries across 5 platforms.
+How Canadian brands can achieve AI search visibility in both English and French. Covers the French tokenization premium, bilingual JSON-LD implementation for entity recognition, hreflang for AI crawlers, and the Quebec market opportunity. Includes research data from 500+ bilingual AI queries across 5 platforms.
 ```
 
 **Pillar Page 3 (Structured Data Playbook):**

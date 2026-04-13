@@ -47,7 +47,7 @@ Compiled April 2026. Each section includes tools/resources, links, and how VisiM
 | Listmonk | https://listmonk.app/ | Self-hosted newsletter and mailing list manager (AGPLv3) |
 | Inbox Zero | https://github.com/elie222/inbox-zero | Open source email management with analytics |
 
-**How VisiMind uses these:** Use Listmonk for the "Bilingual Crisis Report" newsletter distribution. Use Email-automation or ColdEmailer for systematic outreach to Montreal brand marketing directors with personalized audit results.
+**How VisiMind uses these:** Use Listmonk for the "Bilingual AI Gap Report" newsletter distribution. Use Email-automation or ColdEmailer for systematic outreach to Montreal brand marketing directors with personalized audit results.
 
 ### Email Finding Tools (Hunter.io Alternatives)
 
@@ -85,7 +85,7 @@ Compiled April 2026. Each section includes tools/resources, links, and how VisiM
 | Scrapeless | https://www.scrapeless.com | Superior anti-detection, enterprise-grade, Firecrawl alternative |
 | Browser-Use | https://browser-use.com | AI-powered browser automation for scraping |
 
-**How VisiMind uses these:** Use Crawl4AI (free, Apache 2.0) to crawl Montreal e-commerce brand websites and extract structured data. Feed the Markdown output directly to Claude for "Bilingual Crisis" analysis - checking if brands have proper French/English structured data, schema markup, and AI-readable content. Firecrawl is better for cleaner output but has credit-based pricing.
+**How VisiMind uses these:** Use Crawl4AI (free, Apache 2.0) to crawl Montreal e-commerce brand websites and extract structured data. Feed the Markdown output directly to Claude for "Bilingual AI Gap" analysis - checking if brands have proper French/English structured data, schema markup, and AI-readable content. Firecrawl is better for cleaner output but has credit-based pricing.
 
 ### LinkedIn Research (Legal Approaches)
 
@@ -106,7 +106,7 @@ Compiled April 2026. Each section includes tools/resources, links, and how VisiM
 | Clay GTM Platform | https://www.clay.com/blog/ai-sales-prospecting | AI-powered prospect research and enrichment |
 | Syntora B2B Automation | https://syntora.io/solutions/can-claude-co-work-realistically-automate-b2b-prospecting-workflows-end-to-end | End-to-end B2B prospecting with Claude |
 
-**How VisiMind uses these:** Implement the dual-pass model: Haiku filters 500 Montreal brands down to 50 high-fit targets, then Sonnet generates personalized "Bilingual Crisis" reports for each. Use Clay or Amplemarket prompts to structure the workflow.
+**How VisiMind uses these:** Implement the dual-pass model: Haiku filters 500 Montreal brands down to 50 high-fit targets, then Sonnet generates personalized "Bilingual AI Gap" reports for each. Use Clay or Amplemarket prompts to structure the workflow.
 
 ---
 
@@ -123,7 +123,7 @@ Compiled April 2026. Each section includes tools/resources, links, and how VisiM
 | Reddit r/SEO, r/bigseo | Reddit | LLMs pull heavily from Reddit | https://reddit.com/r/SEO |
 | Reddit r/ecommerce | Reddit | E-commerce practitioners | https://reddit.com/r/ecommerce |
 
-**How VisiMind uses these:** Post "Bilingual Crisis" case studies in Online Geniuses and The SEO Community Slack. Reddit is critical since LLMs train on it - write detailed posts about GEO for Canadian brands in r/SEO and r/bigseo to build authority that feeds back into AI recommendations.
+**How VisiMind uses these:** Post "Bilingual AI Gap" case studies in Online Geniuses and The SEO Community Slack. Reddit is critical since LLMs train on it - write detailed posts about GEO for Canadian brands in r/SEO and r/bigseo to build authority that feeds back into AI recommendations.
 
 ### Newsletters to Pitch or Advertise In
 
@@ -135,7 +135,7 @@ Compiled April 2026. Each section includes tools/resources, links, and how VisiM
 | Position.Digital | GEO/AEO/AI SEO specific | https://www.position.digital/ |
 | GenOptima | AI search marketing | https://www.gen-optima.com/ |
 
-**How VisiMind uses these:** Subscribe to all of these for market intelligence. Pitch guest articles about the "Bilingual Crisis" to Search Engine Land (they have a dedicated GEO section). Position.Digital and GenOptima are niche enough to accept contributor posts about Canadian AI search gaps.
+**How VisiMind uses these:** Subscribe to all of these for market intelligence. Pitch guest articles about the "Bilingual AI Gap" to Search Engine Land (they have a dedicated GEO section). Position.Digital and GenOptima are niche enough to accept contributor posts about Canadian AI search gaps.
 
 ### Podcasts to Pitch As a Guest
 
@@ -146,7 +146,7 @@ Compiled April 2026. Each section includes tools/resources, links, and how VisiM
 | AI for Marketers | AI in marketing applications | https://www.youreverydayai.com/ai-for-marketers-podcast/ |
 | Ecommerce Coffee Break | DTC and retail, AI tools | https://ecommercecoffeebreak.com/ |
 
-**How VisiMind uses these:** Pitch the "Bilingual Crisis" angle - it is a unique story (Canadian luxury brands invisible to AI). AI-Driven Marketer and Ecommerce Coffee Break are the best fits. Prepare a 3-minute pitch: problem (70% of Quebec luxury brands get zero AI recommendations), solution (VisiMind's remediation layer), proof (before/after data).
+**How VisiMind uses these:** Pitch the "Bilingual AI Gap" angle - it is a unique story (Canadian luxury brands invisible to AI). AI-Driven Marketer and Ecommerce Coffee Break are the best fits. Prepare a 3-minute pitch: problem (70% of Quebec luxury brands get zero AI recommendations), solution (VisiMind's remediation layer), proof (before/after data).
 
 ### Product Hunt Launch
 
@@ -177,7 +177,7 @@ Compiled April 2026. Each section includes tools/resources, links, and how VisiM
 | Workflow | Components | Purpose |
 |----------|------------|---------|
 | Brand Discovery Pipeline | Crawl4AI + Claude Haiku + n8n | Automatically crawl Montreal e-commerce sites, score bilingual readiness |
-| Audit Report Generator | n8n + Claude Sonnet + Google Docs | Generate personalized "Bilingual Crisis" PDF reports per brand |
+| Audit Report Generator | n8n + Claude Sonnet + Google Docs | Generate personalized "Bilingual AI Gap" PDF reports per brand |
 | Outreach Sequencer | n8n + Listmonk + Claude | Send audit results, follow up in 3/7/14 day cadence |
 | LinkedIn Monitoring | n8n + LinkedIn API + Slack | Alert when target brands post about AI, search, or expansion |
 
@@ -189,7 +189,7 @@ Compiled April 2026. Each section includes tools/resources, links, and how VisiM
 | n8n Lead Gen Automation Guide | https://ai.exoticaitsolutions.com/blog/how-to-automate-lead-generation-with-n8n-the-complete-2026-guide/ |
 | Claude Building n8n Workflows | https://www.roborhythms.com/claude-n8n-workflow-2026/ |
 
-**How VisiMind uses these:** Start with the "B2B Lead Gen with Scrapeless + Claude" template and customize it for Montreal e-commerce brands. The "Business Automation ROI Reports" template can be adapted to auto-generate "Bilingual Crisis" audit PDFs. Use Claude Code to describe your automation goal in plain English and it will architect the entire n8n workflow.
+**How VisiMind uses these:** Start with the "B2B Lead Gen with Scrapeless + Claude" template and customize it for Montreal e-commerce brands. The "Business Automation ROI Reports" template can be adapted to auto-generate "Bilingual AI Gap" audit PDFs. Use Claude Code to describe your automation goal in plain English and it will architect the entire n8n workflow.
 
 ---
 
@@ -225,7 +225,7 @@ The most effective lead magnets for VisiMind follow this pattern:
 | Asset | Description | Effort |
 |-------|-------------|--------|
 | AI Brand Visibility Checker | Enter a URL, see which LLMs recommend the brand (and which don't) | Medium - use existing Claude API + simple frontend |
-| Bilingual Crisis Score | 0-100 score showing French/English AI readiness | Low - wrap existing EEE logic in a public endpoint |
+| Bilingual AI Gap Score | 0-100 score showing French/English AI readiness | Low - wrap existing EEE logic in a public endpoint |
 | Competitor Comparison Report | Side-by-side: "Brand X gets recommended by 4/5 LLMs, you get 0/5" | Medium - batch the checker across competitors |
 | Revenue Impact Calculator | "You're losing $X/month in AI-referred traffic" | Low - simple formula with industry benchmarks |
 
@@ -246,7 +246,7 @@ The most effective lead magnets for VisiMind follow this pattern:
 - [ ] Set up Listmonk for email distribution
 
 ### Week 3: Content & Community
-- [ ] Write "Bilingual Crisis" post for r/SEO and r/bigseo
+- [ ] Write "Bilingual AI Gap" post for r/SEO and r/bigseo
 - [ ] Join Online Geniuses Slack and The SEO Community
 - [ ] Pitch guest article to Search Engine Land GEO section
 - [ ] Pitch AI-Driven Marketer podcast

@@ -96,9 +96,13 @@ class ParityStats(BaseModel):
 class ProbeRequest(BaseModel):
     query: str
     lang: str = "EN"
-    iterations: int = Field(default=3, ge=1, le=10)
+    iterations: Optional[int] = Field(default=None, ge=1, le=500, description="Override iterations per angle. If None, derived from probe_tier.")
     use_golden_set: bool = Field(default=True, description="Generate 5 query variations instead of repeating one query")
     temperature: float = Field(default=0.7, ge=0.0, le=2.0)
+    probe_tier: str = Field(
+        default="standard",
+        description="Probe volume tier: 'scout' (50 probes), 'standard' (250 probes), or 'enterprise' (1000 probes)"
+    )
 
 
 class TaskStatus(BaseModel):

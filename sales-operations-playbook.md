@@ -35,7 +35,7 @@ Every inbound or outbound lead receives a composite score from 0-100. Leads scor
 |---|---|---|
 | Luxury fashion / accessories | 15 | Core ICP. Highest hallucination risk, most brand-sensitive. |
 | Premium DTC brands | 13 | High product complexity, structured data gaps common. |
-| Luxury beauty / cosmetics | 12 | French ingredient terminology causes severe token decay. |
+| Luxury beauty / cosmetics | 12 | French ingredient terminology incurs a real, measurable tokenization premium. |
 | High-end home / design | 10 | Bilingual catalogs, complex product attributes. |
 | Premium food / beverage | 8 | Terroir descriptions fragment in French tokenization. |
 | General e-commerce | 5 | Broad fit, less urgency. |
@@ -50,7 +50,7 @@ Every inbound or outbound lead receives a composite score from 0-100. Leads scor
 
 | Geography | Points | Rationale |
 |---|---|---|
-| Montreal HQ + bilingual catalog | 12 | Maximum bilingual pain. French token decay hits hardest. |
+| Montreal HQ + bilingual catalog | 12 | Maximum bilingual pain. French tokenization premium hits hardest. |
 | Quebec (outside Montreal) | 10 | Same bilingual requirements, slightly smaller market. |
 | Toronto / Vancouver with French SKUs | 8 | Federal bilingual compliance, French product data exists. |
 | Canada-wide, English-only | 5 | AI hallucination problem exists but no bilingual wedge. |
@@ -307,7 +307,7 @@ Output format (JSON):
 
 ## Prompt 3: English vs French Content Quality Comparator
 
-**Purpose:** Compare bilingual content quality and identify token decay risk.
+**Purpose:** Compare bilingual content quality and identify tokenization premium risk.
 
 ```
 SYSTEM:
@@ -339,7 +339,7 @@ Analyze:
    - Is the French version human-translated or machine-translated?
      (Look for awkward phrasing, anglicisms, inconsistent terminology.)
 
-2. TOKEN DECAY RISK ASSESSMENT:
+2. TOKENIZATION PREMIUM RISK ASSESSMENT:
    - Identify French phrases that will fragment into excessive sub-word
      tokens. Examples: compound material descriptions, technical fashion
      terms, Quebec-specific terminology.
@@ -362,7 +362,7 @@ Output format (JSON):
   "word_count_ratio": 0.0-1.0+,
   "missing_attributes_in_french": ["attr1", "attr2"],
   "translation_quality": "HUMAN | MACHINE | MIXED",
-  "token_decay_risk": "HIGH | MEDIUM | LOW",
+  "tokenization_premium_risk": "HIGH | MEDIUM | LOW",
   "estimated_signal_loss_pct": 0-100,
   "problematic_french_terms": [
     {"term": "...", "issue": "...", "token_count": N}
@@ -458,11 +458,11 @@ Generate a personalized cold email for:
 Contact: {{first_name}} {{last_name}}
 Title: {{job_title}}
 Company: {{brand_name}}
-Outreach Sequence: {{sequence_type}} (scary_report | competitor | token_decay | free_audit | design_partner)
+Outreach Sequence: {{sequence_type}} (scary_report | competitor | tokenization_premium | free_audit | design_partner)
 Email Number: {{email_number}} (1, 2, or 3)
 
 Brand Audit Data:
-- Inference Alignment Score (EN): {{score_en}}/100
+- Inference Alignment Score — measures how accurately AI systems represent your brand across languages, using methodology adapted from GEO visibility research (Princeton, 2024) — (EN): {{score_en}}/100
 - Inference Alignment Score (FR): {{score_fr}}/100
 - Top Signal Gaps Found: {{signal_gaps}}
 - JSON-LD Status: {{jsonld_status}} (none | partial | complete)
@@ -572,7 +572,7 @@ Determine:
 3. BLOCKER RISK: Who might block the sale and why?
 4. ENTRY POINT: Who is easiest to reach first to open the conversation?
 5. OUTREACH SEQUENCE: Which of our 5 sequences (scary_report, competitor,
-   token_decay, free_audit, design_partner) best fits each contact?
+   tokenization_premium, free_audit, design_partner) best fits each contact?
 
 Output format (JSON):
 {
@@ -693,7 +693,7 @@ Audit Data:
 - Hallucinations found: {{n_hallucinations}}
 - AI citation rate: {{citation_rate}}% (vs. {{competitor}} at {{competitor_rate}}%)
 - JSON-LD status: {{jsonld_status}}
-- Token decay estimate (FR): {{token_decay_pct}}%
+- Tokenization premium estimate (FR): {{token_fertility_pct}}%
 - Top 3 worst AI responses: {{worst_responses}}
 - Competitor comparison: {{competitor_data}}
 
@@ -708,7 +708,7 @@ Generate the report with these sections:
 
 3. THE BILINGUAL GAP
    EN vs FR score comparison. Specific French queries that fail.
-   Token decay impact on Francophone customers.
+   Tokenization premium impact on Francophone customers.
 
 4. SIGNAL GAP BREAKDOWN
    Top 5 most damaging signal gaps with AI quote vs. brand truth.
@@ -730,7 +730,7 @@ Output in Markdown format, ready for PDF conversion. Max 800 words.
 
 ---
 
-## Prompt 10: Bilingual Token Decay Analyzer
+## Prompt 10: Bilingual Tokenization Premium Analyzer
 
 **Purpose:** Perform a technical analysis of how French product descriptions fragment during LLM tokenization.
 
@@ -738,7 +738,7 @@ Output in Markdown format, ready for PDF conversion. Max 800 words.
 SYSTEM:
 You are a computational linguist specializing in LLM tokenization. You
 understand how BPE (Byte Pair Encoding) tokenizers process French text
-differently from English, and how this creates "token decay" -- the loss
+differently from English, and how this creates a tokenization premium -- the loss
 of semantic signal when French text is split into more, smaller tokens
 that break meaningful word boundaries.
 
@@ -750,7 +750,7 @@ You know that:
 - This causes LLMs to lose attribute relationships in French product data
 
 USER:
-Analyze bilingual token decay for these product descriptions:
+Analyze bilingual tokenization premium for these product descriptions:
 
 Brand: {{brand_name}}
 Product: {{product_name}}
@@ -788,7 +788,7 @@ Perform:
    Queries: {{french_queries}}
 
 5. FIX RECOMMENDATION:
-   How would bilingual JSON-LD structured data solve the token decay
+   How would bilingual JSON-LD structured data improve entity recognition to address the tokenization premium
    problem for this specific product? What attributes must be explicitly
    structured to preserve semantic signal?
 
@@ -1313,7 +1313,7 @@ Every objection response follows this structure:
 
 > "We're early stage -- I'll be upfront about that. VisiMind launched this year focused on the Canadian luxury market because the bilingual problem is most acute here.
 >
-> What I can show you is the data. I ran {{brand}}'s audit using the same methodology we use for all clients. The Inference Alignment Scores, Signal Gaps, and token decay metrics are all verifiable -- you can reproduce every test yourself.
+> What I can show you is the data. I ran {{brand}}'s audit using the same methodology we use for all clients. The Inference Alignment Scores, Signal Gaps, and Token Fertility metrics are all verifiable -- you can reproduce every test yourself.
 >
 > We're also looking for 5 design partners in Montreal who want to shape the product in exchange for free access. That might be a better fit than a paid engagement right now -- you'd get full value with zero risk while we build our track record together.
 >

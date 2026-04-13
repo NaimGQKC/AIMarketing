@@ -80,7 +80,7 @@ SYNDICATION_TIERS = {
         "authority_weight": 0.95,
         "examples": [
             "ucp_feed",           # /.well-known/ucp (Google)
-            "acp_feed",           # Agentic Commerce Protocol (OpenAI)
+            "mcp_feed",           # MCP (Model Context Protocol, Anthropic) — dominant standard, 97M+ monthly SDK downloads
             "llms_txt",           # /llms.txt (universal discovery)
             "product_feed_jsonld", # /feeds/{brand}/products.jsonld
         ],
@@ -263,11 +263,12 @@ def _get_node_deployment(node_type, brand_slug, brand_name, hard_attrs, products
             "payload_type": "ucp_manifest",
             "critical": True,
         },
-        "acp_feed": {
-            "action": "Publish ACP feed for OpenAI shopping agent discovery",
+        "mcp_feed": {
+            "action": "Publish MCP-compatible feed optimized for GPTBot crawlability and Bing IndexNow submission",
+            # MCP is the dominant standard — 97M+ monthly SDK downloads, governed by Linux Foundation Agentic AI Foundation.
             "format": "application/json",
-            "uri_pattern": f"https://visimind.ai/feeds/{brand_slug}/acp.json",
-            "payload_type": "acp_feed",
+            "uri_pattern": f"https://visimind.ai/feeds/{brand_slug}/mcp.json",
+            "payload_type": "mcp_feed",
             "critical": True,
         },
         "llms_txt": {
@@ -436,7 +437,7 @@ def build_freshness_cycle(brand_id: str, products: list[dict],
 
     The strategy:
     - Update KG triples with new UTC timestamps every cycle
-    - Touch all syndication feed endpoints (UCP, ACP, JSON-LD)
+    - Touch all syndication feed endpoints (UCP, MCP, JSON-LD)
     - Increment schema version numbers to trigger re-crawl
     - Embed dateModified in all @graph nodes
 
@@ -522,7 +523,7 @@ def build_freshness_cycle(brand_id: str, products: list[dict],
             "kg_triples": "Update created_at on all triples every cycle",
             "jsonld_graph": "Increment schema version + dateModified in @graph",
             "ucp_manifest": "Touch update_frequency timestamp",
-            "acp_feed": "Refresh updated_at field",
+            "mcp_feed": "Refresh updated_at field",
             "sitemap": "Update <lastmod> entries",
             "http_headers": "Set Cache-Control: max-age={cycle_hours * 3600}, must-revalidate",
         },
@@ -535,7 +536,7 @@ def _get_cycle_actions(cycle_num: int, cycle_hours: int, brand_id: str) -> list:
         f"Touch KG triples — update timestamps for brand_id={brand_id}",
         "Regenerate @graph JSON-LD feeds with new dateModified",
         "Refresh UCP manifest update_frequency timestamp",
-        "Refresh ACP feed updated_at",
+        "Refresh MCP feed updated_at",
     ]
 
     # Periodic deeper actions
@@ -722,11 +723,12 @@ def build_agentic_priority_map(brand: dict, products: list[dict],
             "consumer": "Google Shopping / Gemini",
             "advantage": "Direct product data feed — zero intermediary",
         },
-        "acp": {
+        "mcp": {
+            # MCP is the dominant standard — 97M+ monthly SDK downloads, governed by Linux Foundation Agentic AI Foundation.
             "status": "active",
-            "uri": f"https://visimind.ai/feeds/{brand_slug}/acp.json",
-            "consumer": "OpenAI Operator / ChatGPT Shopping",
-            "advantage": "Agentic Commerce Protocol — native shopping agent format",
+            "uri": f"https://visimind.ai/feeds/{brand_slug}/mcp.json",
+            "consumer": "Optimized for GPTBot crawlability and Bing IndexNow submission",
+            "advantage": "MCP (Model Context Protocol) — dominant agent-to-agent standard",
         },
         "llms_txt": {
             "status": "active",
@@ -800,7 +802,7 @@ def build_e_score_roadmap(brand_id: str, current_e: float, delta: float,
         "actions": [
             "Deploy deterministic @graph with urn:visimind:* IDs on all product pages",
             "Publish UCP manifest at /.well-known/ucp",
-            "Publish ACP feed for OpenAI shopping agents",
+            "Publish MCP-compatible feed optimized for GPTBot crawlability and Bing IndexNow submission",
             "Create /llms.txt for universal LLM discovery",
             "Validate Rich Results via Google Search Console",
         ],
@@ -853,9 +855,9 @@ def build_e_score_roadmap(brand_id: str, current_e: float, delta: float,
             "Submit video sitemap to Google for multimodal indexing",
             "Target French-language product queries specifically",
         ],
-        "success_metric": f"Token Decay Factor delta reduced from {delta:.3f} to {delta - delta_reduction:.3f}",
+        "success_metric": f"Token Fertility Factor delta reduced from {delta:.3f} to {delta - delta_reduction:.3f}",
         "e_score_mechanism": (
-            "Bypasses Token Decay gaps. Visual modality provides language-agnostic "
+            "Bypasses text tokenization entirely. Visual modality provides language-agnostic "
             "embeddings that anchor French queries in continuous vector space — "
             f"delta reduces by {delta_reduction:.3f}, boosting E by ~{kit3_boost}."
         ),
@@ -988,7 +990,7 @@ def generate_verification_replies(brand: dict, products: list[dict],
     When a RAG engine retrieves a toxic citation (e.g., Reddit 2021 thread),
     a Verification Reply on the SAME platform creates a citation chain:
 
-        Toxic Thread → Verification Reply → Tier 2 URI (UCP/ACP feed)
+        Toxic Thread → Verification Reply → Tier 2 URI (UCP/MCP feed)
 
     The RAG engine follows the link, finds structured @graph data, and
     re-weights its answer toward brand truth. The reply closes the
@@ -1429,7 +1431,7 @@ def compute_montreal_moat(en_e_score: float, fr_e_score: float,
     attention_cost_fr = round(fr_fertility ** 2, 2)
     cost_ratio = round(attention_cost_fr / max(attention_cost_en, 0.01), 2)
 
-    # Token tax
+    # Tokenization premium
     token_tax_pct = round((fr_fertility - en_fertility) / max(en_fertility, 0.01) * 100, 1)
 
     return {
@@ -1450,7 +1452,7 @@ def compute_montreal_moat(en_e_score: float, fr_e_score: float,
             f"French E-Score trails English by {moat_gap:.2f}. "
             f"French tokenization costs {token_tax_pct:.0f}% more tokens, "
             f"which scales to {cost_ratio}x attention cost under O(n^2). "
-            f"Truth Clips bypass this by anchoring in visual vector space."
+            f"Truth Clips sidestep this by anchoring brand identity in language-agnostic visual embeddings."
         ),
         "bypass_status": "active" if moat_gap < 0.3 else "required",
         "competitive_position": (
@@ -1528,7 +1530,7 @@ def probe_toxic_source(signal_gaps: list[dict], e_score_before: float,
 
         # Damage score = function of severity + quality deficit + gap type weight
         severity_weight = {"critical": 1.0, "warning": 0.6, "info": 0.2}.get(severity, 0.3)
-        type_weight = {"Entity Trust": 1.0, "Fact Density": 0.7, "Token Decay": 0.5}.get(gap_type, 0.5)
+        type_weight = {"Entity Trust": 1.0, "Fact Density": 0.7, "Token Decay": 0.5, "Tokenization Premium": 0.5}.get(gap_type, 0.5)
         quality_deficit = max(0, (100 - quality) / 100)
 
         damage_score = round(severity_weight * 0.4 + type_weight * 0.3 + quality_deficit * 0.3, 3)

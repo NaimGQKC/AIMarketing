@@ -46,10 +46,17 @@ export const api = {
     gapFixKit: (gapId) => request(`/api/diagnose/gaps/${gapId}/fix-kit`),
     deployKit: (kitId) => request(`/api/remediate/kits/${kitId}/deploy`, { method: 'POST' }),
     parity: (brandId) => request(`/api/diagnose/parity${brandId && brandId !== 'all' ? `?brand_id=${brandId}` : ''}`),
-    probe: (query, lang = 'EN', iterations = 3, useGoldenSet = true) =>
+    probe: (query, lang = 'EN', iterations = null, useGoldenSet = true, probeTier = 'standard') =>
       request('/api/diagnose/probe', {
         method: 'POST',
-        body: JSON.stringify({ query, lang, iterations, use_golden_set: useGoldenSet, temperature: 0.7 }),
+        body: JSON.stringify({
+          query,
+          lang,
+          iterations,
+          use_golden_set: useGoldenSet,
+          temperature: 0.7,
+          probe_tier: probeTier,
+        }),
       }),
     fertility: (textEn, textFr) =>
       request('/api/diagnose/fertility', {

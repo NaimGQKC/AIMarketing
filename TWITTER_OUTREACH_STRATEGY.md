@@ -10,7 +10,7 @@
 | # | Handle | Name | Focus | Why They Matter |
 |---|--------|------|-------|-----------------|
 | 1 | @jasonmbarnard | Jason Barnard | Entity optimization, Knowledge Graphs, AEO (coined "Answer Engine Optimization"), CEO of Kalicube | He literally invented AEO. His Knowledge Graph work directly overlaps with VisiMind's JSON-LD remediation. Perfect collaboration partner. |
-| 2 | @aleyda | Aleyda Solis | International/multilingual GEO, founder of Orainti | THE expert on how AI models behave differently across languages and markets. Her multilingual GEO frameworks are exactly VisiMind's "Bilingual Crisis" thesis. She would immediately understand our French token decay problem. ~200K+ followers. |
+| 2 | @aleyda | Aleyda Solis | International/multilingual GEO, founder of Orainti | THE expert on how AI models behave differently across languages and markets. Her multilingual GEO frameworks are exactly VisiMind's "Bilingual AI Gap" thesis. She would immediately understand our French tokenization premium problem. ~200K+ followers. |
 | 3 | @lilyraynyc | Lily Ray | GEO, AI Search, E-E-A-T, VP SEO at Amsive, founder of Algorythmic | One of the most influential voices in GEO. She published "Your GEO Strategy Might Be Destroying Your SEO" - contrarian and data-driven. Her audience is exactly our target. ~108K followers. |
 | 4 | @AlexGroberman_ | Alex Groberman | AI search visibility, SEO, founder of Alex Groberman Labs | Constantly tweets about brands being "invisible" to ChatGPT/Claude/Perplexity. His framing mirrors VisiMind's pitch. High engagement threads. 12K+ newsletter subscribers. |
 | 5 | @timsoulo | Tim Soulo | CMO at Ahrefs, Brand Radar, ChatGPT citation data | Published the "28% of ChatGPT's most-cited pages have ZERO Google visibility" study. Ahrefs Brand Radar is adjacent tooling. ~100K+ followers. |
@@ -31,7 +31,7 @@
 
 | # | Handle | Name | Focus | Why They Matter |
 |---|--------|------|-------|-----------------|
-| 13 | @Quebec_AI | Quebec.AI | Quebec AI ecosystem, events, community | Direct access to the Montreal AI community. Could amplify the "Bilingual Crisis" narrative locally. |
+| 13 | @Quebec_AI | Quebec.AI | Quebec AI ecosystem, events, community | Direct access to the Montreal AI community. Could amplify the "Bilingual AI Gap" narrative locally. |
 | 14 | @semrush | Semrush (brand account) | SEO tools, AI SoV tracking | Their "AI Share of Voice" metric is becoming industry standard. Engage their content to get on their radar for case study partnerships. |
 | 15 | @aitoptools | AITopTools | AI tool discovery, curation | They post about AI search visibility tools. Getting VisiMind featured here = instant credibility with early adopters. |
 
@@ -39,7 +39,7 @@
 
 | # | Handle | Name | Focus | Why They Matter |
 |---|--------|------|-------|-----------------|
-| 16 | Search Engine Land authors | Multiple | AI search, GEO coverage | Lily Ray, Barry Schwartz, and others write for SEL. They cover new GEO tools and techniques. Pitch them the "Bilingual Crisis" as a story. |
+| 16 | Search Engine Land authors | Multiple | AI search, GEO coverage | Lily Ray, Barry Schwartz, and others write for SEL. They cover new GEO tools and techniques. Pitch them the "Bilingual AI Gap" as a story. |
 | 17 | @evanbailyn (unconfirmed handle) | Evan Bailyn | Founder of GEO as a discipline, CEO First Page Sage | Credited as the inventor of generative engine optimization. Conference keynote speaker. His endorsement would be category-defining for VisiMind. |
 | 18 | @mattbertramlive (LinkedIn-confirmed) | Matthew Bertram | LLM Visibility framework creator, podcast host (5M+ downloads) | Created "LLM Visibility Stack" - directly parallel framework to VisiMind. Potential co-marketing or podcast guest opportunity. |
 
@@ -56,12 +56,12 @@ Hey [Name] - been following your work on [specific topic, e.g., "entity optimiza
 for AI systems" / "multilingual GEO frameworks"]. Genuinely useful stuff.
 
 We're building something at VisiMind that sits in your wheelhouse: we discovered that 
-LLMs suffer from severe "token decay" with French technical terms - a Montreal luxury 
+LLMs impose a real, measurable tokenization premium on French technical terms - a Montreal luxury 
 brand gets recommended 3x less in French queries than English ones, even for the same 
 product.
 
 We built a bilingual JSON-LD remediation engine that fixes this, and we're seeing 
-Inference Alignment scores jump from ~30% to 80% post-deployment.
+Inference Alignment scores (measures how accurately AI systems represent your brand across languages, using methodology adapted from GEO visibility research, Princeton, 2024) jump from ~30% to 80% post-deployment.
 
 Would love to share the data with you - no ask, just think you'd find it genuinely 
 interesting. Happy to send a 2-page brief or jump on a quick call.
@@ -69,7 +69,7 @@ interesting. Happy to send a 2-page brief or jump on a quick call.
 - [Your name], VisiMind
 ```
 
-**Why this works:** Leads with their expertise. Presents a specific, novel data point (French token decay). No pitch - just intellectual curiosity.
+**Why this works:** Leads with their expertise. Presents a specific, novel data point (French tokenization premium). No pitch - just intellectual curiosity.
 
 ---
 
@@ -143,7 +143,7 @@ Canadian luxury brands. The findings:
 - Brands with stale structured data get recommended based on 2021 Reddit threads 
   instead of their actual product catalog
 
-We call it the "Bilingual Crisis" - and it affects every brand operating in 
+We call it the "Bilingual AI Gap" - and it affects every brand operating in 
 French+English markets (Canada, Belgium, Switzerland, luxury global brands).
 
 Happy to share the full dataset if you're interested. No exclusivity requirement.
@@ -183,7 +183,7 @@ co-marketing partnership makes sense? No pressure either way.
 
 ## PART 3: VIRAL THREAD TEMPLATES
 
-### Thread 1: "The Bilingual Crisis" (Data Shock Thread)
+### Thread 1: "The Bilingual AI Gap" (Data Shock Thread)
 
 ```
 1/ I tested how ChatGPT recommends Montreal luxury brands in French vs English.
@@ -206,7 +206,7 @@ French queries? 1.7.
 
 That's a 60% DROP in brand visibility - just from switching languages.
 
-4/ FINDING #2: Token Decay is Real
+4/ FINDING #2: The Tokenization Premium is Real
 
 Here's why. LLMs break text into "tokens" before reasoning.
 
@@ -231,7 +231,7 @@ Brands with bilingual JSON-LD schema saw their AI recommendation rate jump from
 The AI doesn't need to "figure out" your brand. You TELL it, in both languages, 
 in a format it can parse.
 
-7/ This is what we're calling the "Bilingual Crisis."
+7/ This is what we're calling the "Bilingual AI Gap."
 
 It doesn't just affect Canada. It hits:
 - Belgium (French/Dutch)
@@ -257,7 +257,7 @@ Nobody checks: "Does ChatGPT recommend us when someone asks in French?"
 If your brand operates in French + English and you want to know your 
 AI visibility score, DM me or reply below.
 
-The Bilingual Crisis is fixable. But you have to know it exists first.
+The Bilingual AI Gap is fixable. But you have to know it exists first.
 ```
 
 ---
@@ -340,8 +340,7 @@ We call this "Headless Agentic Probing."
 
 10/ FIX #4: Feed the AI Directly
 
-Google's UCP (Universal Content Protocol) and emerging ACP feeds let you 
-push structured data directly to AI systems.
+Google's UCP (Universal Content Protocol) and MCP-compatible structured feeds (MCP is the dominant standard — 97M+ monthly SDK downloads, governed by Linux Foundation Agentic AI Foundation) let you push structured data directly to AI systems.
 
 Instead of waiting for crawlers, you PUSH your product catalog in a format 
 the AI can immediately reason from.
@@ -383,7 +382,7 @@ people discover brands.
 But most Canadian brands are INVISIBLE to these systems - especially 
 in French.
 
-We call it the "Bilingual Crisis."
+We call it the "Bilingual AI Gap."
 
 3/ WHAT YOU GET AS A DESIGN PARTNER:
 
@@ -425,7 +424,7 @@ You're ideal if you:
 
 Honest answer? We need real-world data to prove our thesis.
 
-We've run hundreds of synthetic probes. We know the Bilingual Crisis 
+We've run hundreds of synthetic probes. We know the Bilingual AI Gap 
 is real. But we need to prove that our fix-kits work on REAL brands 
 with REAL catalogs.
 
@@ -445,7 +444,7 @@ by Friday.
 
 9/ If you're not a fit but know a brand that is - please RT or tag them.
 
-The Bilingual Crisis affects every Canadian e-commerce brand. 
+The Bilingual AI Gap affects every Canadian e-commerce brand. 
 The sooner we get data, the sooner we can help everyone.
 
 Let's fix this together.
@@ -574,7 +573,7 @@ Most brands are shocked by step 2. The gap between "I rank on Google" and
 ### Niche/Differentiating Hashtags (VisiMind-specific)
 ```
 #BilingualCrisis
-#TokenDecay
+#TokenizationPremium
 #InferenceAlignment
 #BilingualSEO
 #MultilingualGEO
@@ -649,7 +648,7 @@ Priority engagement list (comment on their posts at least 2-3x/week):
 ### Week 1-2: Foundation
 - [ ] Set up Twitter/X monitoring for all keywords listed above (use TweetDeck or similar)
 - [ ] Follow and engage with all 18 accounts listed in Part 1
-- [ ] Post Thread #1 ("Bilingual Crisis" data thread)
+- [ ] Post Thread #1 ("Bilingual AI Gap" data thread)
 - [ ] Send DM Template #1 to 3 thought leaders (Jason Barnard, Aleyda, Lily Ray)
 - [ ] Reply to 5+ conversations daily using Part 4 templates
 

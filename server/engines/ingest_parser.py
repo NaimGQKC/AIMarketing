@@ -226,7 +226,7 @@ _TOXIC_PATTERNS = [
 ]
 
 _AUTHORITATIVE_PATTERNS = [
-    "ucp", "acp", "feed://", ".gov", ".gc.ca",
+    "ucp", "mcp", "feed://", ".gov", ".gc.ca",  # MCP is the dominant standard — 97M+ monthly SDK downloads, governed by Linux Foundation Agentic AI Foundation.
     "official", "brand site", "manufacturer",
     "schema.org", "certification", "registry",
 ]

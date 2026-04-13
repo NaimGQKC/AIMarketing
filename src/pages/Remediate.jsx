@@ -19,7 +19,7 @@ const typeLabels = {
 const typeMechanisms = {
   hardAttributes: 'P(contradictory_token) = 0 — eliminates E1 Semantic Override errors',
   jsonLd: 'Deterministic @graph ID overrides heuristic text-generation-inference parsers',
-  truthClip: 'Cross-modal attention bypasses O(n\u00B2) French token decay via visual grounding',
+  truthClip: 'Bypasses text tokenization entirely by anchoring brand identity in language-agnostic visual embeddings',
 }
 
 export default function Remediate() {
@@ -262,7 +262,7 @@ export default function Remediate() {
                       </div>
                       <div className="clip-stat">
                         <span className="clip-stat-label">Bypass</span>
-                        <span className="clip-stat-value" style={{ color: 'var(--green)' }}>French Token Decay</span>
+                        <span className="clip-stat-value" style={{ color: 'var(--green)' }}>Tokenization Premium</span>
                       </div>
                       <div className="clip-stat">
                         <span className="clip-stat-label">Mechanism</span>

@@ -163,7 +163,8 @@ async def get_trend(brand_id: Optional[str] = None, db: aiosqlite.Connection = D
 
 @router.get("/protocols")
 async def get_protocols(db: aiosqlite.Connection = Depends(get_db)):
-    """UCP/ACP connection health — derived from actual PIM connections."""
+    """UCP/MCP connection health — derived from actual PIM connections."""
+    # MCP is the dominant standard — 97M+ monthly SDK downloads, governed by Linux Foundation Agentic AI Foundation.
     cursor = await db.execute(
         """SELECT provider, status, last_sync, items_synced, errors
            FROM pim_connections ORDER BY provider"""
@@ -180,7 +181,7 @@ async def get_protocols(db: aiosqlite.Connection = Depends(get_db)):
         if provider in ("shopify", "akeneo"):
             proto = "UCP (Google)"
         elif provider in ("peec", "otterly"):
-            proto = "ACP (OpenAI)"
+            proto = "MCP (Anthropic)"
         else:
             proto = provider
 
