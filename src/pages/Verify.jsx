@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { Activity, RefreshCw, Loader2, TrendingUp, Check, X, Globe } from 'lucide-react'
 import { apiFetch } from '../api/client'
+import { useBrand } from '../context/BrandContext'
 
 const GRADE_COLORS = { RED: '#ff4c6a', YELLOW: '#ffb547', GREEN: '#34d399' }
 
@@ -22,7 +23,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 export default function Verify() {
-  const [brands, setBrands] = useState([])
+  const { selectedBrand, selectedBrandId, availableBrands } = useBrand()
   const [history, setHistory] = useState([])
   const [latestAudit, setLatestAudit] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -30,25 +31,24 @@ export default function Verify() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    loadData()
-  }, [])
+    if (selectedBrandId) {
+      loadData(selectedBrandId)
+    } else {
+      setLoading(false)
+    }
+  }, [selectedBrandId])
 
-  async function loadData() {
+  async function loadData(brandId) {
     setLoading(true)
     try {
-      const brandList = await apiFetch('/brands')
-      setBrands(brandList)
-      if (brandList.length > 0) {
-        const brandId = brandList[0].id
-        try {
-          const hist = await apiFetch(`/audits/${brandId}/history`)
-          setHistory(hist)
-        } catch {}
-        try {
-          const results = await apiFetch(`/audits/${brandId}/results`)
-          setLatestAudit(results)
-        } catch {}
-      }
+      try {
+        const hist = await apiFetch(`/audits/${brandId}/history`)
+        setHistory(hist)
+      } catch {}
+      try {
+        const results = await apiFetch(`/audits/${brandId}/results`)
+        setLatestAudit(results)
+      } catch {}
     } catch (err) {
       setError(err.message)
     } finally {
@@ -57,12 +57,12 @@ export default function Verify() {
   }
 
   async function handleReprobe() {
-    if (!brands.length) return
+    if (!selectedBrand) return
     setReprobing(true)
     setError('')
     try {
-      await apiFetch(`/audits/${brands[0].id}/run`, { method: 'POST' })
-      await loadData()
+      await apiFetch(`/audits/${selectedBrand.id}/run`, { method: 'POST' })
+      await loadData(selectedBrand.id)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -78,7 +78,7 @@ export default function Verify() {
     )
   }
 
-  if (!brands.length) {
+  if (!availableBrands.length) {
     return (
       <div className="page">
         <div className="text-center py-20">
@@ -89,7 +89,7 @@ export default function Verify() {
     )
   }
 
-  const brand = brands[0]
+  const brand = selectedBrand || availableBrands[0]
   const ias = latestAudit?.ias
   const results = latestAudit?.results || []
   const enResults = results.filter(r => r.lang === 'EN' && !r.error)

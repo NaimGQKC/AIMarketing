@@ -13,6 +13,7 @@ import {
   Bot,
 } from 'lucide-react'
 import { apiFetch } from '../api/client'
+import { useBrand } from '../context/BrandContext'
 
 /* ------------------------------------------------------------------ */
 /*  Fix Kit Page (Screen 4) - MCP Feed, JSON-LD, robots.txt panels    */
@@ -117,16 +118,19 @@ const JSONLD_TABS = [
 /*  Main Component                                                     */
 /* ================================================================== */
 export default function Remediate() {
+  /* --- brand context --- */
+  const { selectedBrandId } = useBrand()
+  const brandId = selectedBrandId
+
   /* --- shared state --- */
-  const [brandId, setBrandId] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!brandId)
   const [error, setError] = useState(null)
 
   /* --- MCP Feed --- */
   const [mcpPreview, setMcpPreview] = useState(null)
   const [mcpValid, setMcpValid] = useState(false)
   const [mcpDeploying, setMcpDeploying] = useState(false)
-  const [mcpStatus, setMcpStatus] = useState('not_deployed') // not_deployed | deployed | verified
+  const [mcpStatus, setMcpStatus] = useState('not_deployed')
 
   /* --- JSON-LD --- */
   const [jsonLdData, setJsonLdData] = useState(null)
@@ -138,25 +142,6 @@ export default function Remediate() {
   const [robotsScanning, setRobotsScanning] = useState(false)
   const [robotsResult, setRobotsResult] = useState(null)
   const [robotsStatus, setRobotsStatus] = useState('not_deployed')
-
-  /* ---- fetch brand list, pick first brand ---- */
-  useEffect(() => {
-    let cancelled = false
-    async function init() {
-      try {
-        const brands = await apiFetch('/brands')
-        if (!cancelled && brands?.length) {
-          setBrandId(brands[0].id)
-        }
-      } catch (e) {
-        if (!cancelled) setError(e.message)
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
-    }
-    init()
-    return () => { cancelled = true }
-  }, [])
 
   /* ---- fetch MCP + JSON-LD once brandId is known ---- */
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Wrench, Activity, User, LogOut, Zap } from 'lucide-react'
+import { LayoutDashboard, Wrench, Activity, User, LogOut, Zap, Mail } from 'lucide-react'
 import { clearToken } from '../api/client'
 import './Sidebar.css'
 
@@ -10,6 +10,7 @@ const dashboardItems = [
 const agentItems = [
   { to: '/fixkit', icon: Wrench, label: 'Fix Kit' },
   { to: '/monitor', icon: Activity, label: 'Monitor' },
+  { to: '/outreach', icon: Mail, label: 'Outreach' },
 ]
 
 export default function Sidebar() {

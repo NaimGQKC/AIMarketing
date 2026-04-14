@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { AlertTriangle, Ghost, Shuffle, Globe, DollarSign, Play, Loader2, RefreshCw, FileDown } from 'lucide-react'
 import { apiFetch, getToken, authHeaders } from '../api/client'
+import { useBrand } from '../context/BrandContext'
 
 const GRADE_COLORS = { RED: '#ff4c6a', YELLOW: '#ffb547', GREEN: '#34d399' }
 const GRADE_GLOW = { RED: 'rgba(255,76,106,0.3)', YELLOW: 'rgba(255,181,71,0.3)', GREEN: 'rgba(52,211,153,0.3)' }
@@ -108,46 +109,43 @@ function SideBySide({ results }) {
 }
 
 export default function Dashboard() {
-  const [brands, setBrands] = useState([])
+  const { selectedBrand, availableBrands, selectedBrandId } = useBrand()
   const [audit, setAudit] = useState(null)
   const [loading, setLoading] = useState(true)
   const [running, setRunning] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    loadData()
-  }, [])
+    if (selectedBrandId) {
+      loadAudit(selectedBrandId)
+    } else {
+      setLoading(false)
+    }
+  }, [selectedBrandId])
 
-  async function loadData() {
+  async function loadAudit(brandId) {
     setLoading(true)
+    setAudit(null)
     try {
-      const brandList = await apiFetch('/brands')
-      setBrands(brandList)
-      if (brandList.length > 0) {
-        try {
-          const results = await apiFetch(`/audits/${brandList[0].id}/results`)
-          setAudit(results)
-        } catch {
-          // No audit yet, that's fine
-        }
-      }
-    } catch (err) {
-      setError(err.message)
+      const results = await apiFetch(`/audits/${brandId}/results`)
+      setAudit(results)
+    } catch {
+      // No audit yet, that's fine
     } finally {
       setLoading(false)
     }
   }
 
   async function exportPdf() {
-    if (!brands.length) return
+    if (!selectedBrand) return
     try {
-      const res = await fetch(`/api/v1/exports/${brands[0].id}/pdf`, { headers: authHeaders() })
+      const res = await fetch(`/api/v1/exports/${selectedBrand.id}/pdf`, { headers: authHeaders() })
       if (!res.ok) throw new Error('PDF export failed')
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `VisiMind-Audit-${brands[0].brand_name}.pdf`
+      a.download = `VisiMind-Audit-${selectedBrand.brand_name}.pdf`
       a.click()
       URL.revokeObjectURL(url)
     } catch (err) {
@@ -156,20 +154,19 @@ export default function Dashboard() {
   }
 
   async function runAudit() {
-    if (!brands.length) return
+    if (!selectedBrand) return
     setRunning(true)
     setError('')
     try {
-      const result = await apiFetch(`/audits/${brands[0].id}/run`, { method: 'POST' })
+      const result = await apiFetch(`/audits/${selectedBrand.id}/run`, { method: 'POST' })
       setAudit({
         audit_id: result.audit_id,
         ias: result.ias,
         revenue_impact: result.revenue_impact,
-        results: [], // Full results not returned inline
+        results: [],
         status: 'completed',
       })
-      // Reload full results
-      const full = await apiFetch(`/audits/${brands[0].id}/results`)
+      const full = await apiFetch(`/audits/${selectedBrand.id}/results`)
       setAudit(full)
     } catch (err) {
       setError(err.message)
@@ -186,7 +183,7 @@ export default function Dashboard() {
     )
   }
 
-  if (!brands.length) {
+  if (!availableBrands.length) {
     return (
       <div className="page">
         <div className="text-center py-20">
@@ -200,7 +197,7 @@ export default function Dashboard() {
     )
   }
 
-  const brand = brands[0]
+  const brand = selectedBrand || availableBrands[0]
   const ias = audit?.ias
   const revenue = audit?.revenue_impact
   const results = audit?.results || []

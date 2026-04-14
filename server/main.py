@@ -35,6 +35,7 @@ from routers.system import router as system_router
 from routers.audits import router as audits_router
 from routers.feeds import router as feeds_router
 from routers.exports import router as exports_router
+from routers.outreach import router as outreach_router
 from middleware.ai_crawler import AICrawlerMiddleware
 
 
@@ -88,6 +89,7 @@ app.include_router(system_router)
 app.include_router(audits_router)
 app.include_router(feeds_router)
 app.include_router(exports_router)
+app.include_router(outreach_router)
 
 
 # ============================================

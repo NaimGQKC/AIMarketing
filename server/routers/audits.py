@@ -134,6 +134,44 @@ async def get_ias_score(brand_id: str, user: dict = Depends(require_user), db: a
     return ias_data
 
 
+@router.get("/aggregate/all")
+async def get_aggregate_audits(user: dict = Depends(require_user), db: aiosqlite.Connection = Depends(get_db)):
+    """Get latest audit scores for all brands owned by this user."""
+    cursor = await db.execute(
+        "SELECT id, brand_name FROM brand_profiles WHERE user_id = ?",
+        (user["id"],),
+    )
+    brands = await cursor.fetchall()
+
+    results = []
+    for brand in brands:
+        cursor = await db.execute(
+            "SELECT id, ias_score, ias_data, created_at FROM audit_results WHERE brand_profile_id = ? ORDER BY created_at DESC LIMIT 1",
+            (brand["id"],),
+        )
+        audit = await cursor.fetchone()
+        ias_data = json.loads(audit["ias_data"]) if audit and audit["ias_data"] else None
+        results.append({
+            "brand_id": brand["id"],
+            "brand_name": brand["brand_name"],
+            "latest_audit": {
+                "audit_id": audit["id"],
+                "ias_score": audit["ias_score"],
+                "grade": ias_data.get("grade") if ias_data else None,
+                "created_at": audit["created_at"],
+            } if audit else None,
+        })
+
+    scored = [r for r in results if r["latest_audit"] and r["latest_audit"]["ias_score"] is not None]
+    avg_score = round(sum(r["latest_audit"]["ias_score"] for r in scored) / len(scored), 1) if scored else 0
+
+    return {
+        "brands": results,
+        "total_brands": len(results),
+        "average_ias": avg_score,
+    }
+
+
 @router.get("/{brand_id}/history")
 async def get_audit_history(brand_id: str, user: dict = Depends(require_user), db: aiosqlite.Connection = Depends(get_db)):
     """Get all audit scores over time for trend display."""

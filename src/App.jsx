@@ -14,6 +14,7 @@ import Diagnose from './pages/Diagnose'
 import Remediate from './pages/Remediate'
 import Verify from './pages/Verify'
 import Roadmap from './pages/Roadmap'
+import Outreach from './pages/Outreach'
 import './App.css'
 
 function AppLayout({ children }) {
@@ -110,6 +111,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <AppLayout><Roadmap /></AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/outreach"
+        element={
+          <ProtectedRoute>
+            <AppLayout><Outreach /></AppLayout>
           </ProtectedRoute>
         }
       />
