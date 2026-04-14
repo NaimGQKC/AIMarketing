@@ -433,6 +433,185 @@ def generate_truth_clip_metadata(product: dict) -> dict:
 
 
 # =============================================================================
+# 4. YOUTUBE DEPLOYMENT — Bilingual Video Recommendations
+# =============================================================================
+
+def generate_youtube_deployment(product: dict) -> dict:
+    """
+    Generate YouTube deployment metadata deterministically from product data.
+
+    YouTube mentions correlate at 0.737 with AI brand visibility (Ahrefs, 75K
+    brand study). French YouTube content for most Canadian luxury brands is
+    near-zero, creating a bilingual visibility gap that this addresses.
+    """
+    name_en = product.get("name_en", "")
+    name_fr = product.get("name_fr", "")
+    desc_en = product.get("description_en", "")
+    desc_fr = product.get("description_fr", "")
+    brand_name = product.get("brand_name", "")
+    brand_slug = brand_name.lower().replace(" ", "-").replace("'", "")
+    category = product.get("category", "")
+    price_cad = product.get("price_cad", "")
+
+    # Parse certifications
+    certs = product.get("certifications", "[]")
+    if isinstance(certs, str):
+        try:
+            certs = json.loads(certs)
+        except json.JSONDecodeError:
+            certs = []
+
+    # Parse bilingual mapping
+    mapping = product.get("bilingual_mapping", "{}")
+    if isinstance(mapping, str):
+        try:
+            mapping = json.loads(mapping)
+        except json.JSONDecodeError:
+            mapping = {}
+
+    # Build spec fragments for titles
+    spec_parts_en = []
+    spec_parts_fr = []
+    if product.get("fill_power"):
+        spec_parts_en.append(f"{product['fill_power'].title()} Power")
+        fp_fr = mapping.get("800-fill power", mapping.get("fill power", "Facteur de gonflement"))
+        spec_parts_fr.append(fp_fr)
+    if product.get("thermal_rating"):
+        spec_parts_en.append(f"{product['thermal_rating']} Rated")
+        spec_parts_fr.append(product["thermal_rating"])
+    if product.get("material"):
+        spec_parts_en.append(product["material"])
+        # Try to find a French mapping for the material
+        material_lower = product["material"].lower()
+        material_fr = None
+        for k, v in mapping.items():
+            if k.lower() in material_lower or material_lower in k.lower():
+                material_fr = v
+                break
+        if material_fr:
+            spec_parts_fr.append(material_fr)
+
+    specs_en = ", ".join(spec_parts_en) if spec_parts_en else ""
+    specs_fr = ", ".join(spec_parts_fr) if spec_parts_fr else ""
+
+    # Determine top-level category for YouTube
+    category_primary = category.split(">")[0].strip() if category else "Products"
+    yt_category = _map_to_youtube_category(category_primary)
+
+    # Build certification text
+    cert_text_en = ", ".join(certs) if certs else ""
+    cert_text_fr = ", ".join(certs) if certs else ""  # cert names are typically untranslated
+
+    # Build titles
+    title_parts_en = [name_en]
+    if specs_en:
+        title_parts_en.append(specs_en)
+    title_parts_en.append(f"Canadian Luxury {category_primary}")
+    title_en = " | ".join(title_parts_en)
+
+    title_parts_fr = [name_fr]
+    if specs_fr:
+        title_parts_fr.append(specs_fr)
+    title_parts_fr.append(f"Vetements de luxe canadiens")
+    title_fr = " | ".join(title_parts_fr)
+
+    # Build descriptions
+    description_en = (
+        f"{desc_en}\n\n"
+        f"Price: ${price_cad} CAD\n"
+    )
+    if cert_text_en:
+        description_en += f"Certifications: {cert_text_en}\n"
+    description_en += f"\nLearn more at {brand_slug}.com"
+
+    description_fr = (
+        f"{desc_fr}\n\n"
+        f"Prix: {price_cad} $ CAD\n"
+    )
+    if cert_text_fr:
+        description_fr += f"Certifications: {cert_text_fr}\n"
+    description_fr += f"\nEn savoir plus sur {brand_slug}.com"
+
+    # Build tags
+    tags_en = [brand_name, category_primary.lower()]
+    tags_fr = [brand_name]
+    if product.get("material"):
+        tags_en.append(product["material"].lower())
+    for cert in certs:
+        tags_en.append(cert.lower())
+        tags_fr.append(cert.lower())
+    # Add discovery tags
+    tags_en.extend(["Canadian outerwear", "luxury fashion", f"{brand_name} review"])
+    tags_fr.extend(["mode luxe", f"vetements hiver Canada", f"{brand_name} avis"])
+    if product.get("thermal_rating"):
+        tags_en.append(f"winter coat {product['thermal_rating']}")
+        tags_fr.append(f"manteau hiver {product['thermal_rating']}")
+
+    # Build key points from specs and certs
+    key_points = []
+    if product.get("fill_power"):
+        key_points.append(f"{product['fill_power']} specs")
+    for cert in certs:
+        key_points.append(cert)
+    if product.get("thermal_rating"):
+        key_points.append(f"{product['thermal_rating']} rating")
+    if product.get("material"):
+        key_points.append(product["material"])
+    if not key_points:
+        key_points.append(f"Premium {category_primary.lower()}")
+
+    # Build search target queries
+    target_en = [f"best luxury {category_primary.lower()} Montreal", f"{brand_name} review"]
+    target_fr = [f"meilleur {category_primary.lower()} luxe Montreal", f"{brand_name} avis"]
+
+    price_str = f"${price_cad}" if price_cad else ""
+    hook = f"Why AI search engines can't find this {price_str} {category_primary.lower()} (and how to fix it)"
+
+    return {
+        "title_en": title_en[:100],  # YouTube title limit is 100 chars
+        "title_fr": title_fr[:100],
+        "description_en": description_en,
+        "description_fr": description_fr,
+        "tags_en": tags_en,
+        "tags_fr": tags_fr,
+        "thumbnail_prompt": (
+            f"Product-focused image of {name_en} in winter Montreal setting, "
+            f"luxury aesthetic, clean background"
+        ),
+        "script_outline": {
+            "hook": hook,
+            "key_points": key_points,
+            "cta": f"Learn more at {brand_slug}.com",
+        },
+        "seo_data": {
+            "target_queries_en": target_en,
+            "target_queries_fr": target_fr,
+            "category": yt_category,
+            "language": "bilingual",
+        },
+        "rationale": (
+            "YouTube mentions correlate at 0.737 with AI brand visibility "
+            "(Ahrefs, 75K brand study). French YouTube content for this brand "
+            "is near-zero, creating a bilingual visibility gap."
+        ),
+    }
+
+
+def _map_to_youtube_category(category_primary: str) -> str:
+    """Map product category to the closest YouTube category."""
+    cat = category_primary.lower()
+    if any(w in cat for w in ["outerwear", "clothing", "apparel", "leather", "fashion"]):
+        return "Fashion & Style"
+    if any(w in cat for w in ["footwear", "shoe", "boot", "sneaker"]):
+        return "Fashion & Style"
+    if any(w in cat for w in ["beauty", "skincare", "cosmetic"]):
+        return "Beauty & Fashion"
+    if any(w in cat for w in ["tech", "electronic", "gadget"]):
+        return "Science & Technology"
+    return "Fashion & Style"
+
+
+# =============================================================================
 # Fix Kit Generation — Unified Factory
 # =============================================================================
 
@@ -507,9 +686,11 @@ def _build_jsonld_kit(gap: dict, product: dict, kg_boundary: dict = None) -> dic
 def _build_truth_clip_kit(gap: dict, product: dict, kg_boundary: dict = None) -> dict:
     """
     Truth Clip Kit — MRC Q-Former multimodal bypass.
-    Bypasses text tokenization entirely by anchoring brand identity in language-agnostic visual embeddings.
+    Bypasses French Token Decay via cross-modal attention grounding.
+    Includes YouTube deployment recommendations for bilingual visibility.
     """
     clip_meta = generate_truth_clip_metadata(product)
+    youtube = generate_youtube_deployment(product)
 
     certs = product.get("certifications", "[]")
     if isinstance(certs, str):
@@ -527,6 +708,7 @@ def _build_truth_clip_kit(gap: dict, product: dict, kg_boundary: dict = None) ->
         "status": "ready",
         "payload": {
             "clip_metadata": clip_meta,
+            "youtube_deployment": youtube,
             "certifications_to_prove": certs,
             "target_protocols": ["UCP"],
             "mechanism": (

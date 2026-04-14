@@ -261,6 +261,18 @@ CREATE TABLE IF NOT EXISTS freshness_cycles (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Crawler Visits (AI bot detection logging)
+CREATE TABLE IF NOT EXISTS crawler_visits (
+    id TEXT PRIMARY KEY,
+    timestamp TEXT,
+    crawler_name TEXT,
+    user_agent TEXT,
+    path TEXT,
+    brand_id TEXT,
+    response_code INTEGER,
+    response_time_ms REAL
+);
+
 -- E-Score History (tracks 0.6 → 1.4+ path)
 CREATE TABLE IF NOT EXISTS e_score_history (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -272,6 +284,53 @@ CREATE TABLE IF NOT EXISTS e_score_history (
     status TEXT,  -- critical_failure | sub_threshold | marginal | strong | optimal
     trigger TEXT,  -- 'audit' | 'raft_cycle' | 'kit_deployment' | 'manual'
     detail TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Users (Auth)
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    company_name TEXT NOT NULL,
+    company_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Brand Profiles (user-created, not the old seeded brands)
+CREATE TABLE IF NOT EXISTS brand_profiles (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    brand_name TEXT NOT NULL,
+    primary_url TEXT,
+    product_category TEXT,
+    top_competitor TEXT,
+    language_pair TEXT DEFAULT 'EN/FR',
+    logo_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Daily Probe Counter
+CREATE TABLE IF NOT EXISTS daily_probe_counter (
+    date TEXT PRIMARY KEY,
+    count INTEGER DEFAULT 0
+);
+
+-- Waitlist
+CREATE TABLE IF NOT EXISTS waitlist (
+    id TEXT PRIMARY KEY,
+    email TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Audit Results (new probe engine)
+CREATE TABLE IF NOT EXISTS audit_results (
+    id TEXT PRIMARY KEY,
+    brand_profile_id TEXT NOT NULL REFERENCES brand_profiles(id),
+    status TEXT NOT NULL DEFAULT 'running',
+    results TEXT,  -- JSON array of probe results
+    ias_score INTEGER,
+    ias_data TEXT,  -- JSON: full IAS breakdown
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 """

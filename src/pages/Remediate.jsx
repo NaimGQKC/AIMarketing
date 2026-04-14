@@ -1,348 +1,578 @@
-import { useState, useEffect } from 'react'
-import { Cpu, FileJson, Film, Rocket, ChevronRight, Check, ChevronDown, ChevronUp, Shield, GitBranch, Zap } from 'lucide-react'
-import { useLanguage } from '../context/LanguageContext'
-import GlassCard from '../components/GlassCard'
-import StatusBadge from '../components/StatusBadge'
+import { useState, useEffect, useCallback } from 'react'
+import { motion } from 'framer-motion'
+import {
+  Code2,
+  FileJson,
+  Shield,
+  Copy,
+  Download,
+  Check,
+  X,
+  Loader2,
+  ExternalLink,
+  Bot,
+} from 'lucide-react'
+import { apiFetch } from '../api/client'
 import { useBrand } from '../context/BrandContext'
-import api from '../api/client'
-import './Remediate.css'
 
-const typeIcons = { hardAttributes: Cpu, jsonLd: FileJson, truthClip: Film }
-const typeColors = { hardAttributes: 'cyan', jsonLd: 'lavender', truthClip: 'green' }
+/* ------------------------------------------------------------------ */
+/*  Fix Kit Page (Screen 4) - MCP Feed, JSON-LD, robots.txt panels    */
+/* ------------------------------------------------------------------ */
 
-const typeLabels = {
-  hardAttributes: 'DPO Constraint Decoding',
-  jsonLd: 'Deterministic @graph Schema',
-  truthClip: 'MRC Q-Former Truth Clip',
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.08, duration: 0.45, ease: 'easeOut' },
+  }),
 }
 
-const typeMechanisms = {
-  hardAttributes: 'P(contradictory_token) = 0 — eliminates E1 Semantic Override errors',
-  jsonLd: 'Deterministic @graph ID overrides heuristic text-generation-inference parsers',
-  truthClip: 'Bypasses text tokenization entirely by anchoring brand identity in language-agnostic visual embeddings',
+/* ---------- tiny helpers ---------- */
+function StatusBadge({ status }) {
+  const map = {
+    deployed: {
+      bg: 'bg-emerald-500/15',
+      text: 'text-emerald-400',
+      dot: 'bg-emerald-400',
+      label: 'Deployed',
+    },
+    pending: {
+      bg: 'bg-amber-500/15',
+      text: 'text-amber-400',
+      dot: 'bg-amber-400',
+      label: 'Pending',
+    },
+    verified: {
+      bg: 'bg-emerald-500/15',
+      text: 'text-emerald-400',
+      dot: 'bg-emerald-400',
+      label: 'Verified',
+    },
+    not_deployed: {
+      bg: 'bg-white/[0.06]',
+      text: 'text-[#8b95b0]',
+      dot: 'bg-[#8b95b0]',
+      label: 'Not deployed',
+    },
+  }
+  const s = map[status] || map.not_deployed
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.68rem] font-semibold ${s.bg} ${s.text}`}
+    >
+      <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+      {s.label}
+    </span>
+  )
 }
 
+function CopyButton({ text }) {
+  const [copied, setCopied] = useState(false)
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }, [text])
+  return (
+    <button
+      onClick={handleCopy}
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.06] hover:bg-white/[0.1] text-[#c4ccde] transition-colors cursor-pointer"
+    >
+      {copied ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+      {copied ? 'Copied' : 'Copy URL'}
+    </button>
+  )
+}
+
+/* ---------- Panel wrapper ---------- */
+function Panel({ icon: Icon, title, children, index }) {
+  return (
+    <motion.div
+      className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6"
+      variants={fadeUp}
+      initial="hidden"
+      animate="visible"
+      custom={index}
+    >
+      <div className="flex items-center gap-2.5 mb-5">
+        <Icon size={18} className="text-[#00e5ff]" />
+        <h3 className="text-lg font-['Outfit'] font-bold text-white">{title}</h3>
+      </div>
+      {children}
+    </motion.div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  JSON-LD tab names                                                  */
+/* ------------------------------------------------------------------ */
+const JSONLD_TABS = [
+  { key: 'organization', label: 'Organization' },
+  { key: 'local_business', label: 'Local Business' },
+  { key: 'faq', label: 'FAQ' },
+]
+
+/* ================================================================== */
+/*  Main Component                                                     */
+/* ================================================================== */
 export default function Remediate() {
-  const { t } = useLanguage()
+  /* --- brand context --- */
   const { selectedBrandId } = useBrand()
-  const [fixKits, setFixKits] = useState([])
-  const [selectedKit, setSelectedKit] = useState(null)
-  const [kitPreview, setKitPreview] = useState(null)
-  const [deploying, setDeploying] = useState(false)
-  const [deployed, setDeployed] = useState({})
-  const [progress, setProgress] = useState(0)
-  const [comparison, setComparison] = useState({ before: null, after: null })
-  const [loading, setLoading] = useState(true)
-  const [expandDPO, setExpandDPO] = useState(false)
-  const [expandGraph, setExpandGraph] = useState(false)
-  const [expandClip, setExpandClip] = useState(false)
+  const brandId = selectedBrandId
 
+  /* --- shared state --- */
+  const [loading, setLoading] = useState(!brandId)
+  const [error, setError] = useState(null)
+
+  /* --- MCP Feed --- */
+  const [mcpPreview, setMcpPreview] = useState(null)
+  const [mcpValid, setMcpValid] = useState(false)
+  const [mcpDeploying, setMcpDeploying] = useState(false)
+  const [mcpStatus, setMcpStatus] = useState('not_deployed')
+
+  /* --- JSON-LD --- */
+  const [jsonLdData, setJsonLdData] = useState(null)
+  const [jsonLdTab, setJsonLdTab] = useState('organization')
+  const [jsonLdStatus, setJsonLdStatus] = useState('not_deployed')
+
+  /* --- robots.txt --- */
+  const [robotsUrl, setRobotsUrl] = useState('')
+  const [robotsScanning, setRobotsScanning] = useState(false)
+  const [robotsResult, setRobotsResult] = useState(null)
+  const [robotsStatus, setRobotsStatus] = useState('not_deployed')
+
+  /* ---- fetch MCP + JSON-LD once brandId is known ---- */
   useEffect(() => {
-    async function fetchData() {
+    if (!brandId) return
+    let cancelled = false
+
+    async function fetchFeeds() {
       try {
-        const [kitsData, compareData] = await Promise.all([
-          api.remediate.kits(selectedBrandId),
-          api.remediate.compare(),
+        const [mcp, jld] = await Promise.all([
+          apiFetch(`/feeds/${brandId}/mcp/preview`).catch(() => null),
+          apiFetch(`/feeds/${brandId}/jsonld`).catch(() => null),
         ])
-        if (kitsData) {
-          setFixKits(kitsData)
-          if (kitsData[0]) {
-            setSelectedKit(kitsData[0])
-          }
+        if (cancelled) return
+        if (mcp) {
+          setMcpPreview(mcp)
+          setMcpValid(true)
         }
-        if (compareData) {
-          setComparison(compareData)
+        if (jld) {
+          setJsonLdData(jld)
         }
-      } catch (err) {
-        console.error('Failed to fetch remediate data:', err)
-      } finally {
-        setLoading(false)
+      } catch {
+        // individual catches above handle per-request errors
       }
     }
-    fetchData()
-  }, [selectedBrandId])
+    fetchFeeds()
+    return () => { cancelled = true }
+  }, [brandId])
 
-  // Fetch full preview when kit is selected
-  useEffect(() => {
-    if (!selectedKit) return
-    async function fetchPreview() {
-      const preview = await api.remediate.preview(selectedKit.id)
-      if (preview) setKitPreview(preview)
+  /* ---- handlers ---- */
+  const handleDeployMcp = useCallback(async () => {
+    if (!brandId) return
+    setMcpDeploying(true)
+    try {
+      await apiFetch(`/feeds/${brandId}/mcp/deploy`, { method: 'POST' })
+      setMcpStatus('deployed')
+    } catch {
+      // silently keep current status
+    } finally {
+      setMcpDeploying(false)
     }
-    fetchPreview()
-  }, [selectedKit?.id])
+  }, [brandId])
 
-  const handleDeploy = (kitId) => {
-    setDeploying(true)
-    setProgress(0)
-    api.remediate.deploy(kitId)
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          setDeploying(false)
-          setDeployed(d => ({ ...d, [kitId]: true }))
-          return 100
-        }
-        return prev + 2
+  const handleDownloadJsonLd = useCallback(() => {
+    if (!jsonLdData) return
+    const blob = new Blob([JSON.stringify(jsonLdData, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `jsonld-patches-${brandId}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+    setJsonLdStatus('pending')
+  }, [jsonLdData, brandId])
+
+  const handleScanRobots = useCallback(async () => {
+    if (!brandId || !robotsUrl.trim()) return
+    setRobotsScanning(true)
+    setRobotsResult(null)
+    try {
+      const result = await apiFetch(`/feeds/${brandId}/robots-check`, {
+        method: 'POST',
+        body: JSON.stringify({ url: robotsUrl.trim() }),
       })
-    }, 40)
+      setRobotsResult(result)
+      if (result?.blocked_bots?.length === 0) {
+        setRobotsStatus('verified')
+      } else {
+        setRobotsStatus('pending')
+      }
+    } catch {
+      setRobotsResult({ error: 'Failed to scan robots.txt. Check the URL and try again.' })
+    } finally {
+      setRobotsScanning(false)
+    }
+  }, [brandId, robotsUrl])
+
+  /* ---- feed URL (for copy) ---- */
+  const mcpFeedUrl = brandId
+    ? `${window.location.origin}/api/v1/feeds/${brandId}/mcp.json`
+    : ''
+
+  /* ================================================================ */
+  /*  Loading / Error states                                           */
+  /* ================================================================ */
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#060a14] flex items-center justify-center">
+        <Loader2 size={28} className="animate-spin text-[#00e5ff]" />
+      </div>
+    )
   }
 
-  if (loading) return <div className="page" style={{ padding: '2rem' }}>Loading Remediation...</div>
-
-  return (
-    <div className="page">
-      <div className="page-header fade-in-up">
-        <h1>{t('remediateTitle')}</h1>
-        <p>{t('remediateSubtitle')}</p>
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#060a14] flex items-center justify-center">
+        <p className="text-red-400 text-sm">{error}</p>
       </div>
+    )
+  }
 
-      <div className="remediate-layout">
-        {/* Fix Kit Cards */}
-        <div className="fix-kits-column fade-in-up fade-in-up-delay-1">
-          <h3>{t('fixKits')}</h3>
-          <div className="fix-kits-list">
-            {fixKits.map((kit) => {
-              const Icon = typeIcons[kit.type]
-              const color = typeColors[kit.type]
-              const isSelected = selectedKit?.id === kit.id
-              const isDone = deployed[kit.id]
+  /* ================================================================ */
+  /*  Render                                                           */
+  /* ================================================================ */
+  return (
+    <div className="min-h-screen bg-[#060a14] text-white px-6 py-10 lg:px-10">
+      {/* Page header */}
+      <motion.div
+        className="mb-10"
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <h1 className="text-3xl font-['Outfit'] font-bold mb-1">Fix Kit</h1>
+        <p className="text-[#8b95b0] text-sm">
+          Deploy structured feeds, JSON-LD patches, and crawler policies to
+          control how AI models represent your brand.
+        </p>
+      </motion.div>
 
-              return (
-                <GlassCard
-                  key={kit.id}
-                  className={`fix-kit-card ${isSelected ? 'fix-kit-selected' : ''}`}
-                  glow={color}
-                  onClick={() => setSelectedKit(kit)}
-                >
-                  <div className="fix-kit-header">
-                    <div className={`fix-kit-icon icon-${color}`}>
-                      <Icon size={18} />
-                    </div>
-                    {isDone ? (
-                      <StatusBadge status="deployed" label={t('deployed')} />
-                    ) : (
-                      <StatusBadge status={kit.status} label={kit.status} />
-                    )}
-                  </div>
-                  <div className="fix-kit-type">{typeLabels[kit.type] || t(kit.type)}</div>
-                  <div className="fix-kit-brand">{kit.brand}</div>
-                  <div className="fix-kit-product">{kit.product}</div>
-                  <p className="fix-kit-impact">{kit.impact}</p>
-                  <div className="fix-kit-mechanism">
-                    <Shield size={10} style={{ opacity: 0.5 }} />
-                    <span>{typeMechanisms[kit.type]}</span>
-                  </div>
-                  {isSelected && <ChevronRight size={16} className="fix-kit-arrow" />}
-                </GlassCard>
-              )
-            })}
+      {/* ---- Status row ---- */}
+      <motion.div
+        className="flex flex-wrap gap-4 mb-8"
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        custom={0}
+      >
+        {[
+          { label: 'MCP Feed', status: mcpStatus, icon: Code2 },
+          { label: 'JSON-LD', status: jsonLdStatus, icon: FileJson },
+          { label: 'robots.txt', status: robotsStatus, icon: Shield },
+        ].map(({ label, status, icon: Ic }) => (
+          <div
+            key={label}
+            className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5"
+          >
+            <Ic size={15} className="text-[#00e5ff]" />
+            <span className="text-sm text-[#c4ccde] font-medium">{label}</span>
+            <StatusBadge status={status} />
           </div>
-        </div>
+        ))}
+      </motion.div>
 
-        {/* Preview Panel */}
-        <div className="preview-column fade-in-up fade-in-up-delay-2">
-          {selectedKit && (
-            <>
-              <h3>{t('preview')} — {selectedKit.brand} {selectedKit.product}</h3>
+      {/* ---- Panels grid ---- */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* ====================================================== */}
+        {/*  1. MCP Feed Panel                                      */}
+        {/* ====================================================== */}
+        <Panel icon={Code2} title="MCP Feed" index={1}>
+          {/* Feed URL + copy */}
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <code className="text-[0.7rem] text-[#8b95b0] bg-[#0a0e1a] px-3 py-1.5 rounded-lg truncate max-w-md">
+              {mcpFeedUrl || 'No brand selected'}
+            </code>
+            {mcpFeedUrl && <CopyButton text={mcpFeedUrl} />}
+          </div>
 
-              {/* === HARD ATTRIBUTES — DPO Constraint Set === */}
-              {selectedKit.type === 'hardAttributes' && (
-                <>
-                  <GlassCard className="preview-card">
-                    <div className="preview-label">
-                      <Cpu size={14} style={{ color: 'var(--cyan)' }} />
-                      DPO Hard Attribute Constraints
-                    </div>
-                    <div className="dpo-summary">
-                      <div className="dpo-stat">
-                        <span className="dpo-stat-label">Method</span>
-                        <span className="dpo-stat-value">Direct Preference Optimization</span>
-                      </div>
-                      <div className="dpo-stat">
-                        <span className="dpo-stat-label">Error Target</span>
-                        <span className="dpo-stat-value" style={{ color: 'var(--coral)' }}>E1 Semantic Override</span>
-                      </div>
-                      <div className="dpo-stat">
-                        <span className="dpo-stat-label">Enforcement</span>
-                        <span className="dpo-stat-value" style={{ color: 'var(--cyan)' }}>P(contradiction) = 0</span>
-                      </div>
-                      {kitPreview?.dpo_constraints && (
-                        <div className="dpo-stat">
-                          <span className="dpo-stat-label">CSR</span>
-                          <span className="dpo-stat-value">{kitPreview.dpo_constraints.contextual_success_rate}</span>
-                        </div>
-                      )}
-                    </div>
+          {/* Validation badge */}
+          <div className="flex items-center gap-2 mb-4">
+            {mcpValid ? (
+              <span className="inline-flex items-center gap-1.5 text-emerald-400 text-xs font-medium">
+                <Check size={14} /> Valid JSON
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 text-[#8b95b0] text-xs font-medium">
+                <Loader2 size={14} className="animate-spin" /> Loading preview...
+              </span>
+            )}
+          </div>
 
-                    {/* Constraint list */}
-                    {kitPreview?.dpo_constraints?.constraints && (
-                      <div className="constraints-list">
-                        {kitPreview.dpo_constraints.constraints.map((c, i) => (
-                          <div key={i} className="constraint-row">
-                            <span className="constraint-id">{c.id}</span>
-                            <span className="constraint-attr">{c.attribute}</span>
-                            <span className="constraint-val">{c.required_value}</span>
-                            <span className="constraint-badge">HARD</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </GlassCard>
+          {/* JSON preview */}
+          <pre className="bg-[#0a0e1a] rounded-xl p-4 font-mono text-xs text-[#8b95b0] overflow-auto max-h-80 mb-5 whitespace-pre-wrap">
+            {mcpPreview
+              ? JSON.stringify(mcpPreview, null, 2)
+              : '// Waiting for MCP feed data...'}
+          </pre>
 
-                  {/* Expandable raw payload */}
-                  <button className="expand-toggle" onClick={() => setExpandDPO(!expandDPO)}>
-                    <span>Full DPO Payload</span>
-                    {expandDPO ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                  </button>
-                  {expandDPO && (
-                    <GlassCard className="preview-card">
-                      <pre className="json-preview">
-                        <code>{JSON.stringify(kitPreview?.dpo_constraints || selectedKit.payload, null, 2)}</code>
-                      </pre>
-                    </GlassCard>
-                  )}
-                </>
-              )}
+          {/* Deploy button */}
+          <button
+            onClick={handleDeployMcp}
+            disabled={mcpDeploying || mcpStatus === 'deployed'}
+            className="inline-flex items-center gap-2 bg-[#00e5ff] text-[#0a0e1a] font-semibold rounded-xl px-5 py-2.5 text-sm hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            {mcpDeploying ? (
+              <>
+                <Loader2 size={15} className="animate-spin" />
+                Deploying...
+              </>
+            ) : mcpStatus === 'deployed' ? (
+              <>
+                <Check size={15} />
+                Deployed
+              </>
+            ) : (
+              <>
+                <ExternalLink size={15} />
+                Deploy MCP Feed
+              </>
+            )}
+          </button>
+        </Panel>
 
-              {/* === JSON-LD — Deterministic @graph === */}
-              {selectedKit.type === 'jsonLd' && (
-                <>
-                  <GlassCard className="preview-card">
-                    <div className="preview-label">
-                      <GitBranch size={14} style={{ color: 'var(--lavender)' }} />
-                      Deterministic @graph Schema
-                    </div>
-                    <div className="graph-summary">
-                      {kitPreview?.graph?.['@graph'] && (
-                        <div className="graph-nodes">
-                          {kitPreview.graph['@graph'].map((node, i) => (
-                            <div key={i} className="graph-node">
-                              <span className="graph-node-type">{node['@type']}</span>
-                              <span className="graph-node-id">{node['@id']}</span>
-                              <span className="graph-node-name">{node.name || ''}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </GlassCard>
+        {/* ====================================================== */}
+        {/*  2. JSON-LD Panel                                       */}
+        {/* ====================================================== */}
+        <Panel icon={FileJson} title="JSON-LD Structured Data" index={2}>
+          {/* Tabs */}
+          <div className="flex gap-1 mb-5 bg-white/[0.04] rounded-xl p-1">
+            {JSONLD_TABS.map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setJsonLdTab(key)}
+                className={`flex-1 text-xs font-semibold py-2 rounded-lg transition-colors cursor-pointer ${
+                  jsonLdTab === key
+                    ? 'bg-[#00e5ff]/15 text-[#00e5ff]'
+                    : 'text-[#8b95b0] hover:text-white'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
 
-                  <button className="expand-toggle" onClick={() => setExpandGraph(!expandGraph)}>
-                    <span>Full @graph JSON-LD</span>
-                    {expandGraph ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                  </button>
-                  {expandGraph && (
-                    <GlassCard className="preview-card">
-                      <pre className="json-preview">
-                        <code>{JSON.stringify(kitPreview?.graph || selectedKit.payload, null, 2)}</code>
-                      </pre>
-                    </GlassCard>
-                  )}
-                </>
-              )}
-
-              {/* === TRUTH CLIP — MRC Q-Former === */}
-              {selectedKit.type === 'truthClip' && (
-                <>
-                  <GlassCard className="preview-card">
-                    <div className="preview-label">
-                      <Film size={14} style={{ color: 'var(--green)' }} />
-                      MRC Q-Former Truth Clip
-                    </div>
-                    <div className="clip-summary">
-                      <div className="clip-stat">
-                        <span className="clip-stat-label">Architecture</span>
-                        <span className="clip-stat-value">Multi-Resolution Causal Q-Former</span>
-                      </div>
-                      <div className="clip-stat">
-                        <span className="clip-stat-label">Duration</span>
-                        <span className="clip-stat-value">15s (3 x 5s segments)</span>
-                      </div>
-                      <div className="clip-stat">
-                        <span className="clip-stat-label">Bypass</span>
-                        <span className="clip-stat-value" style={{ color: 'var(--green)' }}>Tokenization Premium</span>
-                      </div>
-                      <div className="clip-stat">
-                        <span className="clip-stat-label">Mechanism</span>
-                        <span className="clip-stat-value">Cross-modal attention → visual embeddings</span>
-                      </div>
-                    </div>
-
-                    {/* Temporal segments */}
-                    {kitPreview?.truth_clip?.hasPart && (
-                      <div className="clip-segments">
-                        {kitPreview.truth_clip.hasPart.map((seg, i) => (
-                          <div key={i} className="clip-segment">
-                            <div className="clip-seg-time">
-                              {seg.startOffset}s — {seg.endOffset}s
-                            </div>
-                            <div className="clip-seg-name">{seg.name}</div>
-                            <div className="clip-seg-desc">{seg.description}</div>
-                            {seg['visimind:qformerResolution'] && (
-                              <div className="clip-seg-meta">
-                                <span className="clip-seg-tag">{seg['visimind:featureType']}</span>
-                                <span className="clip-seg-budget">{seg['visimind:attentionBudget']}</span>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </GlassCard>
-
-                  <button className="expand-toggle" onClick={() => setExpandClip(!expandClip)}>
-                    <span>Full Truth Clip Metadata</span>
-                    {expandClip ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                  </button>
-                  {expandClip && (
-                    <GlassCard className="preview-card">
-                      <pre className="json-preview">
-                        <code>{JSON.stringify(kitPreview?.truth_clip || selectedKit.payload, null, 2)}</code>
-                      </pre>
-                    </GlassCard>
-                  )}
-                </>
-              )}
-
-              {/* Before/After */}
-              {comparison.before && comparison.after && (
-                <>
-                  <h3 style={{ marginTop: 'var(--space-xl)' }}>{t('beforeAfter')}</h3>
-                  <div className="before-after">
-                    <GlassCard className="before-card">
-                      <div className="ba-header ba-before">Before — Passive Data</div>
-                      <pre className="ba-code"><code>{JSON.stringify(comparison.before, null, 2)}</code></pre>
-                    </GlassCard>
-                    <GlassCard className="after-card">
-                      <div className="ba-header ba-after">After — Active Entity Integrity</div>
-                      <pre className="ba-code"><code>{JSON.stringify(comparison.after, null, 2)}</code></pre>
-                    </GlassCard>
-                  </div>
-                </>
-              )}
-
-              {/* Deploy Button */}
-              <div className="deploy-section">
-                {deploying ? (
-                  <div className="deploy-progress">
-                    <div className="deploy-progress-bar" style={{ width: `${progress}%` }} />
-                    <span className="deploy-progress-text">{t('deploying')} {progress}%</span>
-                  </div>
-                ) : deployed[selectedKit.id] ? (
-                  <button className="btn btn-primary deploy-btn" disabled>
-                    <Check size={16} /> {t('deployed')}
-                  </button>
-                ) : (
-                  <button className="btn btn-primary deploy-btn" onClick={() => handleDeploy(selectedKit.id)}>
-                    <Rocket size={16} /> {t('deployFix')}
-                  </button>
-                )}
+          {/* Before / After comparison */}
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            {/* Before */}
+            <div>
+              <div className="text-[0.65rem] font-bold uppercase tracking-wider text-red-400/80 mb-2">
+                Current
               </div>
-            </>
+              <pre className="bg-[#0a0e1a] rounded-xl p-4 font-mono text-xs text-[#8b95b0] overflow-auto max-h-52 whitespace-pre-wrap">
+                {jsonLdData?.current?.[jsonLdTab]
+                  ? JSON.stringify(jsonLdData.current[jsonLdTab], null, 2)
+                  : '// No existing structured data'}
+              </pre>
+            </div>
+            {/* After */}
+            <div>
+              <div className="text-[0.65rem] font-bold uppercase tracking-wider text-emerald-400/80 mb-2">
+                Generated
+              </div>
+              <pre className="bg-[#0a0e1a] rounded-xl p-4 font-mono text-xs text-[#00e5ff]/70 overflow-auto max-h-52 whitespace-pre-wrap">
+                {jsonLdData?.generated?.[jsonLdTab]
+                  ? JSON.stringify(jsonLdData.generated[jsonLdTab], null, 2)
+                  : '// Generating...'}
+              </pre>
+            </div>
+          </div>
+
+          {/* Download button */}
+          <button
+            onClick={handleDownloadJsonLd}
+            disabled={!jsonLdData}
+            className="inline-flex items-center gap-2 bg-[#00e5ff] text-[#0a0e1a] font-semibold rounded-xl px-5 py-2.5 text-sm hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            <Download size={15} />
+            Download Patches
+          </button>
+        </Panel>
+
+        {/* ====================================================== */}
+        {/*  3. robots.txt Panel                                    */}
+        {/* ====================================================== */}
+        <Panel icon={Shield} title="robots.txt Scanner" index={3}>
+          {/* URL input + scan */}
+          <div className="flex gap-2 mb-5">
+            <input
+              type="url"
+              value={robotsUrl}
+              onChange={(e) => setRobotsUrl(e.target.value)}
+              placeholder="https://example.com"
+              className="flex-1 bg-[#0a0e1a] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-[#8b95b0]/60 focus:outline-none focus:border-[#00e5ff]/40 transition-colors"
+            />
+            <button
+              onClick={handleScanRobots}
+              disabled={robotsScanning || !robotsUrl.trim()}
+              className="inline-flex items-center gap-2 bg-[#00e5ff] text-[#0a0e1a] font-semibold rounded-xl px-5 py-2.5 text-sm hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {robotsScanning ? (
+                <Loader2 size={15} className="animate-spin" />
+              ) : (
+                <Bot size={15} />
+              )}
+              Scan
+            </button>
+          </div>
+
+          {/* Results */}
+          {robotsResult && !robotsResult.error && (
+            <div className="space-y-4">
+              {/* Bot list */}
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-[#c4ccde] uppercase tracking-wider mb-2">
+                  AI Bot Access
+                </p>
+                {robotsResult.bots?.map((bot) => (
+                  <div
+                    key={bot.name}
+                    className="flex items-center justify-between bg-white/[0.03] border border-white/[0.05] rounded-lg px-4 py-2.5"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Bot size={14} className="text-[#8b95b0]" />
+                      <span className="text-sm text-white font-medium">{bot.name}</span>
+                    </div>
+                    {bot.allowed ? (
+                      <span className="inline-flex items-center gap-1 text-emerald-400 text-xs font-semibold">
+                        <Check size={13} /> Allowed
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-red-400 text-xs font-semibold">
+                        <X size={13} /> Blocked
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Recommendation text */}
+              {robotsResult.recommendation && (
+                <div className="bg-amber-500/8 border border-amber-500/15 rounded-xl p-4">
+                  <p className="text-xs text-amber-300/90 leading-relaxed">
+                    {robotsResult.recommendation}
+                  </p>
+                </div>
+              )}
+
+              {/* Recommended robots.txt */}
+              {robotsResult.blocked_bots?.length > 0 &&
+                robotsResult.recommended_robots_txt && (
+                  <div>
+                    <p className="text-xs font-semibold text-[#c4ccde] uppercase tracking-wider mb-2">
+                      Recommended robots.txt
+                    </p>
+                    <pre className="bg-[#0a0e1a] rounded-xl p-4 font-mono text-xs text-[#8b95b0] overflow-auto max-h-60 whitespace-pre-wrap">
+                      {robotsResult.recommended_robots_txt}
+                    </pre>
+                  </div>
+                )}
+            </div>
           )}
-        </div>
+
+          {/* Error state */}
+          {robotsResult?.error && (
+            <div className="bg-red-500/8 border border-red-500/15 rounded-xl p-4">
+              <p className="text-xs text-red-400 leading-relaxed">{robotsResult.error}</p>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!robotsResult && !robotsScanning && (
+            <div className="text-center py-8">
+              <Shield size={28} className="mx-auto text-[#8b95b0]/40 mb-3" />
+              <p className="text-xs text-[#8b95b0]">
+                Enter a URL above to scan its robots.txt for AI crawler policies.
+              </p>
+            </div>
+          )}
+        </Panel>
+
+        {/* ====================================================== */}
+        {/*  4. Deployment Status Panel                             */}
+        {/* ====================================================== */}
+        <Panel icon={Check} title="Deployment Status" index={4}>
+          <div className="space-y-4">
+            {[
+              {
+                label: 'MCP Feed',
+                icon: Code2,
+                status: mcpStatus,
+                description: 'Structured feed for AI model consumption',
+              },
+              {
+                label: 'JSON-LD Patches',
+                icon: FileJson,
+                status: jsonLdStatus,
+                description: 'Organization, LocalBusiness, and FAQ schemas',
+              },
+              {
+                label: 'robots.txt Policy',
+                icon: Shield,
+                status: robotsStatus,
+                description: 'AI crawler access rules',
+              },
+            ].map(({ label, icon: Ic, status, description }) => (
+              <div
+                key={label}
+                className="flex items-center justify-between bg-white/[0.03] border border-white/[0.05] rounded-xl px-5 py-4"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-white/[0.05] flex items-center justify-center">
+                    <Ic size={16} className="text-[#00e5ff]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{label}</p>
+                    <p className="text-[0.7rem] text-[#8b95b0]">{description}</p>
+                  </div>
+                </div>
+                <StatusBadge status={status} />
+              </div>
+            ))}
+          </div>
+
+          {/* Summary bar */}
+          <div className="mt-6 pt-5 border-t border-white/[0.06]">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-[#8b95b0]">Overall readiness</span>
+              <span className="text-xs font-semibold text-white">
+                {
+                  [mcpStatus, jsonLdStatus, robotsStatus].filter(
+                    (s) => s === 'deployed' || s === 'verified'
+                  ).length
+                }{' '}
+                / 3 active
+              </span>
+            </div>
+            <div className="mt-2 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-[#00e5ff] to-emerald-400 rounded-full transition-all duration-500"
+                style={{
+                  width: `${
+                    ([mcpStatus, jsonLdStatus, robotsStatus].filter(
+                      (s) => s === 'deployed' || s === 'verified'
+                    ).length /
+                      3) *
+                    100
+                  }%`,
+                }}
+              />
+            </div>
+          </div>
+        </Panel>
       </div>
     </div>
   )

@@ -40,7 +40,7 @@ export default function Header() {
             <option value="all">{t('allBrands') || 'All Brands'}</option>
             {availableBrands.map((brand) => (
               <option key={brand.id} value={brand.id}>
-                {brand.name}
+                {brand.brand_name || brand.name}
               </option>
             ))}
           </select>

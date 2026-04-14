@@ -9,11 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "framer-motion": "^12.38.0",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.0",
-    "recharts": "^2.15.0"
+    "recharts": "^2.15.0",
+    "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",

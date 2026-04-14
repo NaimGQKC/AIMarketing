@@ -5,6 +5,41 @@
  */
 
 const BASE = ''  // Same origin via Vite proxy
+const API_BASE = '/api/v1'
+
+/* ─── Auth token helpers ─── */
+export function getToken() {
+  return localStorage.getItem('visimind_token')
+}
+
+export function setToken(token) {
+  localStorage.setItem('visimind_token', token)
+}
+
+export function clearToken() {
+  localStorage.removeItem('visimind_token')
+}
+
+export function authHeaders() {
+  const token = getToken()
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
+export async function apiFetch(path, options = {}) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+      ...options.headers,
+    },
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'Request failed' }))
+    throw new Error(err.detail || 'Request failed')
+  }
+  return res.json()
+}
 
 async function request(endpoint, options = {}) {
   try {

@@ -13,7 +13,7 @@ from database import get_db
 from engines.bilingual_bridge import inject_bilingual_context
 from engines.remediation import (
     build_deterministic_graph, build_dpo_constraint_set,
-    generate_truth_clip_metadata,
+    generate_truth_clip_metadata, generate_youtube_deployment,
 )
 
 router = APIRouter(prefix="/api/remediate", tags=["remediate"])
@@ -229,4 +229,47 @@ async def get_brand_graph(brand_id: str, db: aiosqlite.Connection = Depends(get_
         "brand_id": brand_id,
         "product_count": len(graphs),
         "graphs": graphs,
+    }
+
+
+@router.get("/youtube-recommendations/{brand_id}")
+async def get_youtube_recommendations(brand_id: str, db: aiosqlite.Connection = Depends(get_db)):
+    """
+    YouTube video deployment recommendations for all products of a brand.
+
+    Each recommendation includes bilingual titles, descriptions, tags, a
+    thumbnail prompt, a script outline, and SEO data. YouTube mentions
+    correlate at 0.737 with AI brand visibility (Ahrefs, 75K brand study).
+    """
+    cursor = await db.execute(
+        "SELECT p.*, b.name as brand_name FROM products p JOIN brands b ON p.brand_id = b.id WHERE b.id = ?",
+        (brand_id,),
+    )
+    products = await cursor.fetchall()
+
+    if not products:
+        return {"error": "No products found for brand", "brand_id": brand_id}
+
+    recommendations = []
+    for p in products:
+        product = dict(p)
+        product["brand_name"] = p["brand_name"]
+        yt = generate_youtube_deployment(product)
+        recommendations.append({
+            "product_id": product["id"],
+            "product_name_en": product["name_en"],
+            "product_name_fr": product.get("name_fr", ""),
+            "youtube_deployment": yt,
+        })
+
+    return {
+        "brand_id": brand_id,
+        "brand_name": products[0]["brand_name"],
+        "total_recommendations": len(recommendations),
+        "rationale": (
+            "YouTube mentions correlate at 0.737 with AI brand visibility "
+            "(Ahrefs, 75K brand study). French YouTube content for this brand "
+            "is near-zero, creating a bilingual visibility gap."
+        ),
+        "recommendations": recommendations,
     }

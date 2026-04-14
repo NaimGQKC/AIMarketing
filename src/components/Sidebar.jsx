@@ -1,19 +1,25 @@
-import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Plug, Stethoscope, Cpu, ShieldCheck, Map, Languages, Zap } from 'lucide-react'
-import { useLanguage } from '../context/LanguageContext'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { LayoutDashboard, Wrench, Activity, User, LogOut, Zap, Mail } from 'lucide-react'
+import { clearToken } from '../api/client'
 import './Sidebar.css'
 
-const navItems = [
-  { to: '/', icon: LayoutDashboard, key: 'dashboard' },
-  { to: '/connect', icon: Plug, key: 'connect' },
-  { to: '/diagnose', icon: Stethoscope, key: 'diagnose' },
-  { to: '/remediate', icon: Cpu, key: 'remediate' },
-  { to: '/verify', icon: ShieldCheck, key: 'verify' },
-  { to: '/roadmap', icon: Map, key: 'roadmap' },
+const dashboardItems = [
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Audit' },
+]
+
+const agentItems = [
+  { to: '/fixkit', icon: Wrench, label: 'Fix Kit' },
+  { to: '/monitor', icon: Activity, label: 'Monitor' },
+  { to: '/outreach', icon: Mail, label: 'Outreach' },
 ]
 
 export default function Sidebar() {
-  const { t, lang, toggleLang } = useLanguage()
+  const navigate = useNavigate()
+
+  const handleSignOut = () => {
+    clearToken()
+    navigate('/')
+  }
 
   return (
     <aside className="sidebar">
@@ -23,32 +29,46 @@ export default function Sidebar() {
         </div>
         <div className="logo-text">
           <span className="logo-name">VisiMind</span>
-          <span className="logo-tag">AI Remediation Layer</span>
+          <span className="logo-tag">AI Visibility Platform</span>
         </div>
       </div>
 
       <nav className="sidebar-nav">
-        <div className="nav-label">WORKFLOW</div>
-        {navItems.map((item, i) => (
+        <div className="nav-label">DASHBOARD</div>
+        {dashboardItems.map((item) => (
           <NavLink
-            key={item.key}
+            key={item.to}
             to={item.to}
-            end={item.to === '/'}
             className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
           >
             <item.icon size={18} />
-            <span>{t(item.key)}</span>
-            {i > 0 && <span className="nav-step">{i}</span>}
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
+
+        <div className="nav-label" style={{ marginTop: '16px' }}>AGENT LAYER</div>
+        {agentItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+          >
+            <item.icon size={18} />
+            <span>{item.label}</span>
           </NavLink>
         ))}
       </nav>
 
       <div className="sidebar-footer">
-        <button className="lang-toggle" onClick={toggleLang}>
-          <Languages size={16} />
-          <span>{lang === 'en' ? 'Français' : 'English'}</span>
+        <NavLink to="/setup" className="nav-link" style={{ marginBottom: '8px' }}>
+          <User size={16} />
+          <span>Brand Profile</span>
+        </NavLink>
+        <button className="lang-toggle" onClick={handleSignOut}>
+          <LogOut size={16} />
+          <span>Sign Out</span>
         </button>
-        <div className="sidebar-version">v1.0 — "The Rush"</div>
+        <div className="sidebar-version">v2.0 — Pilot</div>
       </div>
     </aside>
   )
