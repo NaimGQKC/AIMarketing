@@ -1,6 +1,25 @@
+@import "tailwindcss";
+
 /* ============================================
-   VisiMind — Design System
+   VisiMind — Design System (custom layer)
    ============================================ */
+
+@theme {
+  --color-bg-deep: #060a14;
+  --color-bg-primary: #0a0e1a;
+  --color-bg-surface: #0f1424;
+  --color-bg-elevated: #151b2e;
+  --color-cyan: #00e5ff;
+  --color-coral: #ff4c6a;
+  --color-lavender: #9b8aff;
+  --color-amber: #ffb547;
+  --color-vm-green: #34d399;
+  --color-text-primary: #f0f2f8;
+  --color-text-secondary: #8b95b0;
+  --color-text-tertiary: #5a6480;
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
 
 /* --- Reset --- */
 *, *::before, *::after {

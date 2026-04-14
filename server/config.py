@@ -50,3 +50,13 @@ USE_LIVE_LLM: bool = bool(GOOGLE_API_KEY)
 USE_OLLAMA: bool = os.getenv("USE_OLLAMA", "false").lower() == "true"
 OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "llama3.2")
 OLLAMA_URL: str = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
+
+# --- Auth ---
+SECRET_KEY: str = os.getenv("SECRET_KEY", "dev-secret-change-in-production")
+
+# --- Additional API Keys ---
+OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", GOOGLE_API_KEY)
+
+# --- Rate Limiting ---
+DAILY_PROBE_LIMIT: int = int(os.getenv("DAILY_PROBE_LIMIT", "10"))
