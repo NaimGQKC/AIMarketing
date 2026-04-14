@@ -34,6 +34,7 @@ from routers.brands_v1 import router as brands_v1_router
 from routers.system import router as system_router
 from routers.audits import router as audits_router
 from routers.feeds import router as feeds_router
+from routers.exports import router as exports_router
 from middleware.ai_crawler import AICrawlerMiddleware
 
 
@@ -86,6 +87,7 @@ app.include_router(brands_v1_router)
 app.include_router(system_router)
 app.include_router(audits_router)
 app.include_router(feeds_router)
+app.include_router(exports_router)
 
 
 # ============================================
@@ -195,6 +197,21 @@ async def youtube_recommendations_alias(brand_id: str, db: aiosqlite.Connection 
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "service": "VisiMind", "version": "1.0.0"}
+
+
+# --- Serve frontend static files in production ---
+from pathlib import Path as _Path
+_dist_dir = _Path(__file__).parent.parent / "dist"
+if _dist_dir.exists():
+    from fastapi.staticfiles import StaticFiles
+    from fastapi.responses import FileResponse
+
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        file_path = _dist_dir / full_path
+        if file_path.is_file():
+            return FileResponse(file_path)
+        return FileResponse(_dist_dir / "index.html")
 
 
 # --- Run ---

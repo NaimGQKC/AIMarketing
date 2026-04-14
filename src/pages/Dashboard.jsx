@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { AlertTriangle, Ghost, Shuffle, Globe, DollarSign, Play, Loader2, RefreshCw } from 'lucide-react'
-import { apiFetch, getToken } from '../api/client'
+import { AlertTriangle, Ghost, Shuffle, Globe, DollarSign, Play, Loader2, RefreshCw, FileDown } from 'lucide-react'
+import { apiFetch, getToken, authHeaders } from '../api/client'
 
 const GRADE_COLORS = { RED: '#ff4c6a', YELLOW: '#ffb547', GREEN: '#34d399' }
 const GRADE_GLOW = { RED: 'rgba(255,76,106,0.3)', YELLOW: 'rgba(255,181,71,0.3)', GREEN: 'rgba(52,211,153,0.3)' }
@@ -138,6 +138,23 @@ export default function Dashboard() {
     }
   }
 
+  async function exportPdf() {
+    if (!brands.length) return
+    try {
+      const res = await fetch(`/api/v1/exports/${brands[0].id}/pdf`, { headers: authHeaders() })
+      if (!res.ok) throw new Error('PDF export failed')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `VisiMind-Audit-${brands[0].brand_name}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
   async function runAudit() {
     if (!brands.length) return
     setRunning(true)
@@ -200,13 +217,23 @@ export default function Dashboard() {
             {audit ? `Last audit: ${new Date(audit.created_at).toLocaleDateString()}` : 'No audit run yet'}
           </p>
         </div>
-        <button
-          onClick={runAudit}
-          disabled={running}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00e5ff] text-[#0a0e1a] font-semibold text-sm shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.45)] transition-all disabled:opacity-50"
-        >
-          {running ? <><Loader2 size={16} className="animate-spin" /> Running Audit...</> : <><RefreshCw size={16} /> Run Audit</>}
-        </button>
+        <div className="flex items-center gap-3">
+          {audit && (
+            <button
+              onClick={exportPdf}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/10 text-[#8b95b0] font-medium text-sm hover:text-white hover:border-white/20 transition-all"
+            >
+              <FileDown size={16} /> Export PDF
+            </button>
+          )}
+          <button
+            onClick={runAudit}
+            disabled={running}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00e5ff] text-[#0a0e1a] font-semibold text-sm shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.45)] transition-all disabled:opacity-50"
+          >
+            {running ? <><Loader2 size={16} className="animate-spin" /> Running Audit...</> : <><RefreshCw size={16} /> Run Audit</>}
+          </button>
+        </div>
       </div>
 
       {error && (

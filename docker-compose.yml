@@ -1,0 +1,20 @@
+version: "3.8"
+services:
+  visimind:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-production-secret-change-me}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=false
+    volumes:
+      - visimind-data:/app/server/data
+    restart: unless-stopped
+
+volumes:
+  visimind-data:
