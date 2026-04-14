@@ -33,6 +33,7 @@ from routers.auth import router as auth_router
 from routers.brands_v1 import router as brands_v1_router
 from routers.system import router as system_router
 from routers.audits import router as audits_router
+from routers.feeds import router as feeds_router
 from middleware.ai_crawler import AICrawlerMiddleware
 
 
@@ -84,6 +85,7 @@ app.include_router(auth_router)
 app.include_router(brands_v1_router)
 app.include_router(system_router)
 app.include_router(audits_router)
+app.include_router(feeds_router)
 
 
 # ============================================
