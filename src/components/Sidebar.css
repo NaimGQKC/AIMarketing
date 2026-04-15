@@ -4,8 +4,10 @@
   left: 0;
   width: var(--sidebar-width);
   height: 100vh;
-  background: var(--bg-primary);
-  border-right: 1px solid var(--bg-glass-border);
+  background: rgba(10, 14, 24, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
   z-index: 100;
@@ -17,20 +19,20 @@
   align-items: center;
   gap: var(--space-md);
   padding: var(--space-xl) var(--space-xl);
-  border-bottom: 1px solid var(--bg-glass-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .logo-icon {
   width: 38px;
   height: 38px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--cyan), #9b8aff);
+  border-radius: 10px;
+  background: linear-gradient(135deg, #00e5ff, #9b8aff);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--bg-deep);
+  color: #060a14;
   flex-shrink: 0;
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.25);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
 }
 
 .logo-text {
@@ -42,15 +44,16 @@
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: 1.1rem;
-  color: var(--text-primary);
+  color: #dfe2f1;
   letter-spacing: -0.03em;
 }
 
 .logo-tag {
-  font-size: 0.65rem;
-  color: var(--text-tertiary);
-  letter-spacing: 0.04em;
+  font-size: 0.6rem;
+  color: #849396;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  font-weight: 500;
 }
 
 .sidebar-nav {
@@ -59,37 +62,38 @@
 }
 
 .nav-label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  letter-spacing: 0.1em;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #849396;
+  letter-spacing: 0.12em;
   padding: var(--space-sm) var(--space-md);
   margin-bottom: var(--space-sm);
+  text-transform: uppercase;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  padding: var(--space-md) var(--space-lg);
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
+  padding: 10px var(--space-lg);
+  border-radius: 8px;
+  color: #bac9cc;
   text-decoration: none;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 500;
-  transition: all var(--transition-fast);
+  transition: all 150ms ease;
   margin-bottom: 2px;
   position: relative;
 }
 
 .nav-link:hover {
-  color: var(--text-primary);
-  background: var(--bg-glass);
+  color: #dfe2f1;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .nav-link.active {
-  color: var(--cyan);
-  background: var(--cyan-dim);
+  color: #00e5ff;
+  background: rgba(0, 229, 255, 0.08);
 }
 
 .nav-link.active::before {
@@ -100,8 +104,9 @@
   transform: translateY(-50%);
   width: 3px;
   height: 20px;
-  background: var(--cyan);
+  background: #00e5ff;
   border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
 }
 
 .nav-step {
@@ -109,23 +114,23 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--bg-surface);
+  background: rgba(255, 255, 255, 0.03);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.65rem;
   font-weight: 700;
-  color: var(--text-tertiary);
+  color: #849396;
 }
 
 .nav-link.active .nav-step {
-  background: rgba(0, 229, 255, 0.2);
-  color: var(--cyan);
+  background: rgba(0, 229, 255, 0.15);
+  color: #00e5ff;
 }
 
 .sidebar-footer {
   padding: var(--space-lg) var(--space-xl);
-  border-top: 1px solid var(--bg-glass-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .lang-toggle {
@@ -133,28 +138,28 @@
   align-items: center;
   gap: var(--space-sm);
   width: 100%;
-  padding: var(--space-md) var(--space-lg);
-  background: var(--bg-glass);
-  border: 1px solid var(--bg-glass-border);
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
+  padding: 10px var(--space-lg);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: #bac9cc;
   font-size: 0.8rem;
   font-family: var(--font-body);
   font-weight: 500;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 150ms ease;
 }
 
 .lang-toggle:hover {
-  color: var(--text-primary);
-  border-color: var(--bg-glass-border-hover);
-  background: var(--bg-glass-hover);
+  color: #dfe2f1;
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .sidebar-version {
   text-align: center;
-  font-size: 0.65rem;
-  color: var(--text-tertiary);
+  font-size: 0.6rem;
+  color: #849396;
   margin-top: var(--space-md);
-  font-style: italic;
+  letter-spacing: 0.05em;
 }

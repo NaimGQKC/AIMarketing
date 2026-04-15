@@ -174,17 +174,17 @@ a:hover { opacity: 0.8; }
 .fade-in-up-delay-4 { animation-delay: 0.4s; }
 
 .glass-card {
-  background: var(--bg-glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--bg-glass-border);
-  border-radius: var(--radius-lg);
-  transition: all var(--transition-base);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  transition: all 200ms ease;
 }
 .glass-card:hover {
-  background: var(--bg-glass-hover);
-  border-color: var(--bg-glass-border-hover);
-  box-shadow: var(--shadow-md);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 /* --- Buttons --- */
