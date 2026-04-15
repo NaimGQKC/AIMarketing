@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar'
 import { BrandProvider } from './context/BrandContext'
 import Header from './components/Header'
 import ProtectedRoute from './components/ProtectedRoute'
+import PremiumGate from './components/PremiumGate'
 
 import LandingPage from './pages/LandingPage'
 import SignIn from './pages/SignIn'
@@ -62,7 +63,11 @@ export default function App() {
         path="/connect"
         element={
           <ProtectedRoute>
-            <AppLayout><Connect /></AppLayout>
+            <AppLayout>
+              <PremiumGate pageName="Connect" description="real-time PIM integrations and data sync">
+                <Connect />
+              </PremiumGate>
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -78,7 +83,11 @@ export default function App() {
         path="/fixkit"
         element={
           <ProtectedRoute>
-            <AppLayout><Remediate /></AppLayout>
+            <AppLayout>
+              <PremiumGate pageName="Fix Kit" description="automated metadata patches, MCP feeds, and JSON-LD generation">
+                <Remediate />
+              </PremiumGate>
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -86,7 +95,11 @@ export default function App() {
         path="/remediate"
         element={
           <ProtectedRoute>
-            <AppLayout><Remediate /></AppLayout>
+            <AppLayout>
+              <PremiumGate pageName="Fix Kit" description="automated metadata patches, MCP feeds, and JSON-LD generation">
+                <Remediate />
+              </PremiumGate>
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -94,7 +107,11 @@ export default function App() {
         path="/monitor"
         element={
           <ProtectedRoute>
-            <AppLayout><Verify /></AppLayout>
+            <AppLayout>
+              <PremiumGate pageName="Verify" description="continuous monitoring and verification loop">
+                <Verify />
+              </PremiumGate>
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -102,7 +119,11 @@ export default function App() {
         path="/verify"
         element={
           <ProtectedRoute>
-            <AppLayout><Verify /></AppLayout>
+            <AppLayout>
+              <PremiumGate pageName="Verify" description="continuous monitoring and verification loop">
+                <Verify />
+              </PremiumGate>
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -110,7 +131,11 @@ export default function App() {
         path="/roadmap"
         element={
           <ProtectedRoute>
-            <AppLayout><Roadmap /></AppLayout>
+            <AppLayout>
+              <PremiumGate pageName="Roadmap" description="strategic roadmap and prioritization engine">
+                <Roadmap />
+              </PremiumGate>
+            </AppLayout>
           </ProtectedRoute>
         }
       />

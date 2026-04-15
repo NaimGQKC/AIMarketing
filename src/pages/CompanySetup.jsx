@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Zap, Building2, Link as LinkIcon, Tag, Users, ArrowRight } from 'lucide-react'
+import { Zap, Building2, Link as LinkIcon, Tag, Users, ArrowRight, Loader2 } from 'lucide-react'
 import { apiFetch } from '../api/client'
 
 const CATEGORIES = [
@@ -26,6 +26,7 @@ export default function CompanySetup() {
 
   const update = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }))
+    if (error) setError('')
   }
 
   const handleSubmit = async (e) => {
@@ -81,6 +82,7 @@ export default function CompanySetup() {
                 <input
                   type="text"
                   required
+                  maxLength={80}
                   placeholder="Your brand name"
                   value={form.brand_name}
                   onChange={update('brand_name')}
@@ -163,7 +165,10 @@ export default function CompanySetup() {
               className="w-full py-4 bg-[#00e5ff] text-[#0a0e1a] font-semibold text-lg rounded-xl shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.35)] hover:-translate-y-0.5 transition-all duration-250 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
-                'Setting up...'
+                <>
+                  <Loader2 size={20} className="animate-spin" />
+                  Setting up...
+                </>
               ) : (
                 <>
                   Run First Audit

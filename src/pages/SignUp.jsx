@@ -19,17 +19,33 @@ export default function SignUp() {
   const [form, setForm] = useState({
     email: '',
     password: '',
+    confirm_password: '',
     company_name: '',
     company_url: '',
   })
   const [showPwd, setShowPwd] = useState(false)
   const [error, setError] = useState('')
   const [emailError, setEmailError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const update = (field) => (e) => {
     const val = e.target.value
-    setForm((prev) => ({ ...prev, [field]: val }))
+    setForm((prev) => {
+      const next = { ...prev, [field]: val }
+      // Validate confirm password whenever either password field changes
+      if (field === 'confirm_password' || field === 'password') {
+        const pwd = field === 'password' ? val : prev.password
+        const confirm = field === 'confirm_password' ? val : prev.confirm_password
+        if (confirm && pwd !== confirm) {
+          setPasswordError('Passwords do not match')
+        } else {
+          setPasswordError('')
+        }
+      }
+      return next
+    })
+    if (error) setError('')
     if (field === 'email') {
       if (val && val.includes('@') && !isWorkEmail(val)) {
         setEmailError('Please use a work email (not Gmail, Yahoo, etc.)')
@@ -48,11 +64,17 @@ export default function SignUp() {
       return
     }
 
+    if (form.password !== form.confirm_password) {
+      setPasswordError('Passwords do not match')
+      return
+    }
+
     setLoading(true)
     try {
+      const { confirm_password, ...submitData } = form
       const data = await apiFetch('/auth/signup', {
         method: 'POST',
-        body: JSON.stringify(form),
+        body: JSON.stringify(submitData),
       })
       setToken(data.access_token || data.token)
       navigate('/setup')
@@ -128,6 +150,43 @@ export default function SignUp() {
               </div>
             </div>
 
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-[#8b95b0] text-sm font-medium mb-1.5">Confirm Password</label>
+              <div className="relative">
+                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5a6480]" />
+                <input
+                  type={showPwd ? 'text' : 'password'}
+                  required
+                  placeholder="Re-enter your password"
+                  value={form.confirm_password}
+                  onChange={update('confirm_password')}
+                  className={`w-full bg-white/5 border text-[#f0f2f8] rounded-lg pl-11 pr-4 py-3 focus:outline-none transition-colors placeholder:text-[#5a6480] ${
+                    passwordError ? 'border-[#ff4c6a]/50 focus:border-[#ff4c6a]' : 'border-white/10 focus:border-[#00e5ff]'
+                  }`}
+                />
+              </div>
+              {passwordError && <p className="text-[#ff4c6a] text-xs mt-1">{passwordError}</p>}
+            </div>
+
+            {/* Password strength hint */}
+            {form.password && (
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-300"
+                    style={{
+                      width: `${Math.min(100, (form.password.length / 12) * 60 + (/[A-Z]/.test(form.password) ? 15 : 0) + (/[0-9]/.test(form.password) ? 15 : 0) + (/[^A-Za-z0-9]/.test(form.password) ? 10 : 0))}%`,
+                      backgroundColor: form.password.length < 8 ? '#ff4c6a' : form.password.length < 12 ? '#ffb547' : '#34d399',
+                    }}
+                  />
+                </div>
+                <span className="text-xs text-[#5a6480]">
+                  {form.password.length < 8 ? 'Too short' : form.password.length < 12 ? 'Fair' : 'Strong'}
+                </span>
+              </div>
+            )}
+
             {/* Company Name */}
             <div>
               <label className="block text-[#8b95b0] text-sm font-medium mb-1.5">Company Name</label>
@@ -164,7 +223,7 @@ export default function SignUp() {
 
             <button
               type="submit"
-              disabled={loading || !!emailError}
+              disabled={loading || !!emailError || !!passwordError}
               className="w-full py-3 bg-[#00e5ff] text-[#0a0e1a] font-semibold rounded-xl shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.35)] hover:-translate-y-0.5 transition-all duration-250 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating account...' : 'Create Account'}

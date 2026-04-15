@@ -106,21 +106,49 @@ async def get_ucp_manifest():
 
 
 @app.get("/llms.txt")
-async def get_llms_txt():
+async def get_llms_txt(db: aiosqlite.Connection = Depends(get_db)):
     """
-    llms.txt — machine-readable file for LLM discovery.
+    llms.txt -- machine-readable file for LLM discovery.
+    Served as plain text per the llms.txt specification.
+    Dynamically lists all deployed brand MCP feeds.
     """
-    return {
-        "name": "VisiMind",
-        "description": "AI Remediation Layer for Canadian Luxury Retail brands.",
-        "feeds": [
-            "https://visimind.ai/feeds/mackage/products.jsonld",
-            "https://visimind.ai/feeds/ssense/products.jsonld",
-            "https://visimind.ai/feeds/aldo/products.jsonld",
-        ],
-        "ucp_manifest": "https://visimind.ai/.well-known/ucp",
-        "contact": "eng@visimind.ai",
-    }
+    from fastapi.responses import PlainTextResponse
+
+    lines = [
+        "# VisiMind",
+        "# AI Remediation Layer for brand visibility in generative AI.",
+        "",
+        "## About",
+        "VisiMind helps brands correct and control how AI models represent them.",
+        "Each brand served by VisiMind has an MCP (Model Context Protocol) feed",
+        "that AI agents can consume to get authoritative brand information.",
+        "",
+        "## Endpoints",
+        "- UCP manifest: /.well-known/ucp",
+        "- Brand MCP feeds: /api/v1/feeds/{brand_id}/mcp.json",
+        "",
+        "## Brand Feeds",
+    ]
+
+    try:
+        cursor = await db.execute(
+            "SELECT id, brand_name FROM brand_profiles ORDER BY brand_name"
+        )
+        brands = await cursor.fetchall()
+        for b in brands:
+            lines.append(f"- {b['brand_name']}: /api/v1/feeds/{b['id']}/mcp.json")
+        if not brands:
+            lines.append("- No brands registered yet.")
+    except Exception:
+        lines.append("- Unable to load brand list.")
+
+    lines.extend([
+        "",
+        "## Contact",
+        "eng@visimind.ai",
+    ])
+
+    return PlainTextResponse("\n".join(lines), media_type="text/plain")
 
 
 # --- Task Polling Endpoint ---

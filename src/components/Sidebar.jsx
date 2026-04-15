@@ -2,17 +2,18 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, Wrench, Activity, User, LogOut, Zap, Mail, PlugZap, Search, Map } from 'lucide-react'
 import { clearToken } from '../api/client'
 import './Sidebar.css'
+import './PremiumGate.css'
 
 const dashboardItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Audit' },
-  { to: '/connect', icon: PlugZap, label: 'Connect' },
+  { to: '/connect', icon: PlugZap, label: 'Connect', pro: true },
   { to: '/diagnose', icon: Search, label: 'Diagnose' },
 ]
 
 const agentItems = [
-  { to: '/fixkit', icon: Wrench, label: 'Fix Kit' },
-  { to: '/monitor', icon: Activity, label: 'Monitor' },
-  { to: '/roadmap', icon: Map, label: 'Roadmap' },
+  { to: '/fixkit', icon: Wrench, label: 'Fix Kit', pro: true },
+  { to: '/monitor', icon: Activity, label: 'Monitor', pro: true },
+  { to: '/roadmap', icon: Map, label: 'Roadmap', pro: true },
   { to: '/outreach', icon: Mail, label: 'Outreach' },
 ]
 
@@ -46,6 +47,7 @@ export default function Sidebar() {
           >
             <item.icon size={18} />
             <span>{item.label}</span>
+            {item.pro && <span className="nav-pro-badge">PRO</span>}
           </NavLink>
         ))}
 
@@ -58,6 +60,7 @@ export default function Sidebar() {
           >
             <item.icon size={18} />
             <span>{item.label}</span>
+            {item.pro && <span className="nav-pro-badge">PRO</span>}
           </NavLink>
         ))}
       </nav>

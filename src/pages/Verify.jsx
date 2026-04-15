@@ -130,7 +130,7 @@ export default function Verify() {
             Agent Monitor
           </h1>
           <p className="text-[#8b95b0] text-sm mt-1">
-            Track how AI agents update their responses after deploying fixes for {brand.brand_name}
+            Track how AI agents update their responses after deploying fixes for {brand.brand_name || 'your brand'}
           </p>
         </div>
         <button
@@ -143,15 +143,47 @@ export default function Verify() {
       </div>
 
       {error && (
-        <div className="mb-6 p-4 rounded-xl bg-[#ff4c6a]/10 border border-[#ff4c6a]/20 text-[#ff4c6a] text-sm">
-          {error}
+        <div className="mb-6 p-4 rounded-xl bg-[#ff4c6a]/10 border border-[#ff4c6a]/20 text-[#ff4c6a] text-sm flex items-center justify-between gap-3">
+          <span>{error}</span>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              onClick={handleReprobe}
+              disabled={reprobing}
+              className="text-xs underline hover:no-underline"
+            >
+              Retry
+            </button>
+            <button
+              onClick={() => setError('')}
+              className="text-[#ff4c6a]/60 hover:text-[#ff4c6a] transition-colors"
+              aria-label="Dismiss error"
+            >
+              &times;
+            </button>
+          </div>
         </div>
       )}
 
       {!latestAudit ? (
-        <div className="text-center py-16">
-          <p className="text-[#8b95b0]">No audit data yet. Run an audit from the Dashboard first.</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center py-20"
+        >
+          <div className="w-20 h-20 rounded-full bg-[#00e5ff]/10 flex items-center justify-center mx-auto mb-6">
+            <Activity size={32} className="text-[#00e5ff]" />
+          </div>
+          <h2 className="text-xl font-headline font-bold mb-3">No audit data yet</h2>
+          <p className="text-[#8b95b0] mb-6 max-w-md mx-auto">
+            Run an audit from the Dashboard first, then come back here to track how AI agents update their responses over time.
+          </p>
+          <a
+            href="/dashboard"
+            className="inline-flex px-6 py-3 rounded-xl bg-[#00e5ff] text-[#0a0e1a] font-semibold text-sm"
+          >
+            Go to Dashboard
+          </a>
+        </motion.div>
       ) : (
         <div className="space-y-8">
           {/* IAS Trend Chart */}

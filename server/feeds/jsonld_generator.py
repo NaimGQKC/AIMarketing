@@ -85,10 +85,22 @@ def generate_faq_jsonld(brand_name: str, findings: list = None) -> dict:
 
 
 def generate_all_patches(brand_profile: dict, findings: list = None) -> dict:
-    """Generate all JSON-LD patches for a brand."""
+    """Generate all JSON-LD patches for a brand.
+
+    Returns ``{ current: {tab: null, ...}, generated: {tab: {...}, ...} }``
+    so the frontend can render a before/after comparison.
+    """
     brand_name = brand_profile.get("brand_name", "")
-    return {
+    generated = {
         "organization": generate_organization_jsonld(brand_profile),
         "local_business": generate_local_business_jsonld(brand_profile),
         "faq": generate_faq_jsonld(brand_name, findings),
+    }
+    return {
+        "current": {
+            "organization": None,
+            "local_business": None,
+            "faq": None,
+        },
+        "generated": generated,
     }

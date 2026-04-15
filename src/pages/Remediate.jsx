@@ -119,11 +119,11 @@ const JSONLD_TABS = [
 /* ================================================================== */
 export default function Remediate() {
   /* --- brand context --- */
-  const { selectedBrandId } = useBrand()
+  const { selectedBrandId, availableBrands } = useBrand()
   const brandId = selectedBrandId
 
   /* --- shared state --- */
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(!!brandId)
   const [error, setError] = useState(null)
 
   /* --- MCP Feed --- */
@@ -145,10 +145,15 @@ export default function Remediate() {
 
   /* ---- fetch MCP + JSON-LD once brandId is known ---- */
   useEffect(() => {
-    if (!brandId) return
+    if (!brandId) {
+      setLoading(false)
+      return
+    }
     let cancelled = false
 
     async function fetchFeeds() {
+      setLoading(true)
+      setError(null)
       try {
         const [mcp, jld] = await Promise.all([
           apiFetch(`/feeds/${brandId}/mcp/preview`).catch(() => null),
@@ -157,13 +162,19 @@ export default function Remediate() {
         if (cancelled) return
         if (mcp) {
           setMcpPreview(mcp)
-          setMcpValid(true)
+          setMcpValid(mcp.validation?.valid ?? false)
         }
         if (jld) {
           setJsonLdData(jld)
         }
-      } catch {
-        // individual catches above handle per-request errors
+      } catch (err) {
+        if (!cancelled) {
+          setError(err.message || 'Failed to load feed data.')
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
       }
     }
     fetchFeeds()
@@ -171,14 +182,17 @@ export default function Remediate() {
   }, [brandId])
 
   /* ---- handlers ---- */
+  const [mcpError, setMcpError] = useState(null)
+
   const handleDeployMcp = useCallback(async () => {
     if (!brandId) return
     setMcpDeploying(true)
+    setMcpError(null)
     try {
       await apiFetch(`/feeds/${brandId}/mcp/deploy`, { method: 'POST' })
       setMcpStatus('deployed')
-    } catch {
-      // silently keep current status
+    } catch (err) {
+      setMcpError(err.message || 'Deploy failed. Please try again.')
     } finally {
       setMcpDeploying(false)
     }
@@ -240,10 +254,52 @@ export default function Remediate() {
     )
   }
 
-  if (error) {
+  if (!brandId && !loading && availableBrands.length === 0) {
     return (
-      <div className="min-h-screen bg-[#060a14] flex items-center justify-center">
-        <p className="text-red-400 text-sm">{error}</p>
+      <div className="min-h-screen bg-[#060a14] flex flex-col items-center justify-center gap-4">
+        <div className="w-16 h-16 rounded-full bg-[#00e5ff]/10 flex items-center justify-center">
+          <Code2 size={28} className="text-[#00e5ff]" />
+        </div>
+        <h2 className="text-xl font-headline font-bold text-white">No brand configured</h2>
+        <p className="text-[#8b95b0] text-sm max-w-md text-center">
+          Set up your brand profile first, then come back to deploy fixes.
+        </p>
+        <a
+          href="/setup"
+          className="inline-flex px-6 py-3 rounded-xl bg-[#00e5ff] text-[#0a0e1a] font-semibold text-sm"
+        >
+          Set Up Brand
+        </a>
+      </div>
+    )
+  }
+
+  if (error && !mcpPreview && !jsonLdData) {
+    return (
+      <div className="min-h-screen bg-[#060a14] flex flex-col items-center justify-center gap-4">
+        <div className="w-16 h-16 rounded-full bg-[#ff4c6a]/10 flex items-center justify-center">
+          <X size={28} className="text-[#ff4c6a]" />
+        </div>
+        <p className="text-red-400 text-sm max-w-md text-center">{error}</p>
+        <button
+          onClick={() => {
+            setError(null)
+            if (brandId) {
+              setLoading(true)
+              Promise.all([
+                apiFetch(`/feeds/${brandId}/mcp/preview`).catch(() => null),
+                apiFetch(`/feeds/${brandId}/jsonld`).catch(() => null),
+              ]).then(([mcp, jld]) => {
+                if (mcp) { setMcpPreview(mcp); setMcpValid(mcp.validation?.valid ?? false) }
+                if (jld) setJsonLdData(jld)
+              }).catch((err) => setError(err.message || 'Failed to load feed data.'))
+                .finally(() => setLoading(false))
+            }
+          }}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00e5ff] text-[#0a0e1a] font-semibold text-sm"
+        >
+          <Loader2 size={15} /> Retry
+        </button>
       </div>
     )
   }
@@ -318,10 +374,10 @@ export default function Remediate() {
             )}
           </div>
 
-          {/* JSON preview */}
+          {/* JSON preview -- show only the feed payload, not validation metadata */}
           <pre className="bg-[#0a0e1a] rounded-xl p-4 font-mono text-xs text-[#8b95b0] overflow-auto max-h-80 mb-5 whitespace-pre-wrap">
-            {mcpPreview
-              ? JSON.stringify(mcpPreview, null, 2)
+            {mcpPreview?.feed
+              ? JSON.stringify(mcpPreview.feed, null, 2)
               : '// Waiting for MCP feed data...'}
           </pre>
 
@@ -348,6 +404,13 @@ export default function Remediate() {
               </>
             )}
           </button>
+
+          {mcpError && (
+            <div className="mt-4 p-3 rounded-xl bg-[#ff4c6a]/10 border border-[#ff4c6a]/20 text-[#ff4c6a] text-xs flex items-center justify-between gap-2">
+              <span>{mcpError}</span>
+              <button onClick={() => setMcpError(null)} className="text-[#ff4c6a]/60 hover:text-[#ff4c6a]">&times;</button>
+            </div>
+          )}
         </Panel>
 
         {/* ====================================================== */}

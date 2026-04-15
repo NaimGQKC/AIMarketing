@@ -204,6 +204,26 @@ export default function Outreach() {
 
   const gradeColor = GRADE_COLORS[audit.grade] || '#00e5ff'
 
+  if (!selectedBrand && availableBrands.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#0a0e1a] flex flex-col items-center justify-center gap-4">
+        <div className="w-16 h-16 rounded-full bg-[#00e5ff]/10 flex items-center justify-center">
+          <Send size={28} className="text-[#00e5ff]" />
+        </div>
+        <h2 className="text-xl font-headline font-bold text-[#f0f2f8]">No brand configured</h2>
+        <p className="text-[#8b95b0] text-sm max-w-md text-center">
+          Set up your brand profile first to generate outreach sequences.
+        </p>
+        <a
+          href="/setup"
+          className="inline-flex px-6 py-3 rounded-xl bg-[#00e5ff] text-[#0a0e1a] font-semibold text-sm"
+        >
+          Set Up Brand
+        </a>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-[#0a0e1a] p-6 lg:p-10">
       {/* Header */}
@@ -259,19 +279,19 @@ export default function Outreach() {
               <GlassInput
                 label="Name"
                 value={formData.target_name}
-                onChange={(e) => setFormData(prev => ({ ...prev, target_name: e.target.value }))}
+                onChange={(e) => { setFormData(prev => ({ ...prev, target_name: e.target.value })); if (error) setError(null) }}
                 placeholder="e.g. Sarah Chen"
               />
               <GlassInput
                 label="Title"
                 value={formData.target_title}
-                onChange={(e) => setFormData(prev => ({ ...prev, target_title: e.target.value }))}
+                onChange={(e) => { setFormData(prev => ({ ...prev, target_title: e.target.value })); if (error) setError(null) }}
                 placeholder="e.g. Head of Marketing"
               />
               <GlassInput
                 label="Company"
                 value={formData.target_company}
-                onChange={(e) => setFormData(prev => ({ ...prev, target_company: e.target.value }))}
+                onChange={(e) => { setFormData(prev => ({ ...prev, target_company: e.target.value })); if (error) setError(null) }}
                 placeholder="e.g. Acme Corp"
               />
             </div>
@@ -305,9 +325,16 @@ export default function Outreach() {
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-[#ff4c6a]/10 border border-[#ff4c6a]/20 rounded-xl px-4 py-3 text-sm text-[#ff4c6a]"
+              className="bg-[#ff4c6a]/10 border border-[#ff4c6a]/20 rounded-xl px-4 py-3 text-sm text-[#ff4c6a] flex items-center justify-between gap-3"
             >
-              {error}
+              <span>{error}</span>
+              <button
+                onClick={() => setError(null)}
+                className="text-[#ff4c6a]/60 hover:text-[#ff4c6a] transition-colors flex-shrink-0"
+                aria-label="Dismiss error"
+              >
+                &times;
+              </button>
             </motion.div>
           )}
         </div>

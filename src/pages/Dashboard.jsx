@@ -210,7 +210,7 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-headline font-bold">{brand.brand_name} Audit Results</h1>
+          <h1 className="text-2xl font-headline font-bold truncate max-w-[70vw]">{brand.brand_name || 'Untitled Brand'} Audit Results</h1>
           <p className="text-[#8b95b0] text-sm mt-1">
             {audit ? `Last audit: ${new Date(audit.created_at).toLocaleDateString()}` : 'No audit run yet'}
           </p>
@@ -235,8 +235,24 @@ export default function Dashboard() {
       </div>
 
       {error && (
-        <div className="mb-6 p-4 rounded-xl bg-[#ff4c6a]/10 border border-[#ff4c6a]/20 text-[#ff4c6a] text-sm">
-          {error}
+        <div className="mb-6 p-4 rounded-xl bg-[#ff4c6a]/10 border border-[#ff4c6a]/20 text-[#ff4c6a] text-sm flex items-center justify-between gap-3">
+          <span>{error}</span>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              onClick={runAudit}
+              disabled={running}
+              className="text-xs underline hover:no-underline"
+            >
+              Retry
+            </button>
+            <button
+              onClick={() => setError('')}
+              className="text-[#ff4c6a]/60 hover:text-[#ff4c6a] transition-colors"
+              aria-label="Dismiss error"
+            >
+              &times;
+            </button>
+          </div>
         </div>
       )}
 
@@ -249,7 +265,7 @@ export default function Dashboard() {
           <div className="w-20 h-20 rounded-full bg-[#00e5ff]/10 flex items-center justify-center mx-auto mb-6">
             <Play size={32} className="text-[#00e5ff] ml-1" />
           </div>
-          <h2 className="text-xl font-headline font-bold mb-3">Ready to audit {brand.brand_name}</h2>
+          <h2 className="text-xl font-headline font-bold mb-3">Ready to audit {brand.brand_name || 'your brand'}</h2>
           <p className="text-[#8b95b0] mb-6 max-w-md mx-auto">
             Click "Run Audit" to probe AI agents in English and French and see how they represent your brand.
           </p>
@@ -296,10 +312,10 @@ export default function Dashboard() {
                   </div>
                   <div className="flex items-baseline gap-3 flex-wrap">
                     <span className="text-2xl font-headline font-bold text-[#f0f2f8]">
-                      ${revenue.lost_revenue_annual?.toLocaleString()}/yr
+                      ${(revenue.lost_revenue_annual ?? 0).toLocaleString()}/yr
                     </span>
                     <span className="text-sm text-[#8b95b0]">
-                      ({revenue.visibility_loss_pct}% visibility loss, ~{revenue.lost_conversions_monthly} lost conversions/mo)
+                      ({revenue.visibility_loss_pct ?? 0}% visibility loss, ~{revenue.lost_conversions_monthly ?? 0} lost conversions/mo)
                     </span>
                   </div>
                 </div>

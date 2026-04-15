@@ -75,7 +75,7 @@ export default function SignIn() {
                   required
                   placeholder="you@company.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); if (error) setError('') }}
                   className="w-full bg-white/5 border border-white/10 text-[#f0f2f8] rounded-lg pl-11 pr-4 py-3 focus:border-[#00e5ff] focus:outline-none transition-colors placeholder:text-[#5a6480]"
                 />
               </div>
@@ -90,7 +90,7 @@ export default function SignIn() {
                   required
                   placeholder="Your password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => { setPassword(e.target.value); if (error) setError('') }}
                   className="w-full bg-white/5 border border-white/10 text-[#f0f2f8] rounded-lg pl-11 pr-11 py-3 focus:border-[#00e5ff] focus:outline-none transition-colors placeholder:text-[#5a6480]"
                 />
                 <button

@@ -3,6 +3,7 @@ VisiMind -- Feeds Router
 MCP feed serving, JSON-LD generation, robots.txt analysis.
 """
 import json
+import logging
 import re
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
@@ -17,6 +18,8 @@ from database import get_db
 from routers.auth import require_user
 from feeds.mcp_generator import generate_mcp_feed, validate_mcp_feed
 from feeds.jsonld_generator import generate_all_patches
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/feeds", tags=["feeds"])
 
@@ -35,41 +38,67 @@ async def get_mcp_feed(brand_id: str, db: aiosqlite.Connection = Depends(get_db)
     """
     Serve the MCP feed for a brand. This is a PUBLIC endpoint --
     AI agents need to access it without authentication.
+
+    Security: Only select the columns we need for feed generation.
+    Never expose user_id, logo_url, or internal metadata.
     """
-    cursor = await db.execute("SELECT * FROM brand_profiles WHERE id = ?", (brand_id,))
+    # Only select public-safe columns -- never SELECT *
+    cursor = await db.execute(
+        "SELECT id, brand_name, primary_url, product_category, language_pair "
+        "FROM brand_profiles WHERE id = ?",
+        (brand_id,),
+    )
     brand = await cursor.fetchone()
     if not brand:
         raise HTTPException(status_code=404, detail="Brand not found")
 
     # Get latest audit results if available
-    cursor = await db.execute(
-        "SELECT results FROM audit_results WHERE brand_profile_id = ? ORDER BY created_at DESC LIMIT 1",
-        (brand_id,),
-    )
-    audit = await cursor.fetchone()
-    audit_results = json.loads(audit["results"]) if audit and audit["results"] else None
+    audit_results = None
+    try:
+        cursor = await db.execute(
+            "SELECT results FROM audit_results WHERE brand_profile_id = ? ORDER BY created_at DESC LIMIT 1",
+            (brand_id,),
+        )
+        audit = await cursor.fetchone()
+        if audit and audit["results"]:
+            audit_results = json.loads(audit["results"])
+    except Exception as exc:
+        logger.warning("Failed to load audit results for brand %s: %s", brand_id, exc)
 
     feed = generate_mcp_feed(dict(brand), audit_results)
-    return JSONResponse(content=feed, media_type="application/json")
+    return JSONResponse(
+        content=feed,
+        media_type="application/json",
+        headers={
+            "Cache-Control": "public, max-age=3600, s-maxage=86400",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
 
 
 @router.get("/{brand_id}/mcp/preview")
 async def preview_mcp_feed(brand_id: str, user: dict = Depends(require_user), db: aiosqlite.Connection = Depends(get_db)):
     """Preview the MCP feed (authenticated, for dashboard display)."""
     cursor = await db.execute(
-        "SELECT * FROM brand_profiles WHERE id = ? AND user_id = ?",
+        "SELECT id, brand_name, primary_url, product_category, language_pair "
+        "FROM brand_profiles WHERE id = ? AND user_id = ?",
         (brand_id, user["id"]),
     )
     brand = await cursor.fetchone()
     if not brand:
         raise HTTPException(status_code=404, detail="Brand not found")
 
-    cursor = await db.execute(
-        "SELECT results FROM audit_results WHERE brand_profile_id = ? ORDER BY created_at DESC LIMIT 1",
-        (brand_id,),
-    )
-    audit = await cursor.fetchone()
-    audit_results = json.loads(audit["results"]) if audit and audit["results"] else None
+    audit_results = None
+    try:
+        cursor = await db.execute(
+            "SELECT results FROM audit_results WHERE brand_profile_id = ? ORDER BY created_at DESC LIMIT 1",
+            (brand_id,),
+        )
+        audit = await cursor.fetchone()
+        if audit and audit["results"]:
+            audit_results = json.loads(audit["results"])
+    except Exception as exc:
+        logger.warning("Failed to load audit results for preview (brand %s): %s", brand_id, exc)
 
     feed = generate_mcp_feed(dict(brand), audit_results)
     validation = validate_mcp_feed(feed)
@@ -85,7 +114,7 @@ async def preview_mcp_feed(brand_id: str, user: dict = Depends(require_user), db
 async def deploy_mcp_feed(brand_id: str, user: dict = Depends(require_user), db: aiosqlite.Connection = Depends(get_db)):
     """Mark the MCP feed as deployed / active for a brand."""
     cursor = await db.execute(
-        "SELECT * FROM brand_profiles WHERE id = ? AND user_id = ?",
+        "SELECT id, brand_name, primary_url FROM brand_profiles WHERE id = ? AND user_id = ?",
         (brand_id, user["id"]),
     )
     brand = await cursor.fetchone()
@@ -93,10 +122,27 @@ async def deploy_mcp_feed(brand_id: str, user: dict = Depends(require_user), db:
         raise HTTPException(status_code=404, detail="Brand not found")
 
     feed_url = f"/api/v1/feeds/{brand_id}/mcp.json"
+
+    # Validate the feed is actually ready
+    feed = generate_mcp_feed(dict(brand))
+    validation = validate_mcp_feed(feed)
+    if not validation["valid"]:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Feed validation failed. Missing fields: {validation['missing_root'] + validation['missing_brand']}",
+        )
+
     return {
         "status": "deployed",
         "feed_url": feed_url,
+        "brand_name": brand["brand_name"],
+        "validation": validation,
         "message": f"MCP feed is live at {feed_url}. AI agents can now access your brand truth data.",
+        "next_steps": [
+            f"Add this URL to your llms.txt file: {feed_url}",
+            "Link the feed from your website's <head> section for discoverability.",
+            "Run an audit in 7 days to verify AI models have updated their knowledge.",
+        ],
     }
 
 
@@ -104,7 +150,8 @@ async def deploy_mcp_feed(brand_id: str, user: dict = Depends(require_user), db:
 async def get_jsonld_patches(brand_id: str, user: dict = Depends(require_user), db: aiosqlite.Connection = Depends(get_db)):
     """Generate JSON-LD structured data patches for a brand."""
     cursor = await db.execute(
-        "SELECT * FROM brand_profiles WHERE id = ? AND user_id = ?",
+        "SELECT id, brand_name, primary_url, product_category, language_pair "
+        "FROM brand_profiles WHERE id = ? AND user_id = ?",
         (brand_id, user["id"]),
     )
     brand = await cursor.fetchone()
@@ -112,15 +159,18 @@ async def get_jsonld_patches(brand_id: str, user: dict = Depends(require_user), 
         raise HTTPException(status_code=404, detail="Brand not found")
 
     # Get findings from latest audit
-    cursor = await db.execute(
-        "SELECT ias_data FROM audit_results WHERE brand_profile_id = ? ORDER BY created_at DESC LIMIT 1",
-        (brand_id,),
-    )
-    audit = await cursor.fetchone()
     findings = None
-    if audit and audit["ias_data"]:
-        ias = json.loads(audit["ias_data"])
-        findings = ias.get("findings", [])
+    try:
+        cursor = await db.execute(
+            "SELECT ias_data FROM audit_results WHERE brand_profile_id = ? ORDER BY created_at DESC LIMIT 1",
+            (brand_id,),
+        )
+        audit = await cursor.fetchone()
+        if audit and audit["ias_data"]:
+            ias = json.loads(audit["ias_data"])
+            findings = ias.get("findings", [])
+    except Exception as exc:
+        logger.warning("Failed to load IAS data for JSON-LD (brand %s): %s", brand_id, exc)
 
     patches = generate_all_patches(dict(brand), findings)
     return patches

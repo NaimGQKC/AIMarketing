@@ -18,14 +18,23 @@ from config import DB_PATH
 AI_CRAWLERS = [
     (re.compile(r"GPTBot", re.IGNORECASE), "GPTBot"),
     (re.compile(r"PerplexityBot", re.IGNORECASE), "PerplexityBot"),
-    (re.compile(r"ClaudeBot", re.IGNORECASE), "ClaudeBot"),
-    (re.compile(r"GoogleOther", re.IGNORECASE), "GoogleOther"),
+    (re.compile(r"ClaudeBot|anthropic-ai", re.IGNORECASE), "ClaudeBot"),
+    (re.compile(r"GoogleOther|Google-Extended", re.IGNORECASE), "GoogleOther"),
     (re.compile(r"Bingbot", re.IGNORECASE), "Bingbot"),
     (re.compile(r"Applebot", re.IGNORECASE), "Applebot"),
+    (re.compile(r"Bytespider", re.IGNORECASE), "Bytespider"),
+    (re.compile(r"Amazonbot", re.IGNORECASE), "Amazonbot"),
+    (re.compile(r"CCBot", re.IGNORECASE), "CCBot"),
+    (re.compile(r"Meta-ExternalAgent|FacebookBot", re.IGNORECASE), "Meta-ExternalAgent"),
+    (re.compile(r"cohere-ai", re.IGNORECASE), "CohereBot"),
 ]
 
-# Pattern to extract brand_id from brand-specific API paths
-BRAND_PATH_RE = re.compile(r"/api/brands/([^/]+)")
+# Patterns to extract brand_id from brand-specific API paths.
+# Matches both /api/brands/{id} and /api/v1/feeds/{id}/...
+BRAND_PATH_PATTERNS = [
+    re.compile(r"/api/v1/feeds/([^/]+)"),
+    re.compile(r"/api/brands/([^/]+)"),
+]
 
 
 def detect_crawler(user_agent: str) -> str | None:
@@ -54,14 +63,18 @@ class AICrawlerMiddleware(BaseHTTPMiddleware):
 
         path = request.url.path
 
-        # Check if this is a brand-specific page
-        brand_match = BRAND_PATH_RE.search(path)
-        brand_id = brand_match.group(1) if brand_match else None
+        # Check if this is a brand-specific page (try all known patterns)
+        brand_id = None
+        for pattern in BRAND_PATH_PATTERNS:
+            brand_match = pattern.search(path)
+            if brand_match:
+                brand_id = brand_match.group(1)
+                break
 
         # Inject structured-data headers for brand pages
         if brand_id:
             response.headers["X-VisiMind-Brand-Context"] = (
-                f"/api/brands/{brand_id}/jsonld"
+                f"/api/v1/feeds/{brand_id}/mcp.json"
             )
         response.headers["X-VisiMind-llms-txt"] = "/llms.txt"
 
