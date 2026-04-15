@@ -165,6 +165,7 @@ export default function Dashboard() {
         revenue_impact: result.revenue_impact,
         results: [],
         status: 'completed',
+        created_at: new Date().toISOString(),
       })
       const full = await apiFetch(`/audits/${selectedBrand.id}/results`)
       setAudit(full)

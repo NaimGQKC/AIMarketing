@@ -1,0 +1,70 @@
+/* Stitch "Premium Landing Page (Linear Style)" — exact CSS */
+
+body.landing-active {
+  background-color: #060a14;
+  background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ambient-orb-cyan {
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.08) 0%, transparent 70%);
+  animation: orbFloat1 20s ease-in-out infinite, orbPulse 8s ease-in-out infinite;
+}
+.ambient-orb-lavender {
+  background: radial-gradient(circle, rgba(201, 191, 255, 0.08) 0%, transparent 70%);
+  animation: orbFloat2 25s ease-in-out infinite, orbPulse 10s ease-in-out infinite 3s;
+}
+
+@keyframes orbFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(60px, -40px) scale(1.05); }
+  50% { transform: translate(-30px, 50px) scale(0.95); }
+  75% { transform: translate(40px, 20px) scale(1.02); }
+}
+@keyframes orbFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-50px, 30px) scale(1.03); }
+  50% { transform: translate(40px, -60px) scale(0.97); }
+  75% { transform: translate(-20px, -30px) scale(1.05); }
+}
+@keyframes orbPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Grid shimmer sweep */
+.grid-shimmer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(135deg, transparent 0%, transparent 40%, rgba(0,229,255,0.015) 50%, transparent 60%, transparent 100%);
+  background-size: 400% 400%;
+  animation: shimmerSweep 15s ease-in-out infinite;
+}
+@keyframes shimmerSweep {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+}
+
+/* Scoped overrides to prevent global index.css conflicts */
+.landing-page {
+  background-color: #060a14;
+  background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+.landing-page a { color: inherit; opacity: 1; text-decoration: none; }
+.landing-page a:hover { opacity: 1; }
+.landing-page h1, .landing-page h2, .landing-page h3, .landing-page h4 {
+  font-size: inherit; font-weight: inherit; line-height: inherit; letter-spacing: inherit; color: inherit;
+}
+.landing-page p { color: inherit; }
+.landing-page .material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}

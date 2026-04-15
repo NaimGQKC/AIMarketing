@@ -123,7 +123,7 @@ export default function Remediate() {
   const brandId = selectedBrandId
 
   /* --- shared state --- */
-  const [loading, setLoading] = useState(!brandId)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   /* --- MCP Feed --- */
@@ -205,7 +205,13 @@ export default function Remediate() {
         method: 'POST',
         body: JSON.stringify({ url: robotsUrl.trim() }),
       })
-      setRobotsResult(result)
+      /* Normalise: backend returns blocked_bots / allowed_bots string arrays;
+         UI expects a unified bots[] with { name, allowed } objects. */
+      const bots = [
+        ...(result.allowed_bots || []).map((name) => ({ name, allowed: true })),
+        ...(result.blocked_bots || []).map((name) => ({ name, allowed: false })),
+      ]
+      setRobotsResult({ ...result, bots })
       if (result?.blocked_bots?.length === 0) {
         setRobotsStatus('verified')
       } else {

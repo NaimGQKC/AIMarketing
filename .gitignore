@@ -3,9 +3,14 @@ node_modules/
 __pycache__/
 *.pyc
 .env
+*.db
 dist/
 build/
 .DS_Store
 
 # Docker
 *.tar
+
+# Stitch exports
+stitch_landing/
+stitch_visimind_landing_page.zip

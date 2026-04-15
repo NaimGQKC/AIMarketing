@@ -57,11 +57,11 @@ export default function SignIn() {
         <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <Link to="/" className="inline-flex items-center gap-2 text-[#f0f2f8] font-['Outfit'] font-bold text-lg mb-6">
+            <Link to="/" className="inline-flex items-center gap-2 text-[#f0f2f8] font-headline font-bold text-lg mb-6">
               <Zap size={22} className="text-[#00e5ff]" />
               VisiMind
             </Link>
-            <h1 className="font-['Outfit'] text-2xl font-bold text-[#f0f2f8]">Welcome back</h1>
+            <h1 className="font-headline text-2xl font-bold text-[#f0f2f8]">Welcome back</h1>
             <p className="text-[#8b95b0] text-sm mt-1">Sign in to your VisiMind account</p>
           </div>
 

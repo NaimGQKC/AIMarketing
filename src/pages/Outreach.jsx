@@ -200,7 +200,7 @@ export default function Outreach() {
   /* ─── Derived data from generated result ─── */
   const emails = generated?.emails || []
   const linkedin = generated?.linkedin || {}
-  const audit = generated?.audit_data || {}
+  const audit = generated?.audit_data_used || {}
 
   const gradeColor = GRADE_COLORS[audit.grade] || '#00e5ff'
 
@@ -357,7 +357,7 @@ export default function Outreach() {
                 className="flex flex-col gap-5"
               >
                 {/* Audit data badges */}
-                {(audit.ias_score != null || audit.grade || audit.fr_gap != null) && (
+                {(audit.ias_score != null || audit.grade || audit.fr_visibility_gap != null) && (
                   <div className="flex flex-wrap items-center gap-3">
                     {audit.ias_score != null && (
                       <div
@@ -383,10 +383,10 @@ export default function Outreach() {
                         Grade: {audit.grade}
                       </div>
                     )}
-                    {audit.fr_gap != null && (
+                    {audit.fr_visibility_gap != null && (
                       <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#9b8aff]/10 text-[#9b8aff] border border-[#9b8aff]/25">
                         <Globe size={12} />
-                        FR Gap: {typeof audit.fr_gap === 'number' ? `${audit.fr_gap}%` : audit.fr_gap}
+                        FR Gap: {typeof audit.fr_visibility_gap === 'number' ? `${audit.fr_visibility_gap}%` : audit.fr_visibility_gap}
                       </div>
                     )}
                   </div>
@@ -397,7 +397,7 @@ export default function Outreach() {
                   <div className="flex border-b border-white/[0.06]">
                     {TAB_LABELS.map((label, idx) => {
                       const isEmail = idx < 3
-                      const hasContent = isEmail ? emails[idx] : (linkedin.connection_request || linkedin.follow_up)
+                      const hasContent = isEmail ? emails[idx] : (linkedin.connection_request || linkedin.follow_up_message)
                       return (
                         <button
                           key={label}
@@ -549,7 +549,7 @@ export default function Outreach() {
                           )}
 
                           {/* Follow-up message */}
-                          {linkedin.follow_up && (
+                          {linkedin.follow_up_message && (
                             <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
                               <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">
@@ -559,19 +559,19 @@ export default function Outreach() {
                                   </span>
                                 </div>
                                 <CopyButton
-                                  text={linkedin.follow_up}
+                                  text={linkedin.follow_up_message}
                                   copiedKey="linkedin-fu"
                                   copiedState={copied}
                                   onCopy={handleCopy}
                                 />
                               </div>
                               <p className="text-sm text-[#f0f2f8] leading-relaxed whitespace-pre-wrap">
-                                {linkedin.follow_up}
+                                {linkedin.follow_up_message}
                               </p>
                             </div>
                           )}
 
-                          {!linkedin.connection_request && !linkedin.follow_up && (
+                          {!linkedin.connection_request && !linkedin.follow_up_message && (
                             <div className="text-center py-12 text-[#5a6480] text-sm">
                               No LinkedIn content generated.
                             </div>

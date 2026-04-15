@@ -1,15 +1,18 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Wrench, Activity, User, LogOut, Zap, Mail } from 'lucide-react'
+import { LayoutDashboard, Wrench, Activity, User, LogOut, Zap, Mail, PlugZap, Search, Map } from 'lucide-react'
 import { clearToken } from '../api/client'
 import './Sidebar.css'
 
 const dashboardItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Audit' },
+  { to: '/connect', icon: PlugZap, label: 'Connect' },
+  { to: '/diagnose', icon: Search, label: 'Diagnose' },
 ]
 
 const agentItems = [
   { to: '/fixkit', icon: Wrench, label: 'Fix Kit' },
   { to: '/monitor', icon: Activity, label: 'Monitor' },
+  { to: '/roadmap', icon: Map, label: 'Roadmap' },
   { to: '/outreach', icon: Mail, label: 'Outreach' },
 ]
 

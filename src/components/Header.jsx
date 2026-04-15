@@ -5,11 +5,15 @@ import { useLocation } from 'react-router-dom'
 import './Header.css'
 
 const routeNames = {
-  '/': 'dashboard',
+  '/dashboard': 'dashboard',
   '/connect': 'connect',
   '/diagnose': 'diagnose',
   '/remediate': 'remediate',
+  '/fixkit': 'remediate',
   '/verify': 'verify',
+  '/monitor': 'verify',
+  '/roadmap': 'roadmap',
+  '/outreach': 'outreach',
 }
 
 export default function Header() {
