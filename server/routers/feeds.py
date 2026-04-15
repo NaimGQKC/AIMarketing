@@ -81,6 +81,25 @@ async def preview_mcp_feed(brand_id: str, user: dict = Depends(require_user), db
     }
 
 
+@router.post("/{brand_id}/mcp/deploy")
+async def deploy_mcp_feed(brand_id: str, user: dict = Depends(require_user), db: aiosqlite.Connection = Depends(get_db)):
+    """Mark the MCP feed as deployed / active for a brand."""
+    cursor = await db.execute(
+        "SELECT * FROM brand_profiles WHERE id = ? AND user_id = ?",
+        (brand_id, user["id"]),
+    )
+    brand = await cursor.fetchone()
+    if not brand:
+        raise HTTPException(status_code=404, detail="Brand not found")
+
+    feed_url = f"/api/v1/feeds/{brand_id}/mcp.json"
+    return {
+        "status": "deployed",
+        "feed_url": feed_url,
+        "message": f"MCP feed is live at {feed_url}. AI agents can now access your brand truth data.",
+    }
+
+
 @router.get("/{brand_id}/jsonld")
 async def get_jsonld_patches(brand_id: str, user: dict = Depends(require_user), db: aiosqlite.Connection = Depends(get_db)):
     """Generate JSON-LD structured data patches for a brand."""

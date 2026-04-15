@@ -1,605 +1,368 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import {
-  Zap,
-  Play,
-  ArrowRight,
-  Search,
-  Languages,
-  BarChart3,
-  Shield,
-  Globe,
-  MapPin,
-  ChevronDown,
-} from 'lucide-react'
 import { apiFetch, setToken } from '../api/client'
+import './LandingPage.css'
 
-const BLOCKED_DOMAINS = [
-  'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com',
-  'icloud.com', 'protonmail.com', 'aol.com',
-]
-
+const BLOCKED_DOMAINS = ['gmail.com','yahoo.com','outlook.com','hotmail.com','icloud.com','protonmail.com','aol.com']
 function isWorkEmail(email) {
   const domain = email.split('@')[1]?.toLowerCase()
   return domain && !BLOCKED_DOMAINS.includes(domain)
 }
 
-/* ── Animation variants ── */
-const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.15, duration: 0.6, ease: [0.16, 1, 0.3, 1] },
-  }),
-}
+/* ══════════════════════════════════════════════════════════════
+   VisiMind Landing Page
+   Lifted from Stitch "Premium Landing Page (Linear Style)"
+   screen 6716ddea — 25KB HTML, class→className conversion only.
+   React used ONLY for the pilot signup form.
+   ══════════════════════════════════════════════════════════════ */
+export default function LandingPage() {
+  useEffect(() => {
+    document.body.classList.add('landing-active')
+    return () => document.body.classList.remove('landing-active')
+  }, [])
 
-const stagger = {
-  visible: { transition: { staggerChildren: 0.12 } },
-}
-
-/* ── Navbar ── */
-function Navbar() {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#060a14]/80 backdrop-blur-xl border-b border-white/[0.06]">
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 text-[#f0f2f8] font-['Outfit'] font-bold text-lg">
-          <Zap size={22} className="text-[#00e5ff]" />
-          VisiMind
-        </Link>
-        <div className="flex items-center gap-6">
-          <Link to="/signin" className="text-[#8b95b0] text-sm hover:text-[#00e5ff] transition-colors">
-            Sign In
-          </Link>
-          <Link
-            to="/signup"
-            className="text-sm px-4 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-[#f0f2f8] hover:bg-white/[0.08] transition-colors"
-          >
-            Sign Up
-          </Link>
+    <div className="landing-page font-body text-on-surface antialiased overflow-x-hidden">
+      {/* Animated ambient background */}
+      <div className="grid-shimmer" />
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] ambient-orb-cyan"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] ambient-orb-lavender"></div>
+      </div>
+
+      {/* NAVBAR */}
+      <header className="fixed top-0 w-full z-50 flex justify-between items-center px-8 py-4 max-w-[1440px] left-1/2 -translate-x-1/2 bg-white/5 dark:bg-slate-950/40 backdrop-blur-xl shadow-[0_0_50px_-12px_rgba(0,229,255,0.1)]">
+        <div className="flex items-center gap-2">
+          <div className="text-cyan-400">
+            <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+          </div>
+          <span className="text-2xl font-bold tracking-tighter text-slate-100 font-headline">VisiMind</span>
         </div>
-      </div>
-    </nav>
-  )
-}
+        <nav className="hidden md:flex gap-8 items-center">
+          <a className="text-cyan-400 font-medium border-b-2 border-cyan-400 pb-1 font-['Inter'] text-sm tracking-wide" href="#features">Platform</a>
+          <a className="text-slate-400 hover:text-slate-100 transition-colors font-['Inter'] text-sm tracking-wide" href="#problem">Solutions</a>
+          <a className="text-slate-400 hover:text-slate-100 transition-colors font-['Inter'] text-sm tracking-wide" href="#pilot">Pricing</a>
+        </nav>
+        <div className="flex items-center gap-4">
+          <Link className="hidden lg:block text-slate-400 hover:text-slate-100 text-sm font-medium transition-colors" to="/signin">Sign In</Link>
+          <Link className="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-md font-bold text-sm hover:shadow-[0_0_20px_rgba(0,229,255,0.4)] transition-all" to="/signup">Get Started</Link>
+        </div>
+      </header>
 
-/* ── Hero Section ── */
-function Hero() {
-  const scrollTo = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
-  }
+      <main className="relative z-10 pt-32">
+        {/* ── HERO ── */}
+        <section className="max-w-7xl mx-auto px-6 lg:px-12 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high border border-outline-variant/20 mb-8">
+            <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span className="text-xs font-bold tracking-widest uppercase text-cyan-400">NeurIPS 2023 Research Backed</span>
+          </div>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline font-extrabold tracking-[-0.04em] leading-[0.9] mb-8 max-w-5xl mx-auto">
+            Your brand has a <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-container to-secondary">new spokesperson.</span> It's an AI.
+          </h1>
+          <p className="text-lg md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-12 font-light leading-relaxed">
+            Automatically audit how ChatGPT, Gemini, and Claude represent your luxury brand in English and French. Detect hallucinations before they become reputation risks.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-24">
+            <a href="#pilot" className="bg-primary-container text-on-primary-container px-8 py-4 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(0,229,255,0.3)] transition-all flex items-center justify-center gap-2">
+              Start your free audit <span className="material-symbols-outlined">arrow_forward</span>
+            </a>
+            <a href="#demo" className="glass-panel px-8 py-4 rounded-lg font-bold text-lg hover:bg-white/10 transition-all border border-outline-variant/30 text-center">
+              Book Demo
+            </a>
+          </div>
 
-  return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-6 pt-16">
-      {/* Grid background */}
-      <div
-        className="absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(0,229,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.3) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-        }}
-      />
-      {/* Gradient orbs */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#00e5ff]/[0.05] rounded-full blur-[120px]" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#9b8aff]/[0.04] rounded-full blur-[100px]" />
-
-      <motion.div
-        className="relative z-10 max-w-4xl mx-auto text-center"
-        initial="hidden"
-        animate="visible"
-        variants={stagger}
-      >
-        <motion.div variants={fadeUp} custom={0} className="mb-6">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#00e5ff]/10 border border-[#00e5ff]/20 text-[#00e5ff] text-sm font-medium">
-            <Shield size={14} />
-            AI Brand Auditing for Quebec &amp; France
-          </span>
-        </motion.div>
-
-        <motion.h1
-          variants={fadeUp}
-          custom={1}
-          className="font-['Outfit'] text-4xl sm:text-5xl md:text-6xl font-bold text-[#f0f2f8] leading-[1.1] mb-6"
-        >
-          AI agents are talking about your brand.{' '}
-          <span className="text-[#00e5ff]">Are they getting it right?</span>
-        </motion.h1>
-
-        <motion.p
-          variants={fadeUp}
-          custom={2}
-          className="text-lg sm:text-xl text-[#8b95b0] max-w-2xl mx-auto mb-10 leading-relaxed"
-        >
-          VisiMind audits how ChatGPT, Gemini, and Google AI Mode represent your
-          brand in French -- and gives you the tools to fix it.
-        </motion.p>
-
-        <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button
-            onClick={() => scrollTo('audit-form')}
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#00e5ff] text-[#0a0e1a] font-semibold rounded-xl text-lg shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.35)] hover:-translate-y-0.5 transition-all duration-250 cursor-pointer"
-          >
-            Audit Your Brand
-            <ArrowRight size={20} />
-          </button>
-          <button
-            onClick={() => scrollTo('demo')}
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/[0.03] text-[#f0f2f8] font-semibold rounded-xl text-lg border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-250 cursor-pointer"
-          >
-            <Play size={18} />
-            Watch the Demo
-          </button>
-        </motion.div>
-
-        <motion.div variants={fadeUp} custom={4} className="mt-16">
-          <ChevronDown size={24} className="mx-auto text-[#5a6480] animate-bounce" />
-        </motion.div>
-      </motion.div>
-    </section>
-  )
-}
-
-/* ── Demo Video Section ── */
-function DemoVideo() {
-  return (
-    <section id="demo" className="py-24 px-6">
-      <div className="max-w-4xl mx-auto">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-100px' }}
-          variants={stagger}
-          className="text-center"
-        >
-          <motion.h2
-            variants={fadeUp}
-            className="font-['Outfit'] text-3xl sm:text-4xl font-bold text-[#f0f2f8] mb-4"
-          >
-            See VisiMind in Action
-          </motion.h2>
-          <motion.p variants={fadeUp} custom={1} className="text-[#8b95b0] mb-10">
-            90-second walkthrough of a real brand audit
-          </motion.p>
-          <motion.div
-            variants={fadeUp}
-            custom={2}
-            className="relative aspect-video rounded-2xl bg-[#0f1424] border border-white/[0.06] overflow-hidden flex items-center justify-center cursor-pointer group"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#00e5ff]/[0.03] to-[#9b8aff]/[0.03]" />
-            <div className="relative z-10 w-20 h-20 rounded-full bg-[#00e5ff]/10 border border-[#00e5ff]/30 flex items-center justify-center group-hover:bg-[#00e5ff]/20 group-hover:border-[#00e5ff]/50 transition-all duration-300">
-              <Play size={32} className="text-[#00e5ff] ml-1" />
+          {/* Demo Video — replaces dashboard mockup */}
+          <div id="demo" className="relative max-w-5xl mx-auto glass-panel rounded-lg p-2 shadow-2xl">
+            <div className="bg-surface-container-lowest rounded-lg overflow-hidden border border-outline-variant/10 aspect-video flex items-center justify-center relative group cursor-pointer">
+              {/* Play button overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary-container/5 to-secondary/5 z-0"></div>
+              <div className="relative z-10 flex flex-col items-center gap-4">
+                <div className="w-20 h-20 rounded-full bg-primary-container/10 border border-primary-container/30 flex items-center justify-center group-hover:bg-primary-container/20 group-hover:border-primary-container/50 transition-all duration-300">
+                  <span className="material-symbols-outlined text-primary-container text-4xl ml-1" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+                </div>
+                <span className="text-on-surface-variant text-sm font-medium">Watch the 90-second demo</span>
+              </div>
             </div>
-          </motion.div>
-        </motion.div>
-      </div>
-    </section>
+            {/* Lavender Tooltip */}
+            <div className="absolute -right-8 top-1/2 -translate-y-1/2 glass-panel p-4 rounded-lg shadow-xl border-secondary/20 max-w-[240px] text-left hidden lg:block">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="material-symbols-outlined text-secondary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+                <span className="text-[10px] font-bold tracking-widest text-secondary uppercase">AI Insight</span>
+              </div>
+              <p className="text-xs leading-relaxed text-on-surface">Brand sentiment drift detected in FR-Quebec model variants regarding &quot;Sustainability&quot;.</p>
+            </div>
+          </div>
+
+          {/* Trust Strip */}
+          <div className="mt-20 py-12 border-t border-white/5 flex flex-wrap justify-center gap-12 grayscale opacity-50">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined">hub</span>
+              <span className="font-headline font-bold">Built on MCP</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined">location_on</span>
+              <span className="font-headline font-bold">Made in Montreal</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined">school</span>
+              <span className="font-headline font-bold">NeurIPS 2023 Research</span>
+            </div>
+          </div>
+        </section>
+
+        {/* ── THE PROBLEM ── */}
+        <section id="problem" className="py-32 max-w-7xl mx-auto px-6 lg:px-12">
+          <span className="text-error font-bold tracking-[0.2em] uppercase text-xs mb-4 block">The Blind Spot</span>
+          <h2 className="text-4xl md:text-5xl font-headline font-bold tracking-tight mb-16 max-w-3xl leading-tight">
+            AI models are your new storefront. <br /><span className="text-on-surface-variant">Most brands are flying blind.</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-surface-container-low p-10 rounded-lg border border-white/5 hover:border-error/20 transition-all group">
+              <div className="text-5xl font-headline font-extrabold text-error mb-4">47%</div>
+              <p className="text-on-surface-variant leading-relaxed">Percentage of generated responses containing historical or pricing errors for premium retail.</p>
+            </div>
+            <div className="bg-surface-container-low p-10 rounded-lg border border-white/5 hover:border-tertiary/20 transition-all">
+              <div className="text-5xl font-headline font-extrabold text-tertiary mb-4">3.2x</div>
+              <p className="text-on-surface-variant leading-relaxed">Increase in hallucination frequency when querying models in non-English languages.</p>
+            </div>
+            <div className="bg-surface-container-low p-10 rounded-lg border border-white/5 hover:border-secondary/20 transition-all">
+              <div className="text-5xl font-headline font-extrabold text-secondary mb-4">$2.4M</div>
+              <p className="text-on-surface-variant leading-relaxed">Estimated annual brand equity erosion per $1B in revenue due to AI-driven misinformation.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ── THE BILINGUAL GAP ── */}
+        <section className="py-32 bg-surface-container-lowest">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12">
+            <span className="text-primary-container font-bold tracking-[0.2em] uppercase text-xs mb-4 block">The Bilingual Audit</span>
+            <h2 className="text-4xl md:text-5xl font-headline font-bold tracking-tight mb-16 max-w-3xl leading-tight">
+              Same question. Two languages. <br />Completely different answers.
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+              {/* EN Card */}
+              <div className="glass-panel rounded-lg overflow-hidden border-primary-container/20">
+                <div className="bg-surface-container-high px-6 py-3 border-b border-white/5 flex justify-between items-center">
+                  <span className="text-xs font-mono text-primary-container">PROMPT_EN.V1</span>
+                  <span className="px-2 py-0.5 rounded-full bg-primary-container/10 text-primary-container text-[10px] font-bold">VERIFIED</span>
+                </div>
+                <div className="p-8">
+                  <div className="flex items-start gap-4 mb-6">
+                    <span className="material-symbols-outlined text-outline">alternate_email</span>
+                    <p className="text-on-surface italic">&quot;Tell me about the heritage of the brand Mackage.&quot;</p>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <span className="material-symbols-outlined text-primary-container">smart_toy</span>
+                    <div className="space-y-4">
+                      <p className="text-on-surface text-sm leading-relaxed">Mackage is a Canadian luxury outerwear brand founded in 1999 by Eran Elfassy and Elisa Dahan. It is headquartered in Montreal and is known for its high-performance fabrics and tailored silhouettes...</p>
+                      <div className="h-px w-full bg-white/5"></div>
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-primary-container text-xs">check_circle</span>
+                        <span className="text-[10px] text-primary-container font-medium">Data alignment: 99.8%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* FR Card */}
+              <div className="glass-panel rounded-lg overflow-hidden border-error/20">
+                <div className="bg-surface-container-high px-6 py-3 border-b border-white/5 flex justify-between items-center">
+                  <span className="text-xs font-mono text-error">PROMPT_FR.V1</span>
+                  <span className="px-2 py-0.5 rounded-full bg-error/10 text-error text-[10px] font-bold">ERROR: BIAS DETECTED</span>
+                </div>
+                <div className="p-8">
+                  <div className="flex items-start gap-4 mb-6">
+                    <span className="material-symbols-outlined text-outline">alternate_email</span>
+                    <p className="text-on-surface italic">&quot;Parle-moi de l&apos;héritage de la marque Mackage.&quot;</p>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <span className="material-symbols-outlined text-error">smart_toy</span>
+                    <div className="space-y-4">
+                      <p className="text-on-surface text-sm leading-relaxed">Mackage est une maison de couture <span className="bg-error/20 text-error px-1">fondée à Paris</span> en 1999. Symbole de l&apos;élégance française, la marque est connue pour ses designs européens inspirés de la haute couture...</p>
+                      <div className="h-px w-full bg-white/5"></div>
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-error text-xs">warning</span>
+                        <span className="text-[10px] text-error font-medium">Fact Hallucination: Origins misidentified as French</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── FEATURES ── */}
+        <section id="features" className="py-32 max-w-7xl mx-auto px-6 lg:px-12">
+          <div className="text-center mb-20">
+            <span className="text-secondary font-bold tracking-[0.2em] uppercase text-xs mb-4 block">Capabilities</span>
+            <h2 className="text-4xl md:text-5xl font-headline font-bold tracking-tight">Full-stack AI brand intelligence.</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
+            <div className="bg-surface-container p-8 rounded-lg border border-white/5 hover:bg-surface-container-high transition-colors">
+              <span className="material-symbols-outlined text-primary-container text-4xl mb-6" style={{ fontVariationSettings: "'FILL' 1" }}>security_update_good</span>
+              <h3 className="text-xl font-bold font-headline mb-3">Inference Audit</h3>
+              <p className="text-on-surface-variant text-sm leading-relaxed">Stress-test foundation models with 10k+ branded queries to map the risk landscape.</p>
+            </div>
+            <div className="bg-surface-container p-8 rounded-lg border border-white/5 hover:bg-surface-container-high transition-colors">
+              <span className="material-symbols-outlined text-primary-container text-4xl mb-6" style={{ fontVariationSettings: "'FILL' 1" }}>query_stats</span>
+              <h3 className="text-xl font-bold font-headline mb-3">IAS Scoring</h3>
+              <p className="text-on-surface-variant text-sm leading-relaxed">Integrity-Accuracy-Sentiment scoring. A unified metric for your AI brand equity.</p>
+            </div>
+            <div className="bg-surface-container p-8 rounded-lg border border-white/5 hover:bg-surface-container-high transition-colors">
+              <span className="material-symbols-outlined text-primary-container text-4xl mb-6" style={{ fontVariationSettings: "'FILL' 1" }}>translate</span>
+              <h3 className="text-xl font-bold font-headline mb-3">Bilingual Gap</h3>
+              <p className="text-on-surface-variant text-sm leading-relaxed">Dedicated monitoring for English/French inconsistencies common in global luxury.</p>
+            </div>
+            <div className="bg-surface-container p-8 rounded-lg border border-white/5 hover:bg-surface-container-high transition-colors">
+              <span className="material-symbols-outlined text-primary-container text-4xl mb-6" style={{ fontVariationSettings: "'FILL' 1" }}>build_circle</span>
+              <h3 className="text-xl font-bold font-headline mb-3">Fix Kit</h3>
+              <p className="text-on-surface-variant text-sm leading-relaxed">Automated system prompts and fine-tuning datasets to correct model hallucinations.</p>
+            </div>
+            <div className="bg-surface-container p-8 rounded-lg border border-white/5 hover:bg-surface-container-high transition-colors">
+              <span className="material-symbols-outlined text-primary-container text-4xl mb-6" style={{ fontVariationSettings: "'FILL' 1" }}>sync</span>
+              <h3 className="text-xl font-bold font-headline mb-3">Verification Loop</h3>
+              <p className="text-on-surface-variant text-sm leading-relaxed">Real-time alerts whenever foundation models update and alter your brand&apos;s narrative.</p>
+            </div>
+            <div className="bg-surface-container p-8 rounded-lg border border-white/5 hover:bg-surface-container-high transition-colors">
+              <span className="material-symbols-outlined text-primary-container text-4xl mb-6" style={{ fontVariationSettings: "'FILL' 1" }}>account_tree</span>
+              <h3 className="text-xl font-bold font-headline mb-3">MCP Knowledge Graphs</h3>
+              <p className="text-on-surface-variant text-sm leading-relaxed">Direct context injection using Model Context Protocol to ground AI responses in truth.</p>
+            </div>
+          </div>
+          <div className="glass-panel p-12 rounded-lg text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary-container/10 to-secondary/10 pointer-events-none"></div>
+            <h3 className="text-3xl font-headline font-bold mb-6 relative z-10">Ready to secure your brand&apos;s AI future?</h3>
+            <a href="#pilot" className="relative z-10 inline-block bg-primary-container text-on-primary-container px-10 py-4 rounded-full font-bold text-lg hover:shadow-lg transition-all">
+              Start Your Audit
+            </a>
+          </div>
+        </section>
+
+        {/* ── HOW IT WORKS ── */}
+        <section className="py-32 bg-surface-container-lowest">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12">
+            <div className="text-center mb-20">
+              <span className="text-on-surface-variant font-bold tracking-[0.2em] uppercase text-xs mb-4 block">The Methodology</span>
+              <h2 className="text-4xl font-headline font-bold">Three steps to AI clarity.</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+              <div className="relative glass-panel p-10 pt-20 rounded-lg group">
+                <span className="absolute top-4 left-6 text-8xl font-headline font-extrabold text-white/5 group-hover:text-primary-container/10 transition-colors pointer-events-none select-none">01</span>
+                <h4 className="text-xl font-bold font-headline mb-4">Enter brand</h4>
+                <p className="text-on-surface-variant leading-relaxed">Connect your official brand portal and product databases via secure API or MCP.</p>
+              </div>
+              <div className="relative glass-panel p-10 pt-20 rounded-lg group">
+                <span className="absolute top-4 left-6 text-8xl font-headline font-extrabold text-white/5 group-hover:text-primary-container/10 transition-colors pointer-events-none select-none">02</span>
+                <h4 className="text-xl font-bold font-headline mb-4">Probe models</h4>
+                <p className="text-on-surface-variant leading-relaxed">Our engine simulates millions of interactions across every major foundation model and language.</p>
+              </div>
+              <div className="relative glass-panel p-10 pt-20 rounded-lg group">
+                <span className="absolute top-4 left-6 text-8xl font-headline font-extrabold text-white/5 group-hover:text-primary-container/10 transition-colors pointer-events-none select-none">03</span>
+                <h4 className="text-xl font-bold font-headline mb-4">Get Score + Kit</h4>
+                <p className="text-on-surface-variant leading-relaxed">Receive your IAS score dashboard and actionable datasets to fix detected hallucinations.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── PILOT SIGNUP (React form) ── */}
+        <PilotForm />
+      </main>
+
+      {/* FOOTER */}
+      <footer className="bg-[#060a14] border-t border-white/5 py-16 px-12 mt-20 relative z-10">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
+          <div className="flex flex-col items-center md:items-start gap-4">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-cyan-400 text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+              <span className="text-xl font-bold text-slate-100 font-headline">VisiMind</span>
+            </div>
+            <p className="text-slate-500 font-['Inter'] text-sm tracking-wide max-w-xs text-center md:text-left">
+              The precision layer for luxury brands in the age of generative intelligence.
+            </p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-8">
+            <a className="text-slate-500 hover:text-slate-300 font-['Inter'] text-sm transition-colors" href="#">Privacy</a>
+            <a className="text-slate-500 hover:text-slate-300 font-['Inter'] text-sm transition-colors" href="#">Terms</a>
+            <Link className="text-slate-500 hover:text-slate-300 font-['Inter'] text-sm transition-colors" to="/signin">Sign In</Link>
+            <Link className="text-slate-500 hover:text-slate-300 font-['Inter'] text-sm transition-colors" to="/signup">Sign Up</Link>
+          </div>
+          <div className="text-slate-500 font-['Inter'] text-sm tracking-wide">
+            © 2024 VisiMind. All rights reserved.
+          </div>
+        </div>
+      </footer>
+    </div>
   )
 }
 
-/* ── Gated Form Section ── */
-function GatedForm() {
+/* ── Pilot signup form — only React-ified section ── */
+function PilotForm() {
   const navigate = useNavigate()
   const [capacity, setCapacity] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({ brand_name: '', email: '', company_url: '' })
-  const [waitlistEmail, setWaitlistEmail] = useState('')
-  const [waitlistSubmitted, setWaitlistSubmitted] = useState(false)
 
   useEffect(() => {
     fetch('/api/v1/system/capacity')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data) setCapacity(data)
-      })
-      .catch(() => {
-        setCapacity({ remaining: 5, total: 10 })
-      })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setCapacity(data) })
+      .catch(() => setCapacity({ remaining: 5, total: 10 }))
   }, [])
 
-  const slotsRemaining = capacity?.remaining ?? null
-  const slotsTotal = capacity?.total ?? 10
+  const slots = capacity?.remaining ?? null
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-
-    if (!isWorkEmail(form.email)) {
-      setError('Please use your work email address.')
-      return
-    }
-
+    if (!isWorkEmail(form.email)) { setError('Please use your work email.'); return }
     setLoading(true)
     try {
-      const randomPwd =
-        Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)
-
+      const pwd = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)
       const data = await apiFetch('/auth/signup', {
         method: 'POST',
-        body: JSON.stringify({
-          email: form.email,
-          password: randomPwd,
-          company_name: form.brand_name,
-          company_url: form.company_url,
-        }),
+        body: JSON.stringify({ email: form.email, password: pwd, company_name: form.brand_name, company_url: form.company_url }),
       })
       setToken(data.access_token || data.token)
       navigate('/setup')
-    } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleWaitlist = async (e) => {
-    e.preventDefault()
-    try {
-      await apiFetch('/system/waitlist', {
-        method: 'POST',
-        body: JSON.stringify({ email: waitlistEmail }),
-      })
-    } catch {
-      // silently accept
-    }
-    setWaitlistSubmitted(true)
+    } catch (err) { setError(err.message || 'Something went wrong.') }
+    finally { setLoading(false) }
   }
 
   return (
-    <section id="audit-form" className="py-24 px-6 bg-[#0a0e1a]">
-      <div className="max-w-xl mx-auto">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
-          variants={stagger}
-        >
-          <motion.div variants={fadeUp} className="text-center mb-8">
-            <h2 className="font-['Outfit'] text-3xl sm:text-4xl font-bold text-[#f0f2f8] mb-3">
-              VisiMind Pilot Program
-            </h2>
-            <p className="text-[#8b95b0]">
-              Currently limiting access to ensure processing quality.
-            </p>
-          </motion.div>
-
-          {/* Slot counter */}
-          <motion.div variants={fadeUp} custom={1} className="text-center mb-8">
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/[0.03] border border-white/[0.06]">
-              <div
-                className={`w-2.5 h-2.5 rounded-full ${
-                  slotsRemaining > 0 ? 'bg-[#34d399] animate-pulse' : 'bg-[#ff4c6a]'
-                }`}
-              />
-              <span className="text-[#f0f2f8] font-medium">
-                {slotsRemaining !== null ? (
-                  <>
-                    <span className="text-[#00e5ff] font-bold">{slotsRemaining}</span> / {slotsTotal}{' '}
-                    Daily Audit Slots Remaining
-                  </>
-                ) : (
-                  'Checking availability...'
-                )}
-              </span>
-            </div>
-          </motion.div>
-
-          {/* Form card */}
-          <motion.div
-            variants={fadeUp}
-            custom={2}
-            className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-8"
-          >
-            {slotsRemaining === 0 ? (
-              waitlistSubmitted ? (
-                <div className="text-center py-6">
-                  <div className="w-14 h-14 rounded-full bg-[#34d399]/10 flex items-center justify-center mx-auto mb-4">
-                    <Shield size={24} className="text-[#34d399]" />
-                  </div>
-                  <h3 className="font-['Outfit'] text-xl font-semibold text-[#f0f2f8] mb-2">
-                    You're on the list!
-                  </h3>
-                  <p className="text-[#8b95b0]">We'll notify you when a slot opens up.</p>
-                </div>
-              ) : (
-                <form onSubmit={handleWaitlist} className="space-y-4">
-                  <p className="text-[#8b95b0] text-center mb-4">
-                    All slots for today are taken. Join the waitlist to get notified.
-                  </p>
-                  <input
-                    type="email"
-                    required
-                    placeholder="Work email"
-                    value={waitlistEmail}
-                    onChange={(e) => setWaitlistEmail(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 text-[#f0f2f8] rounded-lg px-4 py-3 focus:border-[#00e5ff] focus:outline-none transition-colors placeholder:text-[#5a6480]"
-                  />
-                  <button
-                    type="submit"
-                    className="w-full py-3 bg-[#00e5ff] text-[#0a0e1a] font-semibold rounded-xl shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.35)] hover:-translate-y-0.5 transition-all duration-250 cursor-pointer"
-                  >
-                    Join the Waitlist
-                  </button>
-                </form>
-              )
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Brand Name"
-                    value={form.brand_name}
-                    onChange={(e) => setForm({ ...form, brand_name: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 text-[#f0f2f8] rounded-lg px-4 py-3 focus:border-[#00e5ff] focus:outline-none transition-colors placeholder:text-[#5a6480]"
-                  />
-                </div>
-                <div>
-                  <input
-                    type="email"
-                    required
-                    placeholder="Work Email"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 text-[#f0f2f8] rounded-lg px-4 py-3 focus:border-[#00e5ff] focus:outline-none transition-colors placeholder:text-[#5a6480]"
-                  />
-                </div>
-                <div>
-                  <input
-                    type="url"
-                    required
-                    placeholder="Company URL (https://...)"
-                    value={form.company_url}
-                    onChange={(e) => setForm({ ...form, company_url: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 text-[#f0f2f8] rounded-lg px-4 py-3 focus:border-[#00e5ff] focus:outline-none transition-colors placeholder:text-[#5a6480]"
-                  />
-                </div>
-
-                {error && <p className="text-[#ff4c6a] text-sm">{error}</p>}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-3 bg-[#00e5ff] text-[#0a0e1a] font-semibold rounded-xl shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.35)] hover:-translate-y-0.5 transition-all duration-250 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Starting...' : 'Start Your Audit'}
-                </button>
-              </form>
-            )}
-          </motion.div>
-        </motion.div>
+    <section id="pilot" className="py-32 max-w-4xl mx-auto px-6 text-center">
+      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-8">
+        <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span className="text-xs font-bold tracking-widest uppercase text-emerald-500">
+          {slots !== null ? `${slots} slots remaining for Q4 Pilot` : 'Checking availability...'}
+        </span>
       </div>
-    </section>
-  )
-}
-
-/* ── How It Works ── */
-function HowItWorks() {
-  const steps = [
-    {
-      icon: <Search size={28} />,
-      title: 'Enter your brand',
-      desc: 'Tell us your brand name, URL, and language pair. We handle the rest.',
-    },
-    {
-      icon: <Languages size={28} />,
-      title: 'We probe AI agents in both languages',
-      desc: 'VisiMind queries ChatGPT, Gemini, and others with French and English prompts.',
-    },
-    {
-      icon: <BarChart3 size={28} />,
-      title: 'Get your IAS + Fix Kit',
-      desc: 'See where AI gets your brand wrong and get structured content to correct it.',
-    },
-  ]
-
-  return (
-    <section className="py-24 px-6">
-      <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
-          variants={stagger}
-        >
-          <motion.h2
-            variants={fadeUp}
-            className="font-['Outfit'] text-3xl sm:text-4xl font-bold text-[#f0f2f8] text-center mb-16"
-          >
-            How It Works
-          </motion.h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {steps.map((step, i) => (
-              <motion.div
-                key={i}
-                variants={fadeUp}
-                custom={i}
-                className="relative bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-8 text-center hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300"
-              >
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-[#00e5ff]/10 text-[#00e5ff] mb-5">
-                  {step.icon}
-                </div>
-                <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-[#5a6480] text-sm font-bold">
-                  {i + 1}
-                </div>
-                <h3 className="font-['Outfit'] text-lg font-semibold text-[#f0f2f8] mb-3">
-                  {step.title}
-                </h3>
-                <p className="text-[#8b95b0] text-sm leading-relaxed">{step.desc}</p>
-              </motion.div>
-            ))}
+      <h2 className="text-4xl md:text-5xl font-headline font-bold mb-12">Secure your priority audit.</h2>
+      <div className="glass-panel p-8 md:p-12 rounded-lg border-white/10 shadow-2xl">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Brand Name</label>
+            <input className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 focus:ring-2 focus:ring-primary-container text-on-surface" placeholder="e.g. Mackage" type="text" required value={form.brand_name} onChange={e => setForm({ ...form, brand_name: e.target.value })} />
           </div>
-        </motion.div>
-      </div>
-    </section>
-  )
-}
-
-/* ── Bilingual Gap Section ── */
-function BilingualGap() {
-  return (
-    <section className="py-24 px-6 bg-[#0a0e1a]">
-      <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
-          variants={stagger}
-        >
-          <motion.h2
-            variants={fadeUp}
-            className="font-['Outfit'] text-3xl sm:text-4xl font-bold text-[#f0f2f8] text-center mb-4"
-          >
-            The Bilingual AI Gap
-          </motion.h2>
-          <motion.p
-            variants={fadeUp}
-            custom={1}
-            className="text-[#8b95b0] text-center max-w-2xl mx-auto mb-14"
-          >
-            The same question in English and French can produce wildly different brand
-            representations from AI models.
-          </motion.p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* English card */}
-            <motion.div
-              variants={fadeUp}
-              custom={2}
-              className="bg-white/[0.03] backdrop-blur-xl border border-[#00e5ff]/20 rounded-2xl p-8"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <Globe size={18} className="text-[#00e5ff]" />
-                <span className="text-[#00e5ff] text-sm font-semibold uppercase tracking-wider">
-                  English Query
-                </span>
-              </div>
-              <p className="text-[#8b95b0] text-sm italic mb-4">
-                "What are the best skincare brands for sensitive skin?"
-              </p>
-              <div className="bg-white/[0.03] rounded-lg p-4 border border-white/[0.06]">
-                <p className="text-[#f0f2f8] text-sm leading-relaxed">
-                  "For sensitive skin, <span className="text-[#00e5ff] font-medium">BrandX</span> is
-                  widely recommended. Their gentle cleanser line uses ceramide-based formulas
-                  that dermatologists trust..."
-                </p>
-              </div>
-            </motion.div>
-
-            {/* French card */}
-            <motion.div
-              variants={fadeUp}
-              custom={3}
-              className="bg-white/[0.03] backdrop-blur-xl border border-[#ff4c6a]/20 rounded-2xl p-8"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <Globe size={18} className="text-[#ff4c6a]" />
-                <span className="text-[#ff4c6a] text-sm font-semibold uppercase tracking-wider">
-                  French Query
-                </span>
-              </div>
-              <p className="text-[#8b95b0] text-sm italic mb-4">
-                "Quelles sont les meilleures marques de soins pour peau sensible?"
-              </p>
-              <div className="bg-white/[0.03] rounded-lg p-4 border border-white/[0.06]">
-                <p className="text-[#f0f2f8] text-sm leading-relaxed">
-                  "Pour les peaux sensibles, on recommande souvent{' '}
-                  <span className="text-[#ff4c6a] font-medium">des marques generiques</span>.
-                  BrandX n'est pas mentionnee dans les resultats francophones..."
-                </p>
-              </div>
-            </motion.div>
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Corporate Email</label>
+            <input className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 focus:ring-2 focus:ring-primary-container text-on-surface" placeholder="name@brand.com" type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
           </div>
-        </motion.div>
+          <div className="md:col-span-2 space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Website URL</label>
+            <input className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 focus:ring-2 focus:ring-primary-container text-on-surface" placeholder="https://www.brand.com" type="url" required value={form.company_url} onChange={e => setForm({ ...form, company_url: e.target.value })} />
+          </div>
+          {error && <div className="md:col-span-2"><p className="text-error text-sm">{error}</p></div>}
+          <div className="md:col-span-2 pt-4">
+            <button type="submit" disabled={loading} className="w-full bg-primary-container text-on-primary-container py-4 rounded-md font-bold text-lg hover:shadow-[0_0_40px_rgba(0,229,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              {loading ? 'Starting...' : 'Start your free audit'}
+            </button>
+            <p className="text-[10px] text-center text-on-surface-variant mt-4 uppercase tracking-tighter">Free tier. No credit card required. Results in under 5 minutes.</p>
+          </div>
+        </form>
       </div>
     </section>
-  )
-}
-
-/* ── Credibility ── */
-function Credibility() {
-  const badges = [
-    {
-      icon: <Shield size={20} />,
-      label: 'Built on Model Context Protocol (MCP)',
-    },
-    {
-      icon: <Globe size={20} />,
-      label: 'Petrov et al. (NeurIPS 2023), Princeton (2024)',
-    },
-    {
-      icon: <MapPin size={20} />,
-      label: 'Made in Montreal',
-    },
-  ]
-
-  return (
-    <section className="py-24 px-6">
-      <div className="max-w-4xl mx-auto">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
-          variants={stagger}
-          className="flex flex-col sm:flex-row flex-wrap justify-center gap-4"
-        >
-          {badges.map((b, i) => (
-            <motion.div
-              key={i}
-              variants={fadeUp}
-              custom={i}
-              className="inline-flex items-center gap-3 px-5 py-3 rounded-full bg-white/[0.03] border border-white/[0.06] text-[#8b95b0] text-sm"
-            >
-              <span className="text-[#00e5ff]">{b.icon}</span>
-              {b.label}
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-    </section>
-  )
-}
-
-/* ── Footer ── */
-function Footer() {
-  return (
-    <footer className="border-t border-white/[0.06] py-12 px-6">
-      <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div className="flex items-center gap-2 text-[#f0f2f8] font-['Outfit'] font-bold">
-          <Zap size={18} className="text-[#00e5ff]" />
-          VisiMind
-        </div>
-        <p className="text-[#5a6480] text-sm">
-          Research by Alex, AI PM -- Montreal (JMSB/Ampliwork)
-        </p>
-        <div className="flex items-center gap-6">
-          <Link to="/signin" className="text-[#8b95b0] text-sm hover:text-[#00e5ff] transition-colors">
-            Sign In
-          </Link>
-          <Link to="/signup" className="text-[#8b95b0] text-sm hover:text-[#00e5ff] transition-colors">
-            Sign Up
-          </Link>
-        </div>
-      </div>
-    </footer>
-  )
-}
-
-/* ── Landing Page ── */
-export default function LandingPage() {
-  return (
-    <div className="min-h-screen bg-[#060a14]" style={{ scrollBehavior: 'smooth' }}>
-      <Navbar />
-      <Hero />
-      <DemoVideo />
-      <GatedForm />
-      <HowItWorks />
-      <BilingualGap />
-      <Credibility />
-      <Footer />
-    </div>
   )
 }

@@ -8,6 +8,8 @@ const translations = {
     diagnose: 'Diagnose',
     remediate: 'Remediate',
     verify: 'Verify',
+    roadmap: 'Roadmap',
+    outreach: 'Outreach',
     
     // Dashboard
     dashboardTitle: 'Command Center',
@@ -119,6 +121,8 @@ const translations = {
     diagnose: 'Diagnostiquer',
     remediate: 'Remédier',
     verify: 'Vérifier',
+    roadmap: 'Feuille de route',
+    outreach: 'Prospection',
     
     // Dashboard
     dashboardTitle: 'Centre de commande',

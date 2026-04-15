@@ -40,17 +40,22 @@ export default function Verify() {
 
   async function loadData(brandId) {
     setLoading(true)
+    setError('')
     try {
+      // History is optional -- brand may have no audits yet
       try {
         const hist = await apiFetch(`/audits/${brandId}/history`)
         setHistory(hist)
-      } catch {}
+      } catch {
+        // No history yet, that's fine
+      }
+      // Results are optional too -- no audit run yet
       try {
         const results = await apiFetch(`/audits/${brandId}/results`)
         setLatestAudit(results)
-      } catch {}
-    } catch (err) {
-      setError(err.message)
+      } catch {
+        // No results yet
+      }
     } finally {
       setLoading(false)
     }
