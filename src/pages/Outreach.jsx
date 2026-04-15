@@ -208,7 +208,7 @@ export default function Outreach() {
     <div className="min-h-screen bg-[#0a0e1a] p-6 lg:p-10">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-['Outfit'] font-bold text-[#f0f2f8] flex items-center gap-3">
+        <h1 className="text-2xl font-headline font-bold text-[#f0f2f8] flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#00e5ff]/10 flex items-center justify-center">
             <Send size={20} className="text-[#00e5ff]" />
           </div>

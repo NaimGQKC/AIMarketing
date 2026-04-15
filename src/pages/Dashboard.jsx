@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { AlertTriangle, Ghost, Shuffle, Globe, DollarSign, Play, Loader2, RefreshCw, FileDown } from 'lucide-react'
+import { AlertTriangle, Ghost, Shuffle, Globe, DollarSign, Play, Loader2, RefreshCw, FileDown, Lock } from 'lucide-react'
 import { apiFetch, getToken, authHeaders } from '../api/client'
 import { useBrand } from '../context/BrandContext'
 
@@ -35,7 +35,7 @@ function AnimatedScore({ target, grade }) {
         className="w-36 h-36 rounded-full flex items-center justify-center border-4"
         style={{ borderColor: color, boxShadow: `0 0 40px ${glow}, 0 0 80px ${glow}` }}
       >
-        <span className="text-5xl font-['Outfit'] font-bold" style={{ color }}>{value}</span>
+        <span className="text-5xl font-headline font-bold" style={{ color }}>{value}</span>
       </div>
       <span className="mt-3 text-xs font-semibold uppercase tracking-wider" style={{ color }}>
         {grade === 'RED' ? 'Critical' : grade === 'YELLOW' ? 'Moderate' : 'Healthy'}
@@ -188,7 +188,7 @@ export default function Dashboard() {
     return (
       <div className="page">
         <div className="text-center py-20">
-          <h2 className="text-2xl font-['Outfit'] font-bold mb-4">No brand configured</h2>
+          <h2 className="text-2xl font-headline font-bold mb-4">No brand configured</h2>
           <p className="text-[#8b95b0] mb-6">Set up your brand profile first to run an audit.</p>
           <a href="/setup" className="inline-flex px-6 py-3 rounded-xl bg-[#00e5ff] text-[#0a0e1a] font-semibold">
             Set Up Brand
@@ -210,7 +210,7 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-['Outfit'] font-bold">{brand.brand_name} Audit Results</h1>
+          <h1 className="text-2xl font-headline font-bold">{brand.brand_name} Audit Results</h1>
           <p className="text-[#8b95b0] text-sm mt-1">
             {audit ? `Last audit: ${new Date(audit.created_at).toLocaleDateString()}` : 'No audit run yet'}
           </p>
@@ -249,7 +249,7 @@ export default function Dashboard() {
           <div className="w-20 h-20 rounded-full bg-[#00e5ff]/10 flex items-center justify-center mx-auto mb-6">
             <Play size={32} className="text-[#00e5ff] ml-1" />
           </div>
-          <h2 className="text-xl font-['Outfit'] font-bold mb-3">Ready to audit {brand.brand_name}</h2>
+          <h2 className="text-xl font-headline font-bold mb-3">Ready to audit {brand.brand_name}</h2>
           <p className="text-[#8b95b0] mb-6 max-w-md mx-auto">
             Click "Run Audit" to probe AI agents in English and French and see how they represent your brand.
           </p>
@@ -273,7 +273,7 @@ export default function Dashboard() {
                     {key.replace(/_/g, ' ')}
                   </div>
                   <div className="flex items-end gap-2">
-                    <span className="text-2xl font-['Outfit'] font-bold text-[#f0f2f8]">{val}</span>
+                    <span className="text-2xl font-headline font-bold text-[#f0f2f8]">{val}</span>
                     <span className="text-xs text-[#5a6480] mb-1">/ {key === 'brand_in_fr_search' ? 30 : key === 'rank_parity' || key === 'specs_preserved' ? 20 : 15}</span>
                   </div>
                   <div className="mt-2 h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -295,7 +295,7 @@ export default function Dashboard() {
                     <span className="text-xs text-[#ff4c6a] uppercase tracking-wider font-semibold">Estimated Revenue Impact</span>
                   </div>
                   <div className="flex items-baseline gap-3 flex-wrap">
-                    <span className="text-2xl font-['Outfit'] font-bold text-[#f0f2f8]">
+                    <span className="text-2xl font-headline font-bold text-[#f0f2f8]">
                       ${revenue.lost_revenue_annual?.toLocaleString()}/yr
                     </span>
                     <span className="text-sm text-[#8b95b0]">
@@ -320,14 +320,14 @@ export default function Dashboard() {
 
           {/* Side-by-side EN/FR */}
           <div>
-            <h3 className="text-lg font-['Outfit'] font-bold mb-4">What AI agents said about {brand.brand_name}</h3>
+            <h3 className="text-lg font-headline font-bold mb-4">What AI agents said about {brand.brand_name}</h3>
             <SideBySide results={results} />
           </div>
 
           {/* Findings */}
           {findings.length > 0 && (
             <div>
-              <h3 className="text-lg font-['Outfit'] font-bold mb-4">Key Findings</h3>
+              <h3 className="text-lg font-headline font-bold mb-4">Key Findings</h3>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {findings.map((f, i) => (
                   <motion.div
@@ -341,6 +341,42 @@ export default function Dashboard() {
                 ))}
               </div>
             </div>
+          )}
+
+          {/* Gated Upsell — Fix Kit CTA */}
+          {audit && findings.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-white/[0.03] backdrop-blur border border-white/[0.06] rounded-xl p-8"
+            >
+              <div className="flex flex-col items-center text-center max-w-xl mx-auto">
+                <div className="w-14 h-14 rounded-full bg-[#00e5ff]/10 flex items-center justify-center mb-5">
+                  <Lock size={24} className="text-[#00e5ff]" />
+                </div>
+                <h3 className="text-xl font-headline font-bold text-[#f0f2f8] mb-3">
+                  Unlock Your Fix Kit
+                </h3>
+                <p className="text-sm text-[#8b95b0] leading-relaxed mb-6">
+                  Your audit revealed {findings.length} critical finding{findings.length !== 1 ? 's' : ''}. Get a personalized remediation plan with metadata patches, brand voice corrections, and MCP feed deployment.
+                </p>
+                <div className="flex items-center gap-4">
+                  <a
+                    href="#book-call"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#00e5ff] text-[#0a0e1a] font-semibold text-sm shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.45)] transition-all"
+                  >
+                    Book a Strategy Call &rarr;
+                  </a>
+                  <a
+                    href="/remediate"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 text-[#8b95b0] font-medium text-sm hover:text-white hover:border-white/20 transition-all"
+                  >
+                    Explore on your own &rarr;
+                  </a>
+                </div>
+              </div>
+            </motion.div>
           )}
         </div>
       )}

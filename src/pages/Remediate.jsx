@@ -98,7 +98,7 @@ function Panel({ icon: Icon, title, children, index }) {
     >
       <div className="flex items-center gap-2.5 mb-5">
         <Icon size={18} className="text-[#00e5ff]" />
-        <h3 className="text-lg font-['Outfit'] font-bold text-white">{title}</h3>
+        <h3 className="text-lg font-headline font-bold text-white">{title}</h3>
       </div>
       {children}
     </motion.div>
@@ -260,7 +260,7 @@ export default function Remediate() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <h1 className="text-3xl font-['Outfit'] font-bold mb-1">Fix Kit</h1>
+        <h1 className="text-3xl font-headline font-bold mb-1">Fix Kit</h1>
         <p className="text-[#8b95b0] text-sm">
           Deploy structured feeds, JSON-LD patches, and crawler policies to
           control how AI models represent your brand.

@@ -87,7 +87,7 @@ export default function Verify() {
     return (
       <div className="page">
         <div className="text-center py-20">
-          <h2 className="text-xl font-['Outfit'] font-bold mb-3">No brand configured</h2>
+          <h2 className="text-xl font-headline font-bold mb-3">No brand configured</h2>
           <p className="text-[#8b95b0]">Set up your brand to start monitoring.</p>
         </div>
       </div>
@@ -125,7 +125,7 @@ export default function Verify() {
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-['Outfit'] font-bold flex items-center gap-3">
+          <h1 className="text-2xl font-headline font-bold flex items-center gap-3">
             <Activity size={24} className="text-[#00e5ff]" />
             Agent Monitor
           </h1>
@@ -163,11 +163,11 @@ export default function Verify() {
             >
               <div className="flex items-center gap-2 mb-4">
                 <TrendingUp size={18} className="text-[#00e5ff]" />
-                <h3 className="text-lg font-['Outfit'] font-bold">IAS Score Over Time</h3>
+                <h3 className="text-lg font-headline font-bold">IAS Score Over Time</h3>
               </div>
               {trendData.length === 1 ? (
                 <div className="text-center py-8">
-                  <div className="text-4xl font-['Outfit'] font-bold mb-2" style={{ color: GRADE_COLORS[ias?.grade] || '#00e5ff' }}>
+                  <div className="text-4xl font-headline font-bold mb-2" style={{ color: GRADE_COLORS[ias?.grade] || '#00e5ff' }}>
                     {ias?.score || 0}
                   </div>
                   <p className="text-sm text-[#8b95b0]">Run more audits to see the trend line</p>
@@ -210,7 +210,7 @@ export default function Verify() {
             transition={{ delay: 0.1 }}
             className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6"
           >
-            <h3 className="text-lg font-['Outfit'] font-bold mb-4">Per-Agent Breakdown</h3>
+            <h3 className="text-lg font-headline font-bold mb-4">Per-Agent Breakdown</h3>
             {providerBreakdown.length === 0 ? (
               <p className="text-sm text-[#8b95b0]">No provider data available</p>
             ) : (
@@ -249,7 +249,7 @@ export default function Verify() {
             transition={{ delay: 0.2 }}
             className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6"
           >
-            <h3 className="text-lg font-['Outfit'] font-bold mb-4">Latest Probe Responses</h3>
+            <h3 className="text-lg font-headline font-bold mb-4">Latest Probe Responses</h3>
             <div className="space-y-4">
               {results.slice(0, 6).map((r, i) => (
                 <div key={i} className="bg-[#0f1424] rounded-xl p-4 border border-white/[0.04]">

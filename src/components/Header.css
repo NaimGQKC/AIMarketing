@@ -21,8 +21,10 @@
 }
 
 .breadcrumb-root {
-  color: var(--text-tertiary);
-  font-weight: 500;
+  font-family: var(--font-heading);
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .breadcrumb-sep {
@@ -30,6 +32,7 @@
 }
 
 .breadcrumb-current {
+  font-family: var(--font-heading);
   color: var(--text-primary);
   font-weight: 600;
 }
