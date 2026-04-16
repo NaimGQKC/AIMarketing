@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Zap, Eye, EyeOff, Mail, Lock, Building2, Link as LinkIcon } from 'lucide-react'
+import { Zap, Eye, EyeOff, Mail, Lock, Building2, Link as LinkIcon, ArrowLeft } from 'lucide-react'
 import { apiFetch, setToken } from '../api/client'
 
 const BLOCKED_DOMAINS = [
@@ -86,10 +86,19 @@ export default function SignUp() {
   }
 
   return (
-    <div className="min-h-screen bg-[#060a14] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#060a14] flex flex-col items-center justify-center px-6 py-16">
       {/* Background effects */}
       <div className="absolute top-1/3 left-1/3 w-[400px] h-[400px] bg-[#00e5ff]/[0.03] rounded-full blur-[120px]" />
       <div className="absolute bottom-1/3 right-1/3 w-[300px] h-[300px] bg-[#9b8aff]/[0.03] rounded-full blur-[100px]" />
+
+      {/* Back to home */}
+      <Link
+        to="/"
+        className="absolute top-6 left-6 z-20 inline-flex items-center gap-2 text-[#8b95b0] hover:text-[#f0f2f8] transition-colors text-sm"
+      >
+        <ArrowLeft size={16} />
+        Home
+      </Link>
 
       <motion.div
         initial={{ opacity: 0, y: 24 }}
@@ -97,10 +106,10 @@ export default function SignUp() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 w-full max-w-md"
       >
-        <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-8">
+        <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6">
           {/* Header */}
-          <div className="text-center mb-8">
-            <Link to="/" className="inline-flex items-center gap-2 text-[#f0f2f8] font-headline font-bold text-lg mb-6">
+          <div className="text-center mb-5">
+            <Link to="/" className="inline-flex items-center gap-2 text-[#f0f2f8] font-headline font-bold text-lg mb-4">
               <Zap size={22} className="text-[#00e5ff]" />
               VisiMind
             </Link>
@@ -108,7 +117,7 @@ export default function SignUp() {
             <p className="text-[#8b95b0] text-sm mt-1">Start auditing your brand in AI</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3">
             {/* Email */}
             <div>
               <label className="block text-[#8b95b0] text-sm font-medium mb-1.5">Work Email</label>
@@ -117,10 +126,11 @@ export default function SignUp() {
                 <input
                   type="email"
                   required
+                  autoComplete="email"
                   placeholder="you@company.com"
                   value={form.email}
                   onChange={update('email')}
-                  className="w-full bg-white/5 border border-white/10 text-[#f0f2f8] rounded-lg pl-11 pr-4 py-3 focus:border-[#00e5ff] focus:outline-none transition-colors placeholder:text-[#5a6480]"
+                  className="w-full bg-white/5 border border-white/20 text-[#f0f2f8] rounded-lg pl-11 pr-4 py-2.5 focus:border-[#00e5ff] focus:outline-none transition-colors placeholder:text-[#7b8a9e]"
                 />
               </div>
               {emailError && <p className="text-[#ff4c6a] text-xs mt-1">{emailError}</p>}
@@ -134,16 +144,17 @@ export default function SignUp() {
                 <input
                   type={showPwd ? 'text' : 'password'}
                   required
+                  autoComplete="new-password"
                   minLength={8}
                   placeholder="Min. 8 characters"
                   value={form.password}
                   onChange={update('password')}
-                  className="w-full bg-white/5 border border-white/10 text-[#f0f2f8] rounded-lg pl-11 pr-11 py-3 focus:border-[#00e5ff] focus:outline-none transition-colors placeholder:text-[#5a6480]"
+                  className="w-full bg-white/5 border border-white/20 text-[#f0f2f8] rounded-lg pl-11 pr-11 py-2.5 focus:border-[#00e5ff] focus:outline-none transition-colors placeholder:text-[#7b8a9e]"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPwd(!showPwd)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5a6480] hover:text-[#8b95b0] transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-[#5a6480] hover:text-[#8b95b0] transition-colors rounded-lg"
                 >
                   {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -161,8 +172,8 @@ export default function SignUp() {
                   placeholder="Re-enter your password"
                   value={form.confirm_password}
                   onChange={update('confirm_password')}
-                  className={`w-full bg-white/5 border text-[#f0f2f8] rounded-lg pl-11 pr-4 py-3 focus:outline-none transition-colors placeholder:text-[#5a6480] ${
-                    passwordError ? 'border-[#ff4c6a]/50 focus:border-[#ff4c6a]' : 'border-white/10 focus:border-[#00e5ff]'
+                  className={`w-full bg-white/5 border text-[#f0f2f8] rounded-lg pl-11 pr-4 py-2.5 focus:outline-none transition-colors placeholder:text-[#7b8a9e] ${
+                    passwordError ? 'border-[#ff4c6a]/50 focus:border-[#ff4c6a]' : 'border-white/20 focus:border-[#00e5ff]'
                   }`}
                 />
               </div>
@@ -195,10 +206,11 @@ export default function SignUp() {
                 <input
                   type="text"
                   required
+                  autoComplete="organization"
                   placeholder="Your brand or company"
                   value={form.company_name}
                   onChange={update('company_name')}
-                  className="w-full bg-white/5 border border-white/10 text-[#f0f2f8] rounded-lg pl-11 pr-4 py-3 focus:border-[#00e5ff] focus:outline-none transition-colors placeholder:text-[#5a6480]"
+                  className="w-full bg-white/5 border border-white/20 text-[#f0f2f8] rounded-lg pl-11 pr-4 py-2.5 focus:border-[#00e5ff] focus:outline-none transition-colors placeholder:text-[#7b8a9e]"
                 />
               </div>
             </div>
@@ -211,15 +223,23 @@ export default function SignUp() {
                 <input
                   type="url"
                   required
+                  autoComplete="url"
                   placeholder="https://yourcompany.com"
                   value={form.company_url}
                   onChange={update('company_url')}
-                  className="w-full bg-white/5 border border-white/10 text-[#f0f2f8] rounded-lg pl-11 pr-4 py-3 focus:border-[#00e5ff] focus:outline-none transition-colors placeholder:text-[#5a6480]"
+                  className="w-full bg-white/5 border border-white/20 text-[#f0f2f8] rounded-lg pl-11 pr-4 py-2.5 focus:border-[#00e5ff] focus:outline-none transition-colors placeholder:text-[#7b8a9e]"
                 />
               </div>
             </div>
 
             {error && <p className="text-[#ff4c6a] text-sm">{error}</p>}
+
+            <p className="text-[#7b8a9e] text-[11px] text-center leading-relaxed">
+              By creating an account, you agree to our{' '}
+              <Link to="/terms" className="text-[#00e5ff] underline underline-offset-2">Terms of Service</Link>
+              {' '}and{' '}
+              <Link to="/privacy" className="text-[#00e5ff] underline underline-offset-2">Privacy Policy</Link>.
+            </p>
 
             <button
               type="submit"
@@ -230,9 +250,9 @@ export default function SignUp() {
             </button>
           </form>
 
-          <p className="text-center text-[#8b95b0] text-sm mt-6">
+          <p className="text-center text-[#8b95b0] text-sm mt-4">
             Already have an account?{' '}
-            <Link to="/signin" className="text-[#00e5ff] hover:underline">
+            <Link to="/signin" className="text-[#00e5ff] underline underline-offset-2">
               Sign in
             </Link>
           </p>

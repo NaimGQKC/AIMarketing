@@ -39,7 +39,7 @@ export default {
         'on-primary-fixed-variant': '#004f58',
         'on-secondary-fixed-variant': '#4632a4',
         'surface-bright': '#353945',
-        'on-primary-container': '#00626e',
+        'on-primary-container': '#0a0e1a',
         'tertiary-container': '#fec931',
         'secondary-container': '#4834a6',
         'on-secondary': '#2f138e',

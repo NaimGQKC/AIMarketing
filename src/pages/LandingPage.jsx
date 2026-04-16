@@ -21,8 +21,26 @@ export default function LandingPage() {
     return () => document.body.classList.remove('landing-active')
   }, [])
 
+  /* Lightweight mouse-reactive background (passive, no rAF loop) */
+  useEffect(() => {
+    const onMove = (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 2
+      const y = (e.clientY / window.innerHeight - 0.5) * 2
+      const s = document.documentElement.style
+      s.setProperty('--orb-cx', `${x * 40}px`)
+      s.setProperty('--orb-cy', `${y * 40}px`)
+      s.setProperty('--orb-lx', `${x * -30}px`)
+      s.setProperty('--orb-ly', `${y * -30}px`)
+      s.setProperty('--mouse-x', `${e.clientX}px`)
+      s.setProperty('--mouse-y', `${e.clientY}px`)
+    }
+    window.addEventListener('mousemove', onMove, { passive: true })
+    return () => window.removeEventListener('mousemove', onMove)
+  }, [])
+
   return (
     <div className="landing-page font-body text-on-surface antialiased overflow-x-hidden">
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       {/* Animated ambient background */}
       <div className="grid-shimmer" />
       <div className="fixed inset-0 pointer-events-none z-0">
@@ -49,25 +67,26 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <main className="relative z-10 pt-32">
+      <main id="main-content" className="relative z-10 pt-32">
         {/* ── HERO ── */}
         <section className="max-w-7xl mx-auto px-6 lg:px-12 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high border border-outline-variant/20 mb-8">
+          <a href="https://proceedings.neurips.cc/paper_files/paper/2023/file/8b8a7960d343e023a6a0afe37eee6022-Paper-Datasets_and_Benchmarks.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high border border-outline-variant/20 mb-8 hover:border-cyan-400/30 transition-colors">
             <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-pulse"></span>
             <span className="text-xs font-bold tracking-widest uppercase text-cyan-400">NeurIPS 2023 Research Backed</span>
-          </div>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline font-extrabold tracking-[-0.04em] leading-[0.9] mb-8 max-w-5xl mx-auto">
-            Your brand has a <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-container to-secondary">new spokesperson.</span> It's an AI.
+            <span className="material-symbols-outlined text-cyan-400 text-sm">open_in_new</span>
+          </a>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline font-extrabold tracking-[-0.02em] leading-[0.95] mb-8 max-w-5xl mx-auto">
+            AI is telling your brand story.<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-container to-secondary">Is it telling the truth?</span>
           </h1>
           <p className="text-lg md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-12 font-light leading-relaxed">
-            Automatically audit how ChatGPT, Gemini, and Claude represent your luxury brand in English and French. Detect hallucinations before they become reputation risks.
+            ChatGPT and Gemini describe your luxury brand to millions daily — often with hallucinated facts, especially in French. Audit accuracy across languages before misinformation becomes a reputation risk.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-24">
             <a href="#pilot" className="bg-primary-container text-on-primary-container px-8 py-4 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(0,229,255,0.3)] transition-all flex items-center justify-center gap-2">
               Start your free audit <span className="material-symbols-outlined">arrow_forward</span>
             </a>
-            <a href="#demo" className="glass-panel px-8 py-4 rounded-lg font-bold text-lg hover:bg-white/10 transition-all border border-outline-variant/30 text-center">
-              Book Demo
+            <a href="https://calendly.com/a-naim2004/ai-search-research" target="_blank" rel="noopener noreferrer" className="glass-panel px-8 py-4 rounded-lg font-bold text-lg hover:bg-white/10 transition-all border border-outline-variant/30 text-center flex items-center justify-center gap-2">
+              Book a Demo <span className="material-symbols-outlined text-base">calendar_month</span>
             </a>
           </div>
 
@@ -133,7 +152,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── THE BILINGUAL GAP ── */}
-        <section className="py-32 bg-surface-container-lowest">
+        <section className="py-32">
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             <span className="text-primary-container font-bold tracking-[0.2em] uppercase text-xs mb-4 block">The Bilingual Audit</span>
             <h2 className="text-4xl md:text-5xl font-headline font-bold tracking-tight mb-16 max-w-3xl leading-tight">
@@ -199,32 +218,32 @@ export default function LandingPage() {
             <h2 className="text-4xl md:text-5xl font-headline font-bold tracking-tight">Full-stack AI brand intelligence.</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
-            <div className="bg-surface-container p-8 rounded-lg border border-white/5 hover:bg-surface-container-high transition-colors">
+            <div className="bg-surface-container p-8 rounded-lg border border-white/10 hover:bg-surface-container-high transition-colors">
               <span className="material-symbols-outlined text-primary-container text-4xl mb-6" style={{ fontVariationSettings: "'FILL' 1" }}>security_update_good</span>
               <h3 className="text-xl font-bold font-headline mb-3">Inference Audit</h3>
               <p className="text-on-surface-variant text-sm leading-relaxed">Stress-test foundation models with 10k+ branded queries to map the risk landscape.</p>
             </div>
-            <div className="bg-surface-container p-8 rounded-lg border border-white/5 hover:bg-surface-container-high transition-colors">
+            <div className="bg-surface-container p-8 rounded-lg border border-white/10 hover:bg-surface-container-high transition-colors">
               <span className="material-symbols-outlined text-primary-container text-4xl mb-6" style={{ fontVariationSettings: "'FILL' 1" }}>query_stats</span>
               <h3 className="text-xl font-bold font-headline mb-3">IAS Scoring</h3>
               <p className="text-on-surface-variant text-sm leading-relaxed">Integrity-Accuracy-Sentiment scoring. A unified metric for your AI brand equity.</p>
             </div>
-            <div className="bg-surface-container p-8 rounded-lg border border-white/5 hover:bg-surface-container-high transition-colors">
+            <div className="bg-surface-container p-8 rounded-lg border border-white/10 hover:bg-surface-container-high transition-colors">
               <span className="material-symbols-outlined text-primary-container text-4xl mb-6" style={{ fontVariationSettings: "'FILL' 1" }}>translate</span>
               <h3 className="text-xl font-bold font-headline mb-3">Bilingual Gap</h3>
               <p className="text-on-surface-variant text-sm leading-relaxed">Dedicated monitoring for English/French inconsistencies common in global luxury.</p>
             </div>
-            <div className="bg-surface-container p-8 rounded-lg border border-white/5 hover:bg-surface-container-high transition-colors">
+            <div className="bg-surface-container p-8 rounded-lg border border-white/10 hover:bg-surface-container-high transition-colors">
               <span className="material-symbols-outlined text-primary-container text-4xl mb-6" style={{ fontVariationSettings: "'FILL' 1" }}>build_circle</span>
               <h3 className="text-xl font-bold font-headline mb-3">Fix Kit</h3>
               <p className="text-on-surface-variant text-sm leading-relaxed">Automated system prompts and fine-tuning datasets to correct model hallucinations.</p>
             </div>
-            <div className="bg-surface-container p-8 rounded-lg border border-white/5 hover:bg-surface-container-high transition-colors">
+            <div className="bg-surface-container p-8 rounded-lg border border-white/10 hover:bg-surface-container-high transition-colors">
               <span className="material-symbols-outlined text-primary-container text-4xl mb-6" style={{ fontVariationSettings: "'FILL' 1" }}>sync</span>
               <h3 className="text-xl font-bold font-headline mb-3">Verification Loop</h3>
               <p className="text-on-surface-variant text-sm leading-relaxed">Real-time alerts whenever foundation models update and alter your brand&apos;s narrative.</p>
             </div>
-            <div className="bg-surface-container p-8 rounded-lg border border-white/5 hover:bg-surface-container-high transition-colors">
+            <div className="bg-surface-container p-8 rounded-lg border border-white/10 hover:bg-surface-container-high transition-colors">
               <span className="material-symbols-outlined text-primary-container text-4xl mb-6" style={{ fontVariationSettings: "'FILL' 1" }}>account_tree</span>
               <h3 className="text-xl font-bold font-headline mb-3">MCP Knowledge Graphs</h3>
               <p className="text-on-surface-variant text-sm leading-relaxed">Direct context injection using Model Context Protocol to ground AI responses in truth.</p>
@@ -240,7 +259,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── HOW IT WORKS ── */}
-        <section className="py-32 bg-surface-container-lowest">
+        <section className="py-32">
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             <div className="text-center mb-20">
               <span className="text-on-surface-variant font-bold tracking-[0.2em] uppercase text-xs mb-4 block">The Methodology</span>

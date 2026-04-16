@@ -15,10 +15,16 @@ body.landing-active {
 .ambient-orb-cyan {
   background: radial-gradient(circle, rgba(0, 229, 255, 0.08) 0%, transparent 70%);
   animation: orbFloat1 20s ease-in-out infinite, orbPulse 8s ease-in-out infinite;
+  translate: var(--orb-cx, 0px) var(--orb-cy, 0px);
+  transition: translate 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, translate;
 }
 .ambient-orb-lavender {
   background: radial-gradient(circle, rgba(201, 191, 255, 0.08) 0%, transparent 70%);
   animation: orbFloat2 25s ease-in-out infinite, orbPulse 10s ease-in-out infinite 3s;
+  translate: var(--orb-lx, 0px) var(--orb-ly, 0px);
+  transition: translate 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, translate;
 }
 
 @keyframes orbFloat1 {
@@ -59,12 +65,45 @@ body.landing-active {
   background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
   background-size: 24px 24px;
 }
-.landing-page a { color: inherit; opacity: 1; text-decoration: none; }
-.landing-page a:hover { opacity: 1; }
-.landing-page h1, .landing-page h2, .landing-page h3, .landing-page h4 {
+/* Subtle cursor glow — follows mouse, zero-cost CSS gradient */
+.landing-page::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(0, 229, 255, 0.035),
+    transparent 40%
+  );
+  pointer-events: none;
+  z-index: 1;
+  transition: background 0.3s ease;
+}
+
+/* Skip-to-content — keyboard accessibility */
+.skip-link {
+  position: absolute;
+  top: -50px;
+  left: 16px;
+  background: #00e5ff;
+  color: #0a0e1a;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  z-index: 100;
+  transition: top 0.2s ease;
+}
+.skip-link:focus {
+  top: 12px;
+}
+
+:where(.landing-page a) { color: inherit; opacity: 1; text-decoration: none; }
+:where(.landing-page a):hover { opacity: 1; }
+:where(.landing-page h1, .landing-page h2, .landing-page h3, .landing-page h4) {
   font-size: inherit; font-weight: inherit; line-height: inherit; letter-spacing: inherit; color: inherit;
 }
-.landing-page p { color: inherit; }
+:where(.landing-page p) { color: inherit; }
 .landing-page .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
