@@ -2,6 +2,10 @@ import { Lock } from 'lucide-react'
 import './PremiumGate.css'
 
 export default function PremiumGate({ pageName, description, children }) {
+  // TODO: re-enable premium gating before production.
+  // Temporarily disabled so full pages are visible for UX/UI review.
+  return children
+  // eslint-disable-next-line no-unreachable
   return (
     <div className="premium-gate">
       <div className="premium-gate__content">
