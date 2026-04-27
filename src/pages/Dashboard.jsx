@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { AlertTriangle, Ghost, Shuffle, Globe, DollarSign, Play, Loader2, RefreshCw, FileDown } from 'lucide-react'
 import { apiFetch, getToken, authHeaders } from '../api/client'
@@ -110,10 +111,12 @@ function SideBySide({ results }) {
 
 export default function Dashboard() {
   const { selectedBrand, availableBrands, selectedBrandId } = useBrand()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [audit, setAudit] = useState(null)
   const [loading, setLoading] = useState(true)
   const [running, setRunning] = useState(false)
   const [error, setError] = useState('')
+  const autorunTriggered = useRef(false)
 
   useEffect(() => {
     if (selectedBrandId) {
@@ -122,6 +125,15 @@ export default function Dashboard() {
       setLoading(false)
     }
   }, [selectedBrandId])
+
+  // Auto-run audit when arriving from setup
+  useEffect(() => {
+    if (searchParams.get('autorun') === '1' && selectedBrand && !audit && !loading && !running && !autorunTriggered.current) {
+      autorunTriggered.current = true
+      setSearchParams({}, { replace: true })
+      runAudit()
+    }
+  }, [selectedBrand, audit, loading])
 
   async function loadAudit(brandId) {
     setLoading(true)
