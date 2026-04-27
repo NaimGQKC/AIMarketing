@@ -59,8 +59,8 @@ body.landing-active {
   background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
   background-size: 24px 24px;
 }
-.landing-page a { color: inherit; opacity: 1; text-decoration: none; }
-.landing-page a:hover { opacity: 1; }
+:where(.landing-page) a { color: inherit; opacity: 1; text-decoration: none; }
+:where(.landing-page) a:hover { opacity: 1; }
 .landing-page h1, .landing-page h2, .landing-page h3, .landing-page h4 {
   font-size: inherit; font-weight: inherit; line-height: inherit; letter-spacing: inherit; color: inherit;
 }

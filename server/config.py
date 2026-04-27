@@ -52,7 +52,7 @@ OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "llama3.2")
 OLLAMA_URL: str = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
 
 # --- Auth ---
-SECRET_KEY: str = os.getenv("SECRET_KEY", "dev-secret-change-in-production")
+SECRET_KEY: str = os.getenv("SECRET_KEY", "visimind-dev-secret-key-min-32-bytes!")
 
 # --- Additional API Keys ---
 OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")

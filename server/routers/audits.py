@@ -28,12 +28,7 @@ async def trigger_audit(brand_id: str, user: dict = Depends(require_user), db: a
     if daily_count >= DAILY_PROBE_LIMIT:
         raise HTTPException(
             status_code=429,
-            detail={
-                "error": "Daily audit limit reached",
-                "resets_at": "midnight UTC",
-                "used": daily_count,
-                "limit": DAILY_PROBE_LIMIT,
-            },
+            detail=f"Daily audit limit reached ({daily_count}/{DAILY_PROBE_LIMIT}). Resets at midnight UTC.",
         )
 
     # Verify brand belongs to user

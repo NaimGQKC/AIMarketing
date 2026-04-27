@@ -51,7 +51,7 @@ def _build_queries(brand_name: str, category: str, competitor: str) -> list[dict
 
 
 async def _run_single_probe(query: str, lang: str, brand_name: str = "") -> list[dict]:
-    """Run a query against all available providers. Falls back to demo mode if no keys."""
+    """Run a query against all available providers. Falls back to demo mode on failure."""
     results = []
 
     if GOOGLE_API_KEY:
@@ -62,10 +62,13 @@ async def _run_single_probe(query: str, lang: str, brand_name: str = "") -> list
         openai_result = await openai_provider.probe(query, lang)
         results.append(openai_result)
 
-    # Demo mode: generate realistic synthetic responses when no API keys are configured
-    if not results:
-        results.append(_generate_demo_response(query, lang, brand_name, "demo-gemini"))
-        results.append(_generate_demo_response(query, lang, brand_name, "demo-gpt4"))
+    # Fall back to demo mode if no keys configured OR all providers returned errors
+    successful = [r for r in results if not r.get("error")]
+    if not successful:
+        results = [
+            _generate_demo_response(query, lang, brand_name, "demo-gemini"),
+            _generate_demo_response(query, lang, brand_name, "demo-gpt4"),
+        ]
 
     return results
 

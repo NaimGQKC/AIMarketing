@@ -15,11 +15,16 @@ const CATEGORIES = [
 
 export default function CompanySetup() {
   const navigate = useNavigate()
-  const [form, setForm] = useState({
-    brand_name: '',
-    primary_url: '',
-    product_category: '',
-    top_competitor: '',
+  const [form, setForm] = useState(() => {
+    try {
+      const pilot = JSON.parse(localStorage.getItem('visimind_pilot_data') || '{}')
+      return {
+        brand_name: pilot.brand_name || '',
+        primary_url: pilot.primary_url || '',
+        product_category: '',
+        top_competitor: '',
+      }
+    } catch { return { brand_name: '', primary_url: '', product_category: '', top_competitor: '' } }
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -41,7 +46,8 @@ export default function CompanySetup() {
           language_pair: 'EN/FR',
         }),
       })
-      navigate('/dashboard')
+      localStorage.removeItem('visimind_pilot_data')
+      navigate('/dashboard?autorun=1')
     } catch (err) {
       setError(err.message || 'Could not create brand. Please try again.')
     } finally {

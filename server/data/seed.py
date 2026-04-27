@@ -8,9 +8,18 @@ import json
 
 async def seed_database(db):
     """Seed brands, products, and PIM connections. Everything else comes from real probes."""
+    # --- Daily Probe Counter (Simulate 3 spots used to show 7 left) ---
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    await db.execute(
+        "INSERT OR REPLACE INTO daily_probe_counter (date, count) VALUES (?, ?)",
+        (today, 3)
+    )
+
     cursor = await db.execute("SELECT COUNT(*) FROM brands")
     count = (await cursor.fetchone())[0]
     if count > 0:
+        await db.commit()
         return
 
     # --- Brands ---

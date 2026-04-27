@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Zap, Eye, EyeOff, Mail, Lock, Building2, Link as LinkIcon } from 'lucide-react'
+import { Zap, Eye, EyeOff, Mail, Lock, Building2, Link as LinkIcon, ArrowLeft } from 'lucide-react'
 import { apiFetch, setToken } from '../api/client'
 
 const BLOCKED_DOMAINS = [
@@ -54,7 +54,7 @@ export default function SignUp() {
         method: 'POST',
         body: JSON.stringify(form),
       })
-      setToken(data.access_token || data.token)
+      setToken(data.token)
       navigate('/setup')
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
@@ -75,6 +75,10 @@ export default function SignUp() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 w-full max-w-md"
       >
+        <Link to="/" className="inline-flex items-center gap-2 text-[#8b95b0] hover:text-[#f0f2f8] text-sm font-medium transition-colors mb-6">
+          <ArrowLeft size={16} />
+          Back to home
+        </Link>
         <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
