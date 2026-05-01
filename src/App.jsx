@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import LandingPage from './pages/LandingPage'
 import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
+import VerifyEmail from './pages/VerifyEmail'
 import CompanySetup from './pages/CompanySetup'
 import Dashboard from './pages/Dashboard'
 import Connect from './pages/Connect'
@@ -38,16 +39,10 @@ export default function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
 
-      {/* Protected route -- no sidebar/header */}
-      <Route
-        path="/setup"
-        element={
-          <ProtectedRoute>
-            <CompanySetup />
-          </ProtectedRoute>
-        }
-      />
+      {/* Brand setup -- accessible without auth (guest flow) */}
+      <Route path="/setup" element={<BrandProvider><CompanySetup /></BrandProvider>} />
 
       {/* Protected app routes -- with sidebar/header */}
       <Route

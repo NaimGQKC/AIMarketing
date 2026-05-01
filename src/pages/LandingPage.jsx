@@ -116,9 +116,9 @@ export default function LandingPage() {
             Automatically audit how ChatGPT and Gemini represent your luxury brand in English and French. Detect hallucinations before they become reputation risks.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-24">
-            <a href="#pilot" className="bg-primary-container text-on-primary-fixed px-8 py-4 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(0,229,255,0.3)] transition-all flex items-center justify-center gap-2">
+            <Link to="/setup" className="bg-primary-container text-on-primary-fixed px-8 py-4 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(0,229,255,0.3)] transition-all flex items-center justify-center gap-2">
               Start your free audit <span className="material-symbols-outlined">arrow_forward</span>
-            </a>
+            </Link>
           </div>
 
           {/* Demo Video — replaces dashboard mockup */}
@@ -245,7 +245,7 @@ export default function LandingPage() {
             <Link className="text-slate-500 hover:text-slate-300 font-['Inter'] text-sm transition-colors" to="/signup">Sign Up</Link>
           </div>
           <div className="text-slate-500 font-['Inter'] text-sm tracking-wide">
-            © 2025 VisiMind. All rights reserved.
+            © {new Date().getFullYear()} VisiMind. All rights reserved.
           </div>
         </div>
       </footer>
@@ -342,28 +342,14 @@ function ProofMarquee() {
 /* ── Pilot signup form — only React-ified section ── */
 function PilotForm({ capacity }) {
   const navigate = useNavigate()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [form, setForm] = useState({ brand_name: '', email: '', company_url: '' })
+  const [form, setForm] = useState({ brand_name: '', company_url: '' })
 
   const slots = capacity?.slots_remaining ?? null
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
-    setError('')
-    if (!isWorkEmail(form.email)) { setError('Please use your work email.'); return }
-    setLoading(true)
-    try {
-      const pwd = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)
-      const data = await apiFetch('/auth/signup', {
-        method: 'POST',
-        body: JSON.stringify({ email: form.email, password: pwd, company_name: form.brand_name, company_url: form.company_url }),
-      })
-      setToken(data.token)
-      localStorage.setItem('visimind_pilot_data', JSON.stringify({ brand_name: form.brand_name, primary_url: form.company_url }))
-      navigate('/setup')
-    } catch (err) { setError(err.message || 'Something went wrong.') }
-    finally { setLoading(false) }
+    localStorage.setItem('visimind_pilot_data', JSON.stringify({ brand_name: form.brand_name, primary_url: form.company_url }))
+    navigate('/setup')
   }
 
   return (
@@ -382,17 +368,12 @@ function PilotForm({ capacity }) {
             <input className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 focus:ring-2 focus:ring-primary-container text-on-surface" placeholder="e.g. Mackage" type="text" required value={form.brand_name} onChange={e => setForm({ ...form, brand_name: e.target.value })} />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Corporate Email</label>
-            <input className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 focus:ring-2 focus:ring-primary-container text-on-surface" placeholder="name@brand.com" type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
-          </div>
-          <div className="md:col-span-2 space-y-2">
             <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Website URL</label>
             <input className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 focus:ring-2 focus:ring-primary-container text-on-surface" placeholder="https://www.brand.com" type="url" required value={form.company_url} onChange={e => setForm({ ...form, company_url: e.target.value })} />
           </div>
-          {error && <div className="md:col-span-2"><p className="text-error text-sm">{error}</p></div>}
           <div className="md:col-span-2 pt-4">
-            <button type="submit" disabled={loading} className="w-full bg-primary-container text-on-primary-fixed py-4 rounded-md font-bold text-lg hover:shadow-[0_0_40px_rgba(0,229,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-              {loading ? 'Starting...' : 'Start your free audit'}
+            <button type="submit" className="w-full bg-primary-container text-on-primary-fixed py-4 rounded-md font-bold text-lg hover:shadow-[0_0_40px_rgba(0,229,255,0.2)] transition-all">
+              Start your free audit
             </button>
             <p className="text-[10px] text-center text-on-surface-variant mt-4 uppercase tracking-tighter">Free tier. No credit card required. Results in under 5 minutes.</p>
           </div>

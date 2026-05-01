@@ -19,10 +19,27 @@ async def get_db():
 
 
 async def init_db():
-    """Create all tables if they don't exist."""
+    """Create all tables if they don't exist, then run migrations."""
     async with aiosqlite.connect(DATABASE) as db:
         await db.executescript(SCHEMA)
         await db.commit()
+        # Migrations for existing databases
+        await _run_migrations(db)
+
+
+async def _run_migrations(db):
+    """Add columns that may be missing from older databases."""
+    migrations = [
+        "ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN verification_code TEXT",
+        "ALTER TABLE users ADD COLUMN verification_expires TEXT",
+    ]
+    for sql in migrations:
+        try:
+            await db.execute(sql)
+            await db.commit()
+        except Exception:
+            pass  # Column already exists
 
 
 SCHEMA = """
@@ -294,6 +311,9 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     company_name TEXT NOT NULL,
     company_url TEXT,
+    email_verified INTEGER DEFAULT 0,
+    verification_code TEXT,
+    verification_expires TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -15,7 +15,7 @@ from routers.auth import require_user
 from routers.system import get_daily_count, increment_daily_count
 from config import DAILY_PROBE_LIMIT
 from probes.engine import run_audit
-from scoring.ias_calculator import compute_ias, estimate_revenue_impact
+from scoring.ias_calculator import compute_ias, compute_ias_with_judge, estimate_revenue_impact
 
 router = APIRouter(prefix="/api/v1/audits", tags=["audits"])
 
@@ -23,6 +23,13 @@ router = APIRouter(prefix="/api/v1/audits", tags=["audits"])
 @router.post("/{brand_id}/run")
 async def trigger_audit(brand_id: str, user: dict = Depends(require_user), db: aiosqlite.Connection = Depends(get_db)):
     """Trigger a full bilingual audit. Enforces daily circuit breaker."""
+    # Check email verification
+    if not user.get("email_verified"):
+        raise HTTPException(
+            status_code=403,
+            detail="Please verify your email before running an audit.",
+        )
+
     # Check daily limit
     daily_count = await get_daily_count(db)
     if daily_count >= DAILY_PROBE_LIMIT:
@@ -42,14 +49,19 @@ async def trigger_audit(brand_id: str, user: dict = Depends(require_user), db: a
 
     brand_dict = dict(brand)
 
-    # Increment counter
-    await increment_daily_count(db)
-
     # Run the audit
     audit_data = await run_audit(db, brand_dict)
 
-    # Compute IAS
-    ias = compute_ias(audit_data["results"])
+    # Increment counter only after successful audit
+    await increment_daily_count(db)
+
+    # Compute IAS using AI judge
+    ias = await compute_ias_with_judge(
+        audit_data["results"],
+        brand_name=brand_dict["brand_name"],
+        competitor=brand_dict.get("top_competitor", ""),
+        category=brand_dict.get("product_category", ""),
+    )
     revenue = estimate_revenue_impact(ias["score"])
 
     # Update audit record with IAS

@@ -43,24 +43,56 @@ def generate_mcp_feed(brand_profile: dict, audit_results: list = None) -> dict:
         }
     }
 
-    # Add corrections from audit findings if available
+    # Add corrections from audit findings -- focus on gaps and misrepresentations
     if audit_results:
-        ias_data = None
         try:
             if isinstance(audit_results, str):
                 audit_results = json.loads(audit_results)
-        except:
-            pass
+        except Exception:
+            audit_results = []
 
-        for result in (audit_results if isinstance(audit_results, list) else []):
-            if result.get("brand_mentioned") and result.get("response_text"):
+        results_list = audit_results if isinstance(audit_results, list) else []
+
+        # Group by probe_type+lang to find patterns
+        from collections import defaultdict
+        groups = defaultdict(list)
+        for r in results_list:
+            groups[(r.get("probe_type", ""), r.get("lang", ""))].append(r)
+
+        for (probe_type, lang), probes in groups.items():
+            total = len(probes)
+            mentioned = sum(1 for p in probes if p.get("brand_mentioned"))
+            mention_rate = mentioned / total if total else 0
+
+            if mention_rate < 1.0:
+                # Brand is missing in some responses -- this needs correction
+                missing_sample = next(
+                    (p["response_text"][:300] for p in probes if not p.get("brand_mentioned") and p.get("response_text")),
+                    None,
+                )
                 feed["corrections"].append({
-                    "probe_type": result.get("probe_type", ""),
-                    "language": result.get("lang", ""),
-                    "provider": result.get("provider", ""),
-                    "observed_response": result.get("response_text", "")[:300],
-                    "correction_needed": not result.get("brand_mentioned", False),
+                    "type": "brand_omission",
+                    "probe_type": probe_type.replace("_", " "),
+                    "language": lang,
+                    "mention_rate": f"{mention_rate:.0%}",
+                    "total_probes": total,
+                    "issue": f"{brand_name} was only mentioned in {mentioned}/{total} responses for '{probe_type.replace('_', ' ')}' queries ({lang})",
+                    "sample_response_without_brand": missing_sample,
+                    "recommended_action": f"Ensure {brand_name} is represented in {probe_type.replace('_', ' ')} contexts in {lang}",
                 })
+
+        # Add bilingual parity data
+        en_probes = [r for r in results_list if r.get("lang") == "EN"]
+        fr_probes = [r for r in results_list if r.get("lang") == "FR"]
+        en_rate = sum(1 for p in en_probes if p.get("brand_mentioned")) / len(en_probes) if en_probes else 0
+        fr_rate = sum(1 for p in fr_probes if p.get("brand_mentioned")) / len(fr_probes) if fr_probes else 0
+
+        feed["bilingual_mappings"] = {
+            "en_mention_rate": f"{en_rate:.0%}",
+            "fr_mention_rate": f"{fr_rate:.0%}",
+            "parity_gap": f"{abs(en_rate - fr_rate):.0%}",
+            "weaker_language": "FR" if fr_rate < en_rate else "EN" if en_rate < fr_rate else "parity",
+        }
 
     return feed
 

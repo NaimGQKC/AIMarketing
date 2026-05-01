@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Zap, Building2, Link as LinkIcon, Tag, Users, ArrowRight } from 'lucide-react'
-import { apiFetch } from '../api/client'
+import { Zap, Building2, Link as LinkIcon, Tag, Users, ArrowRight, ArrowLeft } from 'lucide-react'
+import { apiFetch, getToken, setToken } from '../api/client'
+import { useBrand } from '../context/BrandContext'
 
 const CATEGORIES = [
   'Fashion',
@@ -15,6 +16,7 @@ const CATEGORIES = [
 
 export default function CompanySetup() {
   const navigate = useNavigate()
+  const { refreshBrands } = useBrand()
   const [form, setForm] = useState(() => {
     try {
       const pilot = JSON.parse(localStorage.getItem('visimind_pilot_data') || '{}')
@@ -39,6 +41,12 @@ export default function CompanySetup() {
     setLoading(true)
 
     try {
+      // If no token, create a guest account first
+      if (!getToken()) {
+        const guest = await apiFetch('/auth/guest', { method: 'POST' })
+        setToken(guest.token)
+      }
+
       await apiFetch('/brands', {
         method: 'POST',
         body: JSON.stringify({
@@ -47,6 +55,7 @@ export default function CompanySetup() {
         }),
       })
       localStorage.removeItem('visimind_pilot_data')
+      await refreshBrands()
       navigate('/dashboard?autorun=1')
     } catch (err) {
       setError(err.message || 'Could not create brand. Please try again.')
@@ -67,15 +76,18 @@ export default function CompanySetup() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 w-full max-w-lg"
       >
+        <Link to="/dashboard" className="inline-flex items-center gap-2 text-[#8b95b0] hover:text-[#f0f2f8] text-sm font-medium transition-colors mb-6">
+          <ArrowLeft size={16} />
+          Back to dashboard
+        </Link>
         <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <Link to="/" className="inline-flex items-center gap-2 text-[#f0f2f8] font-['Outfit'] font-bold text-lg mb-6">
+            <Link to="/dashboard" className="inline-flex items-center gap-2 text-[#f0f2f8] font-['Outfit'] font-bold text-lg mb-6">
               <Zap size={22} className="text-[#00e5ff]" />
               VisiMind
             </Link>
             <h1 className="font-['Outfit'] text-2xl font-bold text-[#f0f2f8]">Let's set up your brand</h1>
-            <p className="text-[#8b95b0] text-sm mt-1">This takes 30 seconds</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -150,14 +162,6 @@ export default function CompanySetup() {
                   onChange={update('top_competitor')}
                   className="w-full bg-white/5 border border-white/10 text-[#f0f2f8] rounded-lg pl-11 pr-4 py-3 focus:border-[#00e5ff] focus:outline-none transition-colors placeholder:text-[#5a6480]"
                 />
-              </div>
-            </div>
-
-            {/* Language Pair (read-only) */}
-            <div>
-              <label className="block text-[#8b95b0] text-sm font-medium mb-1.5">Language Pair</label>
-              <div className="w-full bg-white/5 border border-white/10 text-[#8b95b0] rounded-lg px-4 py-3">
-                EN / FR
               </div>
             </div>
 

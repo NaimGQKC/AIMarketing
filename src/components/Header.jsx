@@ -1,4 +1,4 @@
-import { Search, Bell, Tag } from 'lucide-react'
+import { Tag } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import { useBrand } from '../context/BrandContext'
 import { useLocation } from 'react-router-dom'
@@ -11,7 +11,7 @@ const routeNames = {
   '/remediate': 'remediate',
   '/fixkit': 'remediate',
   '/verify': 'verify',
-  '/monitor': 'verify',
+  '/monitor': 'monitor',
   '/roadmap': 'roadmap',
   '/outreach': 'outreach',
 }
@@ -32,35 +32,25 @@ export default function Header() {
 
       <div className="header-actions">
         {/* Global Brand Selector */}
-        <div className="header-brand-select">
-          <div className="brand-select-icon">
-            <Tag size={14} />
+        {availableBrands.length > 1 && (
+          <div className="header-brand-select">
+            <div className="brand-select-icon">
+              <Tag size={14} />
+            </div>
+            <select
+              value={selectedBrandId}
+              onChange={(e) => setSelectedBrandId(e.target.value)}
+              className="brand-select-input"
+            >
+              <option value="all">{t('allBrands') || 'All Brands'}</option>
+              {availableBrands.map((brand) => (
+                <option key={brand.id} value={brand.id}>
+                  {brand.brand_name || brand.name}
+                </option>
+              ))}
+            </select>
           </div>
-          <select 
-            value={selectedBrandId} 
-            onChange={(e) => setSelectedBrandId(e.target.value)}
-            className="brand-select-input"
-          >
-            <option value="all">{t('allBrands') || 'All Brands'}</option>
-            {availableBrands.map((brand) => (
-              <option key={brand.id} value={brand.id}>
-                {brand.brand_name || brand.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="header-search">
-          <Search size={16} />
-          <input type="text" placeholder={t('search')} />
-        </div>
-        <button className="header-notification" id="notification-bell">
-          <Bell size={18} />
-          <span className="notification-badge">3</span>
-        </button>
-        <div className="header-avatar" id="user-avatar">
-          <span>AP</span>
-        </div>
+        )}
       </div>
     </header>
   )

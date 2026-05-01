@@ -1,7 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
 import {
-  Code2,
   FileJson,
   Shield,
   Copy,
@@ -9,8 +8,8 @@ import {
   Check,
   X,
   Loader2,
-  ExternalLink,
   Bot,
+  FileText,
 } from 'lucide-react'
 import { apiFetch } from '../api/client'
 import { useBrand } from '../context/BrandContext'
@@ -19,50 +18,23 @@ import { useBrand } from '../context/BrandContext'
 /*  Fix Kit Page (Screen 4) - MCP Feed, JSON-LD, robots.txt panels    */
 /* ------------------------------------------------------------------ */
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.08, duration: 0.45, ease: 'easeOut' },
-  }),
-}
-
 /* ---------- tiny helpers ---------- */
-function StatusBadge({ status }) {
+function StatusLabel({ status }) {
   const map = {
-    deployed: {
-      bg: 'bg-emerald-500/15',
-      text: 'text-emerald-400',
-      dot: 'bg-emerald-400',
-      label: 'Deployed',
-    },
-    pending: {
-      bg: 'bg-amber-500/15',
-      text: 'text-amber-400',
-      dot: 'bg-amber-400',
-      label: 'Pending',
-    },
-    verified: {
-      bg: 'bg-emerald-500/15',
-      text: 'text-emerald-400',
-      dot: 'bg-emerald-400',
-      label: 'Verified',
-    },
-    not_deployed: {
-      bg: 'bg-white/[0.06]',
-      text: 'text-[#8b95b0]',
-      dot: 'bg-[#8b95b0]',
-      label: 'Not deployed',
-    },
+    deployed: 'Deployed',
+    pending: 'Pending',
+    verified: 'Verified',
+    not_deployed: 'Not deployed',
   }
-  const s = map[status] || map.not_deployed
+  const label = map[status] || map.not_deployed
+  const isActive = status === 'deployed' || status === 'verified'
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.68rem] font-semibold ${s.bg} ${s.text}`}
+      className={`text-xs font-medium ${
+        isActive ? 'text-[#00e5ff]' : 'text-[#5a6480]'
+      }`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
-      {s.label}
+      {label}
     </span>
   )
 }
@@ -78,30 +50,11 @@ function CopyButton({ text }) {
   return (
     <button
       onClick={handleCopy}
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.06] hover:bg-white/[0.1] text-[#c4ccde] transition-colors cursor-pointer"
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.06] hover:bg-white/[0.1] text-[#c8ccd8] transition-colors cursor-pointer"
     >
-      {copied ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+      {copied ? <Check size={13} className="text-[#00e5ff]" /> : <Copy size={13} />}
       {copied ? 'Copied' : 'Copy URL'}
     </button>
-  )
-}
-
-/* ---------- Panel wrapper ---------- */
-function Panel({ icon: Icon, title, children, index }) {
-  return (
-    <motion.div
-      className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6"
-      variants={fadeUp}
-      initial="hidden"
-      animate="visible"
-      custom={index}
-    >
-      <div className="flex items-center gap-2.5 mb-5">
-        <Icon size={18} className="text-[#00e5ff]" />
-        <h3 className="text-lg font-['Outfit'] font-bold text-white">{title}</h3>
-      </div>
-      {children}
-    </motion.div>
   )
 }
 
@@ -119,23 +72,22 @@ const JSONLD_TABS = [
 /* ================================================================== */
 export default function Remediate() {
   /* --- brand context --- */
-  const { selectedBrandId } = useBrand()
+  const { selectedBrandId, selectedBrand } = useBrand()
   const brandId = selectedBrandId
 
   /* --- shared state --- */
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  /* --- MCP Feed --- */
-  const [mcpPreview, setMcpPreview] = useState(null)
-  const [mcpValid, setMcpValid] = useState(false)
-  const [mcpDeploying, setMcpDeploying] = useState(false)
-  const [mcpStatus, setMcpStatus] = useState('not_deployed')
-
   /* --- JSON-LD --- */
   const [jsonLdData, setJsonLdData] = useState(null)
   const [jsonLdTab, setJsonLdTab] = useState('organization')
   const [jsonLdStatus, setJsonLdStatus] = useState('not_deployed')
+
+  /* --- llms.txt --- */
+  const [llmsTxtData, setLlmsTxtData] = useState(null)
+  const [llmsTxtTab, setLlmsTxtTab] = useState('en')
+  const [llmsTxtStatus, setLlmsTxtStatus] = useState('not_deployed')
 
   /* --- robots.txt --- */
   const [robotsUrl, setRobotsUrl] = useState('')
@@ -143,27 +95,38 @@ export default function Remediate() {
   const [robotsResult, setRobotsResult] = useState(null)
   const [robotsStatus, setRobotsStatus] = useState('not_deployed')
 
-  /* ---- fetch MCP + JSON-LD once brandId is known ---- */
+  /* ---- auto-fill robots.txt URL and auto-scan ---- */
+  const robotsAutoScanned = useRef(false)
+  useEffect(() => {
+    if (selectedBrand?.primary_url && !robotsAutoScanned.current) {
+      setRobotsUrl(selectedBrand.primary_url)
+    }
+  }, [selectedBrand])
+
+  // Trigger scan once URL is populated and brand is ready
+  useEffect(() => {
+    if (brandId && robotsUrl && !robotsAutoScanned.current && !robotsScanning && !robotsResult) {
+      robotsAutoScanned.current = true
+      handleScanRobots()
+    }
+  }, [brandId, robotsUrl])
+
+  /* ---- fetch JSON-LD once brandId is known ---- */
   useEffect(() => {
     if (!brandId) return
     let cancelled = false
 
     async function fetchFeeds() {
       try {
-        const [mcp, jld] = await Promise.all([
-          apiFetch(`/feeds/${brandId}/mcp/preview`).catch(() => null),
+        const [jld, llms] = await Promise.all([
           apiFetch(`/feeds/${brandId}/jsonld`).catch(() => null),
+          apiFetch(`/feeds/${brandId}/llmstxt`).catch(() => null),
         ])
         if (cancelled) return
-        if (mcp) {
-          setMcpPreview(mcp)
-          setMcpValid(true)
-        }
-        if (jld) {
-          setJsonLdData(jld)
-        }
+        if (jld) setJsonLdData(jld)
+        if (llms) setLlmsTxtData(llms)
       } catch {
-        // individual catches above handle per-request errors
+        // handled above
       }
     }
     fetchFeeds()
@@ -171,19 +134,6 @@ export default function Remediate() {
   }, [brandId])
 
   /* ---- handlers ---- */
-  const handleDeployMcp = useCallback(async () => {
-    if (!brandId) return
-    setMcpDeploying(true)
-    try {
-      await apiFetch(`/feeds/${brandId}/mcp/deploy`, { method: 'POST' })
-      setMcpStatus('deployed')
-    } catch {
-      // silently keep current status
-    } finally {
-      setMcpDeploying(false)
-    }
-  }, [brandId])
-
   const handleDownloadJsonLd = useCallback(() => {
     if (!jsonLdData) return
     const blob = new Blob([JSON.stringify(jsonLdData, null, 2)], { type: 'application/json' })
@@ -195,6 +145,27 @@ export default function Remediate() {
     URL.revokeObjectURL(url)
     setJsonLdStatus('pending')
   }, [jsonLdData, brandId])
+
+  const handleDownloadLlmsTxt = useCallback(() => {
+    if (!llmsTxtData) return
+    const content = llmsTxtTab === 'index' ? llmsTxtData.index : llmsTxtData[llmsTxtTab]
+    if (!content) return
+    const filename = llmsTxtTab === 'index' ? 'llms.txt' : `llms-${llmsTxtTab}.txt`
+    const blob = new Blob([content], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.click()
+    URL.revokeObjectURL(url)
+    setLlmsTxtStatus('pending')
+  }, [llmsTxtData, llmsTxtTab])
+
+  const handleCopyLlmsTxt = useCallback(() => {
+    if (!llmsTxtData) return
+    const content = llmsTxtTab === 'index' ? llmsTxtData.index : llmsTxtData[llmsTxtTab]
+    if (content) navigator.clipboard.writeText(content)
+  }, [llmsTxtData, llmsTxtTab])
 
   const handleScanRobots = useCallback(async () => {
     if (!brandId || !robotsUrl.trim()) return
@@ -224,17 +195,12 @@ export default function Remediate() {
     }
   }, [brandId, robotsUrl])
 
-  /* ---- feed URL (for copy) ---- */
-  const mcpFeedUrl = brandId
-    ? `${window.location.origin}/api/v1/feeds/${brandId}/mcp.json`
-    : ''
-
   /* ================================================================ */
   /*  Loading / Error states                                           */
   /* ================================================================ */
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#060a14] flex items-center justify-center">
+      <div className="page flex items-center justify-center" style={{ minHeight: '60vh' }}>
         <Loader2 size={28} className="animate-spin text-[#00e5ff]" />
       </div>
     )
@@ -242,8 +208,8 @@ export default function Remediate() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#060a14] flex items-center justify-center">
-        <p className="text-red-400 text-sm">{error}</p>
+      <div className="page flex items-center justify-center" style={{ minHeight: '60vh' }}>
+        <p className="text-[#c8ccd8] text-sm">{error}</p>
       </div>
     )
   }
@@ -252,334 +218,328 @@ export default function Remediate() {
   /*  Render                                                           */
   /* ================================================================ */
   return (
-    <div className="min-h-screen bg-[#060a14] text-white px-6 py-10 lg:px-10">
+    <div className="page max-w-5xl">
       {/* Page header */}
       <motion.div
-        className="mb-10"
+        className="flex items-start justify-between mb-12"
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <h1 className="text-3xl font-['Outfit'] font-bold mb-1">Fix Kit</h1>
-        <p className="text-[#8b95b0] text-sm">
-          Deploy structured feeds, JSON-LD patches, and crawler policies to
-          control how AI models represent your brand.
-        </p>
+        <div>
+          <h1 className="text-3xl font-['Outfit'] font-bold">Fix Kit</h1>
+          <p className="text-[#5a6480] text-sm mt-2">
+            Deploy structured data, AI-readable summaries, and crawler policies to
+            control how AI models represent your brand.
+          </p>
+        </div>
       </motion.div>
 
-      {/* ---- Status row ---- */}
-      <motion.div
-        className="flex flex-wrap gap-4 mb-8"
-        variants={fadeUp}
-        initial="hidden"
-        animate="visible"
-        custom={0}
-      >
-        {[
-          { label: 'MCP Feed', status: mcpStatus, icon: Code2 },
-          { label: 'JSON-LD', status: jsonLdStatus, icon: FileJson },
-          { label: 'robots.txt', status: robotsStatus, icon: Shield },
-        ].map(({ label, status, icon: Ic }) => (
-          <div
-            key={label}
-            className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5"
-          >
-            <Ic size={15} className="text-[#00e5ff]" />
-            <span className="text-sm text-[#c4ccde] font-medium">{label}</span>
-            <StatusBadge status={status} />
-          </div>
-        ))}
-      </motion.div>
+      {/* ========================================================== */}
+      {/*  1. JSON-LD Structured Data                                 */}
+      {/* ========================================================== */}
+      <section className="py-10 border-t border-white/[0.04]">
+        <div className="flex items-center gap-2.5 mb-6">
+          <FileJson size={18} className="text-[#00e5ff]" />
+          <h2 className="text-lg font-['Outfit'] font-bold">JSON-LD Structured Data</h2>
+        </div>
 
-      {/* ---- Panels grid ---- */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* ====================================================== */}
-        {/*  1. MCP Feed Panel                                      */}
-        {/* ====================================================== */}
-        <Panel icon={Code2} title="MCP Feed" index={1}>
-          {/* Feed URL + copy */}
-          <div className="flex items-center gap-2 mb-4 flex-wrap">
-            <code className="text-[0.7rem] text-[#8b95b0] bg-[#0a0e1a] px-3 py-1.5 rounded-lg truncate max-w-md">
-              {mcpFeedUrl || 'No brand selected'}
-            </code>
-            {mcpFeedUrl && <CopyButton text={mcpFeedUrl} />}
-          </div>
-
-          {/* Validation badge */}
-          <div className="flex items-center gap-2 mb-4">
-            {mcpValid ? (
-              <span className="inline-flex items-center gap-1.5 text-emerald-400 text-xs font-medium">
-                <Check size={14} /> Valid JSON
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 text-[#8b95b0] text-xs font-medium">
-                <Loader2 size={14} className="animate-spin" /> Loading preview...
-              </span>
-            )}
-          </div>
-
-          {/* JSON preview */}
-          <pre className="bg-[#0a0e1a] rounded-xl p-4 font-mono text-xs text-[#8b95b0] overflow-auto max-h-80 mb-5 whitespace-pre-wrap">
-            {mcpPreview
-              ? JSON.stringify(mcpPreview, null, 2)
-              : '// Waiting for MCP feed data...'}
-          </pre>
-
-          {/* Deploy button */}
-          <button
-            onClick={handleDeployMcp}
-            disabled={mcpDeploying || mcpStatus === 'deployed'}
-            className="inline-flex items-center gap-2 bg-[#00e5ff] text-[#0a0e1a] font-semibold rounded-xl px-5 py-2.5 text-sm hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-          >
-            {mcpDeploying ? (
-              <>
-                <Loader2 size={15} className="animate-spin" />
-                Deploying...
-              </>
-            ) : mcpStatus === 'deployed' ? (
-              <>
-                <Check size={15} />
-                Deployed
-              </>
-            ) : (
-              <>
-                <ExternalLink size={15} />
-                Deploy MCP Feed
-              </>
-            )}
-          </button>
-        </Panel>
-
-        {/* ====================================================== */}
-        {/*  2. JSON-LD Panel                                       */}
-        {/* ====================================================== */}
-        <Panel icon={FileJson} title="JSON-LD Structured Data" index={2}>
-          {/* Tabs */}
-          <div className="flex gap-1 mb-5 bg-white/[0.04] rounded-xl p-1">
-            {JSONLD_TABS.map(({ key, label }) => (
-              <button
-                key={key}
-                onClick={() => setJsonLdTab(key)}
-                className={`flex-1 text-xs font-semibold py-2 rounded-lg transition-colors cursor-pointer ${
-                  jsonLdTab === key
-                    ? 'bg-[#00e5ff]/15 text-[#00e5ff]'
-                    : 'text-[#8b95b0] hover:text-white'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {/* Before / After comparison */}
-          <div className="grid grid-cols-2 gap-3 mb-5">
-            {/* Before */}
-            <div>
-              <div className="text-[0.65rem] font-bold uppercase tracking-wider text-red-400/80 mb-2">
-                Current
-              </div>
-              <pre className="bg-[#0a0e1a] rounded-xl p-4 font-mono text-xs text-[#8b95b0] overflow-auto max-h-52 whitespace-pre-wrap">
-                {jsonLdData?.current?.[jsonLdTab]
-                  ? JSON.stringify(jsonLdData.current[jsonLdTab], null, 2)
-                  : '// No existing structured data'}
-              </pre>
-            </div>
-            {/* After */}
-            <div>
-              <div className="text-[0.65rem] font-bold uppercase tracking-wider text-emerald-400/80 mb-2">
-                Generated
-              </div>
-              <pre className="bg-[#0a0e1a] rounded-xl p-4 font-mono text-xs text-[#00e5ff]/70 overflow-auto max-h-52 whitespace-pre-wrap">
-                {jsonLdData?.generated?.[jsonLdTab]
-                  ? JSON.stringify(jsonLdData.generated[jsonLdTab], null, 2)
-                  : '// Generating...'}
-              </pre>
-            </div>
-          </div>
-
-          {/* Download button */}
-          <button
-            onClick={handleDownloadJsonLd}
-            disabled={!jsonLdData}
-            className="inline-flex items-center gap-2 bg-[#00e5ff] text-[#0a0e1a] font-semibold rounded-xl px-5 py-2.5 text-sm hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-          >
-            <Download size={15} />
-            Download Patches
-          </button>
-        </Panel>
-
-        {/* ====================================================== */}
-        {/*  3. robots.txt Panel                                    */}
-        {/* ====================================================== */}
-        <Panel icon={Shield} title="robots.txt Scanner" index={3}>
-          {/* URL input + scan */}
-          <div className="flex gap-2 mb-5">
-            <input
-              type="url"
-              value={robotsUrl}
-              onChange={(e) => setRobotsUrl(e.target.value)}
-              placeholder="https://example.com"
-              className="flex-1 bg-[#0a0e1a] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-[#8b95b0]/60 focus:outline-none focus:border-[#00e5ff]/40 transition-colors"
-            />
+        {/* Tabs */}
+        <div className="flex gap-1 mb-6 bg-white/[0.04] rounded-xl p-1 max-w-md">
+          {JSONLD_TABS.map(({ key, label }) => (
             <button
-              onClick={handleScanRobots}
-              disabled={robotsScanning || !robotsUrl.trim()}
-              className="inline-flex items-center gap-2 bg-[#00e5ff] text-[#0a0e1a] font-semibold rounded-xl px-5 py-2.5 text-sm hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              key={key}
+              onClick={() => setJsonLdTab(key)}
+              className={`flex-1 text-xs font-semibold py-2 rounded-lg transition-colors cursor-pointer ${
+                jsonLdTab === key
+                  ? 'bg-[#00e5ff]/15 text-[#00e5ff]'
+                  : 'text-[#8b95b0] hover:text-white'
+              }`}
             >
-              {robotsScanning ? (
-                <Loader2 size={15} className="animate-spin" />
-              ) : (
-                <Bot size={15} />
-              )}
-              Scan
+              {label}
             </button>
-          </div>
+          ))}
+        </div>
 
-          {/* Results */}
-          {robotsResult && !robotsResult.error && (
-            <div className="space-y-4">
-              {/* Bot list */}
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-[#c4ccde] uppercase tracking-wider mb-2">
-                  AI Bot Access
-                </p>
+        {/* Before / After comparison */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+          {/* Current */}
+          <div>
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-[#5a6480] mb-2 block">
+              Current
+            </span>
+            <pre className="bg-[#0a0e1a] rounded-xl p-4 font-mono text-xs text-[#8b95b0] overflow-auto max-h-52 whitespace-pre-wrap">
+              {jsonLdData?.current?.[jsonLdTab]
+                ? JSON.stringify(jsonLdData.current[jsonLdTab], null, 2)
+                : '// No structured data detected on your site'}
+            </pre>
+          </div>
+          {/* Generated */}
+          <div>
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-[#5a6480] mb-2 block">
+              Generated
+            </span>
+            <pre className="bg-[#0a0e1a] rounded-xl p-4 font-mono text-xs text-[#00e5ff]/70 overflow-auto max-h-52 whitespace-pre-wrap">
+              {jsonLdData?.generated?.[jsonLdTab]
+                ? JSON.stringify(jsonLdData.generated[jsonLdTab], null, 2)
+                : '// Generating...'}
+            </pre>
+          </div>
+        </div>
+
+        {/* Download button */}
+        <button
+          onClick={handleDownloadJsonLd}
+          disabled={!jsonLdData}
+          className="inline-flex items-center gap-2 bg-[#00e5ff] text-[#0a0e1a] font-semibold rounded-xl px-5 py-2.5 text-sm hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        >
+          <Download size={15} />
+          Download Patches
+        </button>
+      </section>
+
+      {/* ========================================================== */}
+      {/*  2. llms.txt — AI-Readable Brand Summary                    */}
+      {/* ========================================================== */}
+      <section className="py-10 border-t border-white/[0.04]">
+        <div className="flex items-center gap-2.5 mb-2">
+          <FileText size={18} className="text-[#00e5ff]" />
+          <h2 className="text-lg font-['Outfit'] font-bold">llms.txt</h2>
+        </div>
+        <p className="text-sm text-[#5a6480] mb-6">
+          A markdown file AI models read to understand your brand. Deploy at your domain root so
+          ChatGPT, Gemini, and other assistants get your facts right.
+        </p>
+
+        {/* Language tabs */}
+        <div className="flex gap-1 mb-6 bg-white/[0.04] rounded-xl p-1 max-w-xs">
+          {[
+            { key: 'en', label: 'English' },
+            { key: 'fr', label: 'French' },
+            { key: 'index', label: 'Index' },
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setLlmsTxtTab(key)}
+              className={`flex-1 text-xs font-semibold py-2 rounded-lg transition-colors cursor-pointer ${
+                llmsTxtTab === key
+                  ? 'bg-[#00e5ff]/15 text-[#00e5ff]'
+                  : 'text-[#8b95b0] hover:text-white'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Preview */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-[#5a6480]">
+              {llmsTxtTab === 'index' ? 'Root /llms.txt' : llmsTxtTab === 'en' ? '/en/llms.txt' : '/fr/llms.txt'}
+            </span>
+            <CopyButton text={llmsTxtData?.[llmsTxtTab] || ''} />
+          </div>
+          <pre className="bg-[#0a0e1a] rounded-xl p-4 font-mono text-xs text-[#00e5ff]/70 overflow-auto max-h-72 whitespace-pre-wrap">
+            {llmsTxtData?.[llmsTxtTab] || '// Generating...'}
+          </pre>
+        </div>
+
+        {/* Where to deploy hint */}
+        <div className="bg-white/[0.02] rounded-xl p-4 mb-6">
+          <p className="text-xs text-[#8b95b0] leading-relaxed">
+            <span className="font-semibold text-[#c8ccd8]">How to deploy:</span>{' '}
+            Upload <code className="text-[#00e5ff]/70">llms.txt</code> to your domain root (e.g. <code className="text-[#00e5ff]/70">yoursite.com/llms.txt</code>).
+            For bilingual sites, also place the EN and FR versions at <code className="text-[#00e5ff]/70">/en/llms.txt</code> and <code className="text-[#00e5ff]/70">/fr/llms.txt</code>.
+          </p>
+        </div>
+
+        {/* Download button */}
+        <button
+          onClick={handleDownloadLlmsTxt}
+          disabled={!llmsTxtData}
+          className="inline-flex items-center gap-2 bg-[#00e5ff] text-[#0a0e1a] font-semibold rounded-xl px-5 py-2.5 text-sm hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        >
+          <Download size={15} />
+          Download {llmsTxtTab === 'index' ? 'llms.txt' : `llms-${llmsTxtTab}.txt`}
+        </button>
+      </section>
+
+      {/* ========================================================== */}
+      {/*  3. robots.txt Scanner                                      */}
+      {/* ========================================================== */}
+      <section className="py-10 border-t border-white/[0.04]">
+        <div className="flex items-center gap-2.5 mb-2">
+          <Shield size={18} className="text-[#00e5ff]" />
+          <h2 className="text-lg font-['Outfit'] font-bold">robots.txt Scanner</h2>
+        </div>
+        <p className="text-sm text-[#5a6480] mb-6">
+          Check whether your site allows or blocks AI crawlers like GPTBot, Google-Extended, and others.
+        </p>
+
+        {/* URL input + scan */}
+        <div className="flex gap-2 mb-6 max-w-xl">
+          <input
+            type="url"
+            value={robotsUrl}
+            onChange={(e) => setRobotsUrl(e.target.value)}
+            placeholder="https://example.com"
+            className="flex-1 bg-[#0a0e1a] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-[#5a6480] focus:outline-none focus:border-[#00e5ff]/40 transition-colors"
+          />
+          <button
+            onClick={handleScanRobots}
+            disabled={robotsScanning || !robotsUrl.trim()}
+            className="inline-flex items-center gap-2 bg-[#00e5ff] text-[#0a0e1a] font-semibold rounded-xl px-5 py-2.5 text-sm hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            {robotsScanning ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : (
+              <Bot size={15} />
+            )}
+            Scan
+          </button>
+        </div>
+
+        {/* Results */}
+        {robotsResult && !robotsResult.error && (
+          <div className="space-y-6">
+            {/* Bot list */}
+            <div>
+              <span className="text-[11px] font-semibold text-[#5a6480] uppercase tracking-widest mb-3 block">
+                AI Bot Access
+              </span>
+              <div className="divide-y divide-white/[0.04]">
                 {robotsResult.bots?.map((bot) => (
                   <div
                     key={bot.name}
-                    className="flex items-center justify-between bg-white/[0.03] border border-white/[0.05] rounded-lg px-4 py-2.5"
+                    className="flex items-center justify-between py-3"
                   >
                     <div className="flex items-center gap-2.5">
-                      <Bot size={14} className="text-[#8b95b0]" />
-                      <span className="text-sm text-white font-medium">{bot.name}</span>
+                      <Bot size={14} className="text-[#5a6480]" />
+                      <span className="text-sm text-[#f0f2f8] font-medium">{bot.name}</span>
                     </div>
                     {bot.allowed ? (
-                      <span className="inline-flex items-center gap-1 text-emerald-400 text-xs font-semibold">
+                      <span className="inline-flex items-center gap-1.5 text-[#00e5ff] text-xs font-medium">
                         <Check size={13} /> Allowed
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-red-400 text-xs font-semibold">
+                      <span className="inline-flex items-center gap-1.5 text-[#ff4c6a] text-xs font-medium">
                         <X size={13} /> Blocked
                       </span>
                     )}
                   </div>
                 ))}
               </div>
+            </div>
 
-              {/* Recommendation text */}
-              {robotsResult.recommendation && (
-                <div className="bg-amber-500/8 border border-amber-500/15 rounded-xl p-4">
-                  <p className="text-xs text-amber-300/90 leading-relaxed">
-                    {robotsResult.recommendation}
-                  </p>
+            {/* Recommendation text */}
+            {robotsResult.recommendation && (
+              <p className="text-sm text-[#8b95b0] leading-relaxed">
+                {robotsResult.recommendation}
+              </p>
+            )}
+
+            {/* Recommended robots.txt */}
+            {robotsResult.blocked_bots?.length > 0 &&
+              robotsResult.recommended_robots_txt && (
+                <div>
+                  <span className="text-[11px] font-semibold text-[#5a6480] uppercase tracking-widest mb-2 block">
+                    Recommended robots.txt
+                  </span>
+                  <pre className="bg-[#0a0e1a] rounded-xl p-4 font-mono text-xs text-[#8b95b0] overflow-auto max-h-60 whitespace-pre-wrap">
+                    {robotsResult.recommended_robots_txt}
+                  </pre>
                 </div>
               )}
+          </div>
+        )}
 
-              {/* Recommended robots.txt */}
-              {robotsResult.blocked_bots?.length > 0 &&
-                robotsResult.recommended_robots_txt && (
-                  <div>
-                    <p className="text-xs font-semibold text-[#c4ccde] uppercase tracking-wider mb-2">
-                      Recommended robots.txt
-                    </p>
-                    <pre className="bg-[#0a0e1a] rounded-xl p-4 font-mono text-xs text-[#8b95b0] overflow-auto max-h-60 whitespace-pre-wrap">
-                      {robotsResult.recommended_robots_txt}
-                    </pre>
-                  </div>
-                )}
-            </div>
-          )}
+        {/* Error state */}
+        {robotsResult?.error && (
+          <p className="text-sm text-[#ff4c6a]">{robotsResult.error}</p>
+        )}
 
-          {/* Error state */}
-          {robotsResult?.error && (
-            <div className="bg-red-500/8 border border-red-500/15 rounded-xl p-4">
-              <p className="text-xs text-red-400 leading-relaxed">{robotsResult.error}</p>
-            </div>
-          )}
+        {/* Empty state -- minimal, no big icon/card */}
+        {!robotsResult && !robotsScanning && (
+          <p className="text-sm text-[#5a6480]">
+            Enter your site URL and scan to see which AI crawlers are allowed or blocked.
+          </p>
+        )}
+      </section>
 
-          {/* Empty state */}
-          {!robotsResult && !robotsScanning && (
-            <div className="text-center py-8">
-              <Shield size={28} className="mx-auto text-[#8b95b0]/40 mb-3" />
-              <p className="text-xs text-[#8b95b0]">
-                Enter a URL above to scan its robots.txt for AI crawler policies.
-              </p>
-            </div>
-          )}
-        </Panel>
+      {/* ========================================================== */}
+      {/*  4. Deployment Status -- simple inline list                 */}
+      {/* ========================================================== */}
+      <section className="py-10 border-t border-white/[0.04]">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-base font-['Outfit'] font-semibold text-[#8b95b0] uppercase tracking-wider">
+            Deployment Status
+          </h3>
+          <span className="text-xs text-[#5a6480]">
+            {
+              [jsonLdStatus, llmsTxtStatus, robotsStatus].filter(
+                (s) => s === 'deployed' || s === 'verified'
+              ).length
+            }{' '}
+            / 3 active
+          </span>
+        </div>
 
-        {/* ====================================================== */}
-        {/*  4. Deployment Status Panel                             */}
-        {/* ====================================================== */}
-        <Panel icon={Check} title="Deployment Status" index={4}>
-          <div className="space-y-4">
-            {[
-              {
-                label: 'MCP Feed',
-                icon: Code2,
-                status: mcpStatus,
-                description: 'Structured feed for AI model consumption',
-              },
-              {
-                label: 'JSON-LD Patches',
-                icon: FileJson,
-                status: jsonLdStatus,
-                description: 'Organization, LocalBusiness, and FAQ schemas',
-              },
-              {
-                label: 'robots.txt Policy',
-                icon: Shield,
-                status: robotsStatus,
-                description: 'AI crawler access rules',
-              },
-            ].map(({ label, icon: Ic, status, description }) => (
-              <div
-                key={label}
-                className="flex items-center justify-between bg-white/[0.03] border border-white/[0.05] rounded-xl px-5 py-4"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-white/[0.05] flex items-center justify-center">
-                    <Ic size={16} className="text-[#00e5ff]" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">{label}</p>
-                    <p className="text-[0.7rem] text-[#8b95b0]">{description}</p>
-                  </div>
+        <div className="divide-y divide-white/[0.04]">
+          {[
+            {
+              label: 'JSON-LD Patches',
+              icon: FileJson,
+              status: jsonLdStatus,
+              description: 'Organization, LocalBusiness, and FAQ schemas',
+            },
+            {
+              label: 'llms.txt',
+              icon: FileText,
+              status: llmsTxtStatus,
+              description: 'AI-readable brand summary (EN/FR)',
+            },
+            {
+              label: 'robots.txt Policy',
+              icon: Shield,
+              status: robotsStatus,
+              description: 'AI crawler access rules',
+            },
+          ].map(({ label, icon: Ic, status, description }) => (
+            <div
+              key={label}
+              className="flex items-center justify-between py-4"
+            >
+              <div className="flex items-center gap-3">
+                <Ic size={16} className="text-[#5a6480]" />
+                <div>
+                  <p className="text-sm font-medium text-[#f0f2f8]">{label}</p>
+                  <p className="text-xs text-[#5a6480]">{description}</p>
                 </div>
-                <StatusBadge status={status} />
               </div>
-            ))}
-          </div>
+              <StatusLabel status={status} />
+            </div>
+          ))}
+        </div>
 
-          {/* Summary bar */}
-          <div className="mt-6 pt-5 border-t border-white/[0.06]">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-[#8b95b0]">Overall readiness</span>
-              <span className="text-xs font-semibold text-white">
-                {
-                  [mcpStatus, jsonLdStatus, robotsStatus].filter(
+        {/* Progress bar */}
+        <div className="mt-6">
+          <div className="h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#00e5ff] rounded-full transition-all duration-500"
+              style={{
+                width: `${
+                  ([jsonLdStatus, llmsTxtStatus, robotsStatus].filter(
                     (s) => s === 'deployed' || s === 'verified'
-                  ).length
-                }{' '}
-                / 3 active
-              </span>
-            </div>
-            <div className="mt-2 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-[#00e5ff] to-emerald-400 rounded-full transition-all duration-500"
-                style={{
-                  width: `${
-                    ([mcpStatus, jsonLdStatus, robotsStatus].filter(
-                      (s) => s === 'deployed' || s === 'verified'
-                    ).length /
-                      3) *
-                    100
-                  }%`,
-                }}
-              />
-            </div>
+                  ).length /
+                    3) *
+                  100
+                }%`,
+              }}
+            />
           </div>
-        </Panel>
-      </div>
+        </div>
+      </section>
     </div>
   )
 }

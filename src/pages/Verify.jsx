@@ -1,20 +1,37 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
-import { Activity, RefreshCw, Loader2, TrendingUp, Check, X, Globe } from 'lucide-react'
+import { RefreshCw, Loader2, TrendingUp, Check, X, Globe } from 'lucide-react'
 import { apiFetch } from '../api/client'
 import { useBrand } from '../context/BrandContext'
 
-const GRADE_COLORS = { RED: '#ff4c6a', YELLOW: '#ffb547', GREEN: '#34d399' }
+const ACCENT = '#00e5ff'
 
-const CustomTooltip = ({ active, payload, label }) => {
+/* ---- Animated IAS counter ---- */
+function AnimatedScore({ target }) {
+  const [value, setValue] = useState(0)
+  useEffect(() => {
+    if (!target && target !== 0) return
+    const duration = 1200, start = Date.now()
+    const tick = () => {
+      const p = Math.min((Date.now() - start) / duration, 1)
+      setValue(Math.round((1 - Math.pow(1 - p, 3)) * target))
+      if (p < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }, [target])
+  return <span className="text-6xl font-['Outfit'] font-bold" style={{ color: ACCENT }}>{value}</span>
+}
+
+/* ---- Chart tooltip ---- */
+function ChartTooltip({ active, payload, label }) {
   if (!active || !payload) return null
   return (
     <div className="bg-[#151b2e] border border-white/10 rounded-lg p-3 text-xs">
       <div className="text-[#5a6480] mb-1">{label}</div>
       {payload.map((p, i) => (
         <div key={i} className="flex items-center gap-2 text-[#f0f2f8]">
-          <span style={{ color: p.color }}>●</span>
+          <span style={{ color: p.color }}>*</span>
           <span>{p.name}: {p.value}</span>
         </div>
       ))}
@@ -22,6 +39,66 @@ const CustomTooltip = ({ active, payload, label }) => {
   )
 }
 
+/* ---- Provider mention-rate bar ---- */
+function ProviderRow({ provider, mentioned, total, rate }) {
+  return (
+    <div className="py-5">
+      <div className="flex items-baseline justify-between mb-2">
+        <span className="text-[15px] text-[#f0f2f8] capitalize">{provider}</span>
+        <span className="flex items-center gap-1.5 text-xs font-medium" style={{ color: rate >= 50 ? ACCENT : '#ff4c6a' }}>
+          {rate >= 50 ? <Check size={12} /> : <X size={12} />}
+          {rate}% mention rate
+        </span>
+      </div>
+      <div className="h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${rate}%` }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="h-full rounded-full"
+          style={{ background: ACCENT, opacity: rate < 30 ? 0.35 : rate < 60 ? 0.65 : 1 }}
+        />
+      </div>
+      <p className="text-xs text-[#5a6480] mt-1.5">
+        Brand mentioned in {mentioned}/{total} probes
+      </p>
+    </div>
+  )
+}
+
+/* ---- Single probe response row ---- */
+function ProbeRow({ result }) {
+  const r = result
+  return (
+    <div className="py-5">
+      <div className="flex items-center gap-2 mb-2 flex-wrap">
+        <Globe size={12} className="text-[#5a6480]" />
+        <span className="text-[11px] font-semibold uppercase tracking-widest text-[#5a6480]">
+          {r.lang}
+        </span>
+        <span className="text-[11px] text-[#3a4050]">{r.probe_type?.replace(/_/g, ' ')}</span>
+        <span className="text-[11px] text-[#3a4050] capitalize">via {r.provider}</span>
+        {r.brand_mentioned ? (
+          <span className="flex items-center gap-1 text-[11px] font-medium" style={{ color: ACCENT }}>
+            <Check size={10} /> Mentioned
+          </span>
+        ) : (
+          <span className="flex items-center gap-1 text-[11px] font-medium text-[#ff4c6a]">
+            <X size={10} /> Missing
+          </span>
+        )}
+      </div>
+      <p className="text-xs text-[#8b95b0] leading-relaxed line-clamp-3">
+        {r.response_text?.slice(0, 300) || r.error || 'No response'}
+        {r.response_text?.length > 300 ? '...' : ''}
+      </p>
+    </div>
+  )
+}
+
+/* ==================================================================== */
+/*  Main Monitor Page                                                    */
+/* ==================================================================== */
 export default function Verify() {
   const { selectedBrand, selectedBrandId, availableBrands } = useBrand()
   const [history, setHistory] = useState([])
@@ -42,14 +119,12 @@ export default function Verify() {
     setLoading(true)
     setError('')
     try {
-      // History is optional -- brand may have no audits yet
       try {
         const hist = await apiFetch(`/audits/${brandId}/history`)
         setHistory(hist)
       } catch {
-        // No history yet, that's fine
+        // No history yet
       }
-      // Results are optional too -- no audit run yet
       try {
         const results = await apiFetch(`/audits/${brandId}/results`)
         setLatestAudit(results)
@@ -75,6 +150,7 @@ export default function Verify() {
     }
   }
 
+  /* ---- Loading state ---- */
   if (loading) {
     return (
       <div className="page flex items-center justify-center" style={{ minHeight: '60vh' }}>
@@ -83,12 +159,16 @@ export default function Verify() {
     )
   }
 
+  /* ---- No brand configured ---- */
   if (!availableBrands.length) {
     return (
-      <div className="page">
+      <div className="page max-w-5xl">
         <div className="text-center py-20">
-          <h2 className="text-xl font-['Outfit'] font-bold mb-3">No brand configured</h2>
-          <p className="text-[#8b95b0]">Set up your brand to start monitoring.</p>
+          <h2 className="text-3xl font-['Outfit'] font-bold mb-4">No brand configured</h2>
+          <p className="text-[#8b95b0] text-lg mb-6">Set up your brand profile first to start monitoring.</p>
+          <a href="/setup" className="inline-flex px-6 py-3 rounded-xl bg-[#00e5ff] text-[#0a0e1a] font-semibold text-lg">
+            Set Up Brand
+          </a>
         </div>
       </div>
     )
@@ -97,12 +177,10 @@ export default function Verify() {
   const brand = selectedBrand || availableBrands[0]
   const ias = latestAudit?.ias
   const results = latestAudit?.results || []
-  const enResults = results.filter(r => r.lang === 'EN' && !r.error)
-  const frResults = results.filter(r => r.lang === 'FR' && !r.error)
   const providers = [...new Set(results.map(r => r.provider).filter(Boolean))]
 
   // Build trend data for chart
-  const trendData = history.map((h, i) => ({
+  const trendData = history.map(h => ({
     date: new Date(h.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     score: h.ias_score || 0,
   }))
@@ -120,59 +198,74 @@ export default function Verify() {
     }
   })
 
+  // Trend delta
+  const hasMultiplePoints = trendData.length >= 2
+  const firstScore = trendData[0]?.score
+  const lastScore = trendData[trendData.length - 1]?.score
+  const delta = hasMultiplePoints ? lastScore - firstScore : null
+
   return (
-    <div className="page">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+    <div className="page max-w-5xl">
+      {/* ---- Header ---- */}
+      <div className="flex items-start justify-between mb-12">
         <div>
-          <h1 className="text-2xl font-['Outfit'] font-bold flex items-center gap-3">
-            <Activity size={24} className="text-[#00e5ff]" />
-            Agent Monitor
-          </h1>
-          <p className="text-[#8b95b0] text-sm mt-1">
+          <h1 className="text-3xl font-['Outfit'] font-bold">Monitor</h1>
+          <p className="text-[#5a6480] text-sm mt-2">
             Track how AI agents update their responses after deploying fixes for {brand.brand_name}
           </p>
         </div>
         <button
           onClick={handleReprobe}
           disabled={reprobing}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00e5ff] text-[#0a0e1a] font-semibold text-sm shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.45)] transition-all disabled:opacity-50"
+          className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#00e5ff] text-[#0a0e1a] font-semibold text-sm shadow-[0_0_20px_rgba(0,229,255,0.15)] hover:shadow-[0_0_30px_rgba(0,229,255,0.25)] transition-all disabled:opacity-50"
         >
-          {reprobing ? <><Loader2 size={16} className="animate-spin" /> Re-probing...</> : <><RefreshCw size={16} /> Re-probe Now</>}
+          {reprobing
+            ? <><Loader2 size={16} className="animate-spin" /> Re-probing...</>
+            : <><RefreshCw size={16} /> Re-probe Now</>}
         </button>
       </div>
 
+      {/* ---- Error ---- */}
       {error && (
-        <div className="mb-6 p-4 rounded-xl bg-[#ff4c6a]/10 border border-[#ff4c6a]/20 text-[#ff4c6a] text-sm">
-          {error}
-        </div>
+        <div className="mb-6 text-[#ff4c6a] text-sm">{error}</div>
       )}
 
+      {/* ---- Empty state ---- */}
       {!latestAudit ? (
-        <div className="text-center py-16">
-          <p className="text-[#8b95b0]">No audit data yet. Run an audit from the Dashboard first.</p>
-        </div>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-24">
+          <h2 className="text-2xl font-['Outfit'] font-bold mb-3">No audit data yet</h2>
+          <p className="text-[#5a6480] text-lg max-w-md mx-auto">
+            Run an audit from the Dashboard first, then come back here to track changes over time.
+          </p>
+        </motion.div>
       ) : (
-        <div className="space-y-8">
-          {/* IAS Trend Chart */}
-          {trendData.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <TrendingUp size={18} className="text-[#00e5ff]" />
-                <h3 className="text-lg font-['Outfit'] font-bold">IAS Score Over Time</h3>
+        <div>
+          {/* ============================================================ */}
+          {/*  1. IAS Score + Trend Chart                                   */}
+          {/* ============================================================ */}
+          <section className="pb-10">
+            {trendData.length === 0 ? (
+              /* No history at all -- just show current score */
+              <div className="flex flex-col items-center py-8">
+                <AnimatedScore target={ias?.score || 0} />
+                <p className="text-xs text-[#3a4050] mt-1">Inference Alignment Score</p>
+                <p className="text-sm text-[#5a6480] mt-4">Run more audits to see the trend line</p>
               </div>
-              {trendData.length === 1 ? (
-                <div className="text-center py-8">
-                  <div className="text-4xl font-['Outfit'] font-bold mb-2" style={{ color: GRADE_COLORS[ias?.grade] || '#00e5ff' }}>
-                    {ias?.score || 0}
-                  </div>
-                  <p className="text-sm text-[#8b95b0]">Run more audits to see the trend line</p>
+            ) : trendData.length === 1 ? (
+              /* Single data point */
+              <div className="flex flex-col items-center py-8">
+                <AnimatedScore target={ias?.score || 0} />
+                <p className="text-xs text-[#3a4050] mt-1">Inference Alignment Score</p>
+                <p className="text-sm text-[#5a6480] mt-4">Run more audits to see the trend line</p>
+              </div>
+            ) : (
+              /* Multiple data points -- show chart */
+              <>
+                <div className="flex items-center gap-2.5 mb-6">
+                  <TrendingUp size={18} className="text-[#00e5ff]" />
+                  <h2 className="text-lg font-['Outfit'] font-bold">IAS Score Over Time</h2>
                 </div>
-              ) : (
+
                 <ResponsiveContainer width="100%" height={240}>
                   <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <defs>
@@ -184,96 +277,80 @@ export default function Verify() {
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                     <XAxis dataKey="date" tick={{ fill: '#5a6480', fontSize: 11 }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fill: '#5a6480', fontSize: 11 }} axisLine={false} tickLine={false} domain={[0, 100]} />
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip content={<ChartTooltip />} />
                     <Area type="monotone" dataKey="score" name="IAS Score" stroke="#00e5ff" fill="url(#gradScore)" strokeWidth={2} dot={{ r: 4, fill: '#00e5ff' }} />
                   </AreaChart>
                 </ResponsiveContainer>
-              )}
-              {trendData.length >= 2 && (
-                <div className="mt-4 p-4 rounded-xl bg-[#0f1424] border border-white/[0.04]">
-                  <p className="text-sm text-[#f0f2f8]">
-                    Your IAS went from{' '}
-                    <span className="font-bold text-[#ff4c6a]">{trendData[0].score}</span>
-                    {' '}to{' '}
-                    <span className="font-bold text-[#34d399]">{trendData[trendData.length - 1].score}</span>
-                    {' '}after deploying fixes.
-                  </p>
-                </div>
-              )}
-            </motion.div>
-          )}
 
-          {/* Per-Agent Breakdown */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6"
-          >
-            <h3 className="text-lg font-['Outfit'] font-bold mb-4">Per-Agent Breakdown</h3>
+                {/* Delta summary */}
+                {delta !== null && (
+                  <p className="text-sm text-[#c8ccd8] mt-6">
+                    Your IAS went from{' '}
+                    <span className="font-bold" style={{ color: ACCENT }}>{firstScore}</span>
+                    {' '}to{' '}
+                    <span className="font-bold" style={{ color: ACCENT }}>{lastScore}</span>
+                    {' '}after deploying fixes
+                    {delta > 0 && <span className="text-[#5a6480]"> ({'+' + delta} points)</span>}
+                    {delta < 0 && <span className="text-[#5a6480]"> ({delta} points)</span>}
+                    .
+                  </p>
+                )}
+              </>
+            )}
+          </section>
+
+          {/* ============================================================ */}
+          {/*  2. Per-Agent Breakdown                                       */}
+          {/* ============================================================ */}
+          <section className="py-10 border-t border-white/[0.04]">
+            <h2 className="text-lg font-['Outfit'] font-bold mb-2">Per-Agent Breakdown</h2>
+            <p className="text-sm text-[#5a6480] mb-4">Brand mention rate across each AI provider</p>
+
             {providerBreakdown.length === 0 ? (
-              <p className="text-sm text-[#8b95b0]">No provider data available</p>
+              <p className="text-sm text-[#5a6480]">No provider data available</p>
             ) : (
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="divide-y divide-white/[0.04]">
                 {providerBreakdown.map(pb => (
-                  <div key={pb.provider} className="bg-[#0f1424] rounded-xl p-4 border border-white/[0.04]">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-semibold text-[#f0f2f8] capitalize">{pb.provider}</span>
-                      <span className={`flex items-center gap-1 text-xs font-semibold ${pb.rate >= 50 ? 'text-[#34d399]' : 'text-[#ff4c6a]'}`}>
-                        {pb.rate >= 50 ? <Check size={12} /> : <X size={12} />}
-                        {pb.rate}% mention rate
-                      </span>
-                    </div>
-                    <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-700"
-                        style={{
-                          width: `${pb.rate}%`,
-                          background: pb.rate >= 50 ? '#34d399' : pb.rate >= 30 ? '#ffb547' : '#ff4c6a',
-                        }}
-                      />
-                    </div>
-                    <div className="mt-2 text-xs text-[#5a6480]">
-                      Brand mentioned in {pb.mentioned}/{pb.total} probes
-                    </div>
-                  </div>
+                  <ProviderRow
+                    key={pb.provider}
+                    provider={pb.provider}
+                    mentioned={pb.mentioned}
+                    total={pb.total}
+                    rate={pb.rate}
+                  />
                 ))}
               </div>
             )}
-          </motion.div>
+          </section>
 
-          {/* Before/After Side-by-Side (shows EN vs FR for latest audit) */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6"
-          >
-            <h3 className="text-lg font-['Outfit'] font-bold mb-4">Latest Probe Responses</h3>
-            <div className="space-y-4">
-              {results.slice(0, 6).map((r, i) => (
-                <div key={i} className="bg-[#0f1424] rounded-xl p-4 border border-white/[0.04]">
-                  <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <Globe size={12} className={r.lang === 'EN' ? 'text-[#00e5ff]' : 'text-[#ff4c6a]'} />
-                    <span className={`text-[10px] font-semibold uppercase tracking-wider ${r.lang === 'EN' ? 'text-[#00e5ff]' : 'text-[#ff4c6a]'}`}>
-                      {r.lang}
-                    </span>
-                    <span className="text-[10px] text-[#5a6480]">{r.probe_type?.replace(/_/g, ' ')}</span>
-                    <span className="text-[10px] text-[#5a6480] capitalize">via {r.provider}</span>
-                    {r.brand_mentioned ? (
-                      <span className="flex items-center gap-1 text-[10px] text-[#34d399] font-semibold"><Check size={10} /> Mentioned</span>
-                    ) : (
-                      <span className="flex items-center gap-1 text-[10px] text-[#ff4c6a] font-semibold"><X size={10} /> Missing</span>
-                    )}
-                  </div>
-                  <p className="text-xs text-[#8b95b0] leading-relaxed line-clamp-3">
-                    {r.response_text?.slice(0, 300) || r.error || 'No response'}
-                    {r.response_text?.length > 300 ? '...' : ''}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+          {/* ============================================================ */}
+          {/*  3. Latest Probe Responses                                    */}
+          {/* ============================================================ */}
+          <section className="py-10 border-t border-white/[0.04]">
+            <h3 className="text-base font-['Outfit'] font-semibold mb-2 text-[#8b95b0] uppercase tracking-wider">
+              Latest probe responses
+            </h3>
+            <p className="text-sm text-[#5a6480] mb-4">
+              {results.length} probe{results.length !== 1 ? 's' : ''} collected
+            </p>
+
+            {results.length === 0 ? (
+              <p className="text-sm text-[#5a6480]">No probe responses available</p>
+            ) : (
+              <div className="divide-y divide-white/[0.04]">
+                {results.slice(0, 6).map((r, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.06 }}
+                  >
+                    <ProbeRow result={r} />
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </section>
         </div>
       )}
     </div>

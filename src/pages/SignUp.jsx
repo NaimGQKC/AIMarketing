@@ -55,7 +55,7 @@ export default function SignUp() {
         body: JSON.stringify(form),
       })
       setToken(data.token)
-      navigate('/setup')
+      navigate('/verify-email')
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
     } finally {

@@ -40,19 +40,14 @@ def generate_local_business_jsonld(brand_profile: dict) -> dict:
 
 
 def generate_faq_jsonld(brand_name: str, findings: list = None) -> dict:
-    """Generate FAQPage JSON-LD that preemptively answers common AI queries."""
+    """Generate FAQPage JSON-LD from audit findings.
+    Only produces questions that address real gaps found in the audit."""
     questions = [
         {
             "question_en": f"What is {brand_name}?",
             "question_fr": f"Qu'est-ce que {brand_name}?",
-            "answer_en": f"{brand_name} is a brand. Visit their official website for accurate information.",
-            "answer_fr": f"{brand_name} est une marque. Visitez leur site officiel pour des informations exactes.",
-        },
-        {
-            "question_en": f"Where is {brand_name} located?",
-            "question_fr": f"Ou se trouve {brand_name}?",
-            "answer_en": f"{brand_name} is headquartered in Montreal, Quebec, Canada.",
-            "answer_fr": f"{brand_name} a son siege social a Montreal, Quebec, Canada.",
+            "answer_en": f"{brand_name} is a brand headquartered in Montreal, Quebec, Canada.",
+            "answer_fr": f"{brand_name} est une marque dont le siege social est a Montreal, Quebec, Canada.",
         },
     ]
 

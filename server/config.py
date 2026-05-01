@@ -13,13 +13,18 @@ else:
 # --- API Keys ---
 GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
 
+# --- GCP / Vertex AI ---
+GCP_PROJECT_ID: str = os.getenv("GCP_PROJECT_ID", "premium-bastion-492622-c7")
+GCP_LOCATION: str = os.getenv("GCP_LOCATION", "us-central1")
+GCP_CREDENTIALS_FILE: str = os.getenv("GCP_CREDENTIALS_FILE", str(Path(__file__).parent / "gcp-credentials.json"))
+USE_VERTEX_AI: bool = os.getenv("USE_VERTEX_AI", "true").lower() == "true"
+
 # --- Database ---
 DB_PATH: str = os.getenv("DB_PATH", str(Path(__file__).parent / "visimind.db"))
 
 # --- Server ---
 HOST: str = os.getenv("HOST", "0.0.0.0")
 PORT: int = int(os.getenv("PORT", "8000"))
-DEBUG: bool = os.getenv("DEBUG", "true").lower() == "true"
 
 # --- Probing ---
 PROBE_ITERATIONS: int = int(os.getenv("PROBE_ITERATIONS", "50"))
@@ -52,7 +57,13 @@ OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "llama3.2")
 OLLAMA_URL: str = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
 
 # --- Auth ---
-SECRET_KEY: str = os.getenv("SECRET_KEY", "visimind-dev-secret-key-min-32-bytes!")
+SECRET_KEY: str = os.getenv("SECRET_KEY", "")
+if not SECRET_KEY:
+    import secrets
+    SECRET_KEY = secrets.token_urlsafe(32)
+
+# --- Environment ---
+DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
 
 # --- Additional API Keys ---
 OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")

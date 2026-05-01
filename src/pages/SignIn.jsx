@@ -24,10 +24,12 @@ export default function SignIn() {
       })
       setToken(data.token)
 
-      // Check if user has a brand
+      // Check verification and brand status
       try {
         const me = await apiFetch('/auth/me')
-        if (me.has_brand) {
+        if (!me.email_verified) {
+          navigate('/verify-email')
+        } else if (me.has_brand) {
           navigate('/dashboard')
         } else {
           navigate('/setup')

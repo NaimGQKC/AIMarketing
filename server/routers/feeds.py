@@ -17,6 +17,7 @@ from database import get_db
 from routers.auth import require_user
 from feeds.mcp_generator import generate_mcp_feed, validate_mcp_feed
 from feeds.jsonld_generator import generate_all_patches
+from feeds.llmstxt_generator import generate_all_llmstxt
 
 router = APIRouter(prefix="/api/v1/feeds", tags=["feeds"])
 
@@ -123,7 +124,32 @@ async def get_jsonld_patches(brand_id: str, user: dict = Depends(require_user), 
         findings = ias.get("findings", [])
 
     patches = generate_all_patches(dict(brand), findings)
-    return patches
+    # Frontend expects { current: {...}, generated: {...} }
+    # "current" represents what the site has now (nothing, since we can't scrape it)
+    # "generated" is what VisiMind recommends deploying
+    return {
+        "current": {
+            "organization": None,
+            "local_business": None,
+            "faq": None,
+        },
+        "generated": patches,
+    }
+
+
+@router.get("/{brand_id}/llmstxt")
+async def get_llmstxt(brand_id: str, user: dict = Depends(require_user), db: aiosqlite.Connection = Depends(get_db)):
+    """Generate bilingual llms.txt files for a brand."""
+    cursor = await db.execute(
+        "SELECT * FROM brand_profiles WHERE id = ? AND user_id = ?",
+        (brand_id, user["id"]),
+    )
+    brand = await cursor.fetchone()
+    if not brand:
+        raise HTTPException(status_code=404, detail="Brand not found")
+
+    files = generate_all_llmstxt(dict(brand))
+    return files
 
 
 class RobotsTxtRequest(BaseModel):

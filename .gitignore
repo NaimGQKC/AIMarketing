@@ -14,3 +14,4 @@ build/
 # Stitch exports
 stitch_landing/
 stitch_visimind_landing_page.zip
+gcp-credentials.json
