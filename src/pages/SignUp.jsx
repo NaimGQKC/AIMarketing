@@ -6,7 +6,8 @@ import { apiFetch, setToken } from '../api/client'
 
 const BLOCKED_DOMAINS = [
   'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com',
-  'icloud.com', 'protonmail.com', 'aol.com',
+  'icloud.com', 'protonmail.com', 'aol.com', 'live.com',
+  'mail.com', 'yandex.com', 'zoho.com', 'gmx.com'
 ]
 
 function isWorkEmail(email) {
@@ -55,7 +56,9 @@ export default function SignUp() {
         body: JSON.stringify(form),
       })
       setToken(data.token)
-      navigate('/verify-email')
+      navigate('/verify-email', { 
+        state: { devCode: data.user?._dev_verification_code } 
+      })
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
     } finally {

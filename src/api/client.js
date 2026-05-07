@@ -4,8 +4,9 @@
  * Falls back to null if backend is unreachable (frontend uses local mock data).
  */
 
-const BASE = ''  // Same origin via Vite proxy
-const API_BASE = '/api/v1'
+const API_URL = import.meta.env.VITE_API_URL || ''
+const API_BASE = `${API_URL}/api/v1`
+const BASE = API_URL // For endpoints that don't start with /api/v1
 
 /* ─── Auth token helpers ─── */
 export function getToken() {

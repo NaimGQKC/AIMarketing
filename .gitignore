@@ -5,6 +5,13 @@ __pycache__/
 .env
 *.db
 dist/
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+.env
+*.db
+dist/
 build/
 .DS_Store
 
@@ -14,4 +21,7 @@ build/
 # Stitch exports
 stitch_landing/
 stitch_visimind_landing_page.zip
+stitch_*.json
+stitch_*.html
+stitch_output/
 gcp-credentials.json

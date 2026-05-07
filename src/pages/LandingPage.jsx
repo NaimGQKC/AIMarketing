@@ -42,7 +42,8 @@ export default function LandingPage() {
   }, [])
 
   useEffect(() => {
-    fetch('/api/v1/system/capacity')
+    const API_URL = import.meta.env.VITE_API_URL || ''
+    fetch(`${API_URL}/api/v1/system/capacity`)
       .then(r => r.ok ? r.json() : null)
       .then(data => { if (data) setCapacity(data) })
       .catch(() => setCapacity({ slots_remaining: 7, limit: 10 }))

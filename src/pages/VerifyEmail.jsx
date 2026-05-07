@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Zap, ArrowLeft, ShieldCheck } from 'lucide-react'
 import { apiFetch } from '../api/client'
 
 export default function VerifyEmail() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [resending, setResending] = useState(false)
-  const [devCode, setDevCode] = useState(null)
+  const [devCode, setDevCode] = useState(location.state?.devCode || null)
 
   // Check if already verified
   useEffect(() => {

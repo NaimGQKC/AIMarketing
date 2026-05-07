@@ -131,7 +131,7 @@ async def signup(req: SignupRequest, request: Request, db: aiosqlite.Connection 
     await db.execute(
         """INSERT INTO users (id, email, password_hash, company_name, company_url,
            email_verified, verification_code, verification_expires)
-           VALUES (?, ?, ?, ?, ?, 1, ?, ?)""",
+           VALUES (?, ?, ?, ?, ?, 0, ?, ?)""",
         (user_id, req.email.lower(), pw_hash, req.company_name, req.company_url, code, expires),
     )
     await db.commit()
@@ -149,7 +149,7 @@ async def signup(req: SignupRequest, request: Request, db: aiosqlite.Connection 
         "company_name": req.company_name,
         "company_url": req.company_url,
         "has_brand": False,
-        "email_verified": True,
+        "email_verified": False,
     }
 
     # In debug mode, include code in response so frontend can show it for testing

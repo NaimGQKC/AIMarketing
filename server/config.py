@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import tempfile
 
 # Load .env from server directory
 env_path = Path(__file__).parent / ".env"
@@ -16,7 +17,16 @@ GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
 # --- GCP / Vertex AI ---
 GCP_PROJECT_ID: str = os.getenv("GCP_PROJECT_ID", "premium-bastion-492622-c7")
 GCP_LOCATION: str = os.getenv("GCP_LOCATION", "us-central1")
-GCP_CREDENTIALS_FILE: str = os.getenv("GCP_CREDENTIALS_FILE", str(Path(__file__).parent / "gcp-credentials.json"))
+GCP_CREDENTIALS_JSON: str = os.getenv("GCP_CREDENTIALS_JSON", "")
+
+if GCP_CREDENTIALS_JSON:
+    temp_creds = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json")
+    temp_creds.write(GCP_CREDENTIALS_JSON)
+    temp_creds.close()
+    GCP_CREDENTIALS_FILE: str = temp_creds.name
+else:
+    GCP_CREDENTIALS_FILE: str = os.getenv("GCP_CREDENTIALS_FILE", str(Path(__file__).parent / "gcp-credentials.json"))
+
 USE_VERTEX_AI: bool = os.getenv("USE_VERTEX_AI", "true").lower() == "true"
 
 # --- Database ---
@@ -41,7 +51,7 @@ JUDGE_MODEL: str = os.getenv("JUDGE_MODEL", "gemini-2.5-flash")
 #
 # Market benchmark: Evertune runs 1M+/month, Profound runs 6M+/day.
 # These tiers give us enterprise-credible sample sizes while keeping cost manageable.
-PROBE_TIER: str = os.getenv("PROBE_TIER", "standard")
+PROBE_TIER: str = os.getenv("PROBE_TIER", "scout")
 PROBE_TIER_MAP: dict = {
     "scout":     {"iterations": 10,  "total_probes": 50,   "label": "Scout",      "ci_label": "Directional estimate"},
     "standard":  {"iterations": 50,  "total_probes": 250,  "label": "Standard",   "ci_label": "95% CI +/-6%"},

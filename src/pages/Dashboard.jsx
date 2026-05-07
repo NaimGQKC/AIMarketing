@@ -173,7 +173,8 @@ export default function Dashboard() {
   async function exportPdf() {
     if (!selectedBrand) return
     try {
-      const res = await fetch(`/api/v1/exports/${selectedBrand.id}/pdf`, { headers: authHeaders() })
+      const API_URL = import.meta.env.VITE_API_URL || ''
+      const res = await fetch(`${API_URL}/api/v1/exports/${selectedBrand.id}/pdf`, { headers: authHeaders() })
       if (!res.ok) throw new Error('PDF export failed')
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
